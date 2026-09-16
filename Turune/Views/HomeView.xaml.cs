@@ -26,16 +26,26 @@ namespace Turune.Views
             _nav = nav;
         }
 
-        private void Select_Click(object sender, RoutedEventArgs e)
+        private void Next_Click(object sender, RoutedEventArgs e)
         {
             var selected = (OptionPicker.SelectedItem as ComboBoxItem)?.Content?.ToString();
             UserControl next = selected switch
             {
                 "Option A" => new TemplateView(_nav),
-                "Option B" => new TemplateView(_nav),
-                _ => null
+                "Option B" => new TemplateView(_nav)
             };
             if (next != null) _nav.NavigateTo(next);
+        }
+
+        private void OptionPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Next.IsEnabled = true;
+
+            Option_Descriptor.Text = (OptionPicker.SelectedItem as ComboBoxItem)?.Content?.ToString() switch
+            {
+                "Option A" => "Description for Option A",
+                "Option B" => "Description for Option B"
+            };
         }
     }
 }
