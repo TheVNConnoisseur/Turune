@@ -6,7 +6,7 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <!-- your main content here -->
+        <!-- Main content here -->
 
         <Grid VerticalAlignment="Bottom" Margin="15">
             <Button Content="← Back" Click="Back_Click" HorizontalAlignment="Left"/>
