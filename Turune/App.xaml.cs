@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using Turune.Services;
 
 namespace Turune
 {
@@ -15,5 +16,4 @@ namespace Turune
             ThemeMode = ThemeMode.System;
         }
     }
-
 }

@@ -18,17 +18,17 @@ namespace Turune.Views
     /// </summary>
     public partial class TemplateView : UserControl
     {
-        private readonly NavigationService _nav;
-        public TemplateView(NavigationService nav)
+        private readonly NavigationService _navigation;
+        public TemplateView(NavigationService navigation)
         {
             InitializeComponent();
-            _nav = nav;
+            _navigation = navigation;
         }
 
         private void Next_Click(object sender, RoutedEventArgs e)
-            => _nav.NavigateTo(new TemplateView(_nav));
+            => _navigation.NavigateTo(new TemplateView(_navigation));
 
         private void Back_Click(object sender, RoutedEventArgs e)
-            => _nav.GoBack();
+            => _navigation.GoBack();
     }
 }
