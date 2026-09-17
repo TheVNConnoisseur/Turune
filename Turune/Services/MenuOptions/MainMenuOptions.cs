@@ -47,7 +47,6 @@ namespace Turune.Services.MenuOptions
                     }
                 }
             },
-
             new MenuOption
             {
                 Key = "Version 2",

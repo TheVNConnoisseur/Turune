@@ -27,7 +27,7 @@ namespace Turune.Views
         private MenuOption _selectedOption;
         //private SubOption _selectedSubOption;
 
-        public OptionSelectorView(NavigationService navigation, IEnumerable<string> options)
+        public OptionSelectorView(NavigationService navigation, IReadOnlyList<MenuOption> options)
         {
             InitializeComponent();
             _navigation = navigation;
