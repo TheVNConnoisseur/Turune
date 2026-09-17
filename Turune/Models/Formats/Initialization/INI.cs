@@ -8,7 +8,17 @@ namespace Turune.Models.Formats.Initialization
 {
     internal class INI
     {
-        public static void Parse(byte[] inputFile)
+        internal class INIScheme
+        {
+            public string CatalogNumber { get; set; } = "";
+            public string WindowTitle { get; set; } = "";
+            public byte GameResolution { get; set; }
+            public byte VoiceChannels { get; set; }
+            public string[] CharacterNames { get; set; } = Array.Empty<string>();
+        }
+
+        public INIScheme iniScheme { get; private set; }
+        public void Parse(byte[] inputFile)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
@@ -25,7 +35,7 @@ namespace Turune.Models.Formats.Initialization
                 encryptedCatalogNumber[i] ^= 0xD1;
             currentOffset += (int)lengthCatalogNumber;
 
-            string catalogNumber = Encoding.ASCII.GetString(encryptedCatalogNumber);
+            string catalogNumber = shiftJIS.GetString(encryptedCatalogNumber);
 
             //Window title
             uint windowTitleLength = Convert.ToUInt32(Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 4)));
@@ -65,6 +75,31 @@ namespace Turune.Models.Formats.Initialization
 
             for (int i = 0; i < 3; i++)
                 characterNames[i] = shiftJIS.GetString(characterNamesArray[i].ToArray()).Replace("\0", "");
+
+            iniScheme = new INIScheme
+            {
+                CatalogNumber = catalogNumber,
+                WindowTitle = windowTitle,
+                GameResolution = gameResolution,
+                VoiceChannels = voiceChannels,
+                CharacterNames = characterNames
+            };
+        }
+
+        public void Export()
+        {
+            var sb = new StringBuilder();
+
+            //sb.AppendLine("[Game]");
+            //sb.AppendLine($"CatalogNumber={_iniScheme.CatalogNumber}");
+            //sb.AppendLine($"WindowTitle={_iniScheme.WindowTitle}");
+            //sb.AppendLine($"Resolution={_iniScheme.GameResolution}");
+            //sb.AppendLine($"VoiceChannels={_iniScheme.VoiceChannels}");
+
+            //sb.AppendLine();
+            //sb.AppendLine("[Characters]");
+            //for (int i = 0; i < _iniScheme.CharacterNames.Length; i++)
+            //    sb.AppendLine($"Character{i + 1}={_iniScheme.CharacterNames[i]}");
         }
     }
 }
