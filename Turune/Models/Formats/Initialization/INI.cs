@@ -85,21 +85,26 @@ namespace Turune.Models.Formats.Initialization
                 CharacterNames = characterNames
             };
         }
-
-        public void Export()
+        public string Export()
         {
             var sb = new StringBuilder();
 
-            //sb.AppendLine("[Game]");
-            //sb.AppendLine($"CatalogNumber={_iniScheme.CatalogNumber}");
-            //sb.AppendLine($"WindowTitle={_iniScheme.WindowTitle}");
-            //sb.AppendLine($"Resolution={_iniScheme.GameResolution}");
-            //sb.AppendLine($"VoiceChannels={_iniScheme.VoiceChannels}");
+            sb.AppendLine("[General]");
+            sb.AppendLine($"CatalogNumber={iniScheme.CatalogNumber}");
+            sb.AppendLine($"WindowTitle={iniScheme.WindowTitle}");
+            sb.AppendLine($"Resolution={iniScheme.GameResolution}");
+            sb.AppendLine();
+            sb.AppendLine("[Debug]");
+            sb.AppendLine($"VoiceChannels={iniScheme.VoiceChannels}");
+            for (int i = 0; i < iniScheme.CharacterNames.Length; i++)
+                sb.AppendLine($"Character_{i + 1}={iniScheme.CharacterNames[i]}");
 
-            //sb.AppendLine();
-            //sb.AppendLine("[Characters]");
-            //for (int i = 0; i < _iniScheme.CharacterNames.Length; i++)
-            //    sb.AppendLine($"Character{i + 1}={_iniScheme.CharacterNames[i]}");
+            return sb.ToString();
+        }
+
+        public void Import()
+        {
+
         }
     }
 }
