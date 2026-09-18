@@ -89,11 +89,16 @@ namespace Turune.Models.Formats.Initialization
         }
 
         ///<summary>Gets the INI scheme from a normal INI file.</summary>
-        public void ParseUnpacked()
+        public void ParseUnpacked(string[] inputLines)
         {
             var iniReader = new Utils.IniFile();
-            if (!iniReader.SectionExists("General") || !iniReader.SectionExists("Debug"))
-                throw new Exception("The INI file is missing required sections.");
+            iniReader.Parse(inputLines);
+
+            if (!iniReader.SectionExists("General"))
+                throw new Exception("The INI file is missing the [General] section.");
+
+            if (!iniReader.SectionExists("Debug"))
+                throw new Exception("The INI file is missing the [Debug] section.");
 
             IniScheme = new INIScheme
             {
@@ -132,11 +137,43 @@ namespace Turune.Models.Formats.Initialization
 
             List<byte> outputFile = new List<byte>();
 
-            byte[] lengthCatalogNumber = Encoding.ASCII.GetBytes(
-                Encoding.ASCII.GetByteCount(IniScheme.CatalogNumber).ToString("D4"));
+            //The byte count has to be done in shiftJIS because the title
+            //is in Shift-JIS, so it takes into consideration the double-byte
+            //characters.
+            string lengthCatalogNumber = shiftJIS.GetByteCount(IniScheme.CatalogNumber).ToString("D4"); 
+            outputFile.AddRange(Encoding.ASCII.GetBytes(lengthCatalogNumber));
 
+            byte[] encryptedCatalogNumber = shiftJIS.GetBytes(IniScheme.CatalogNumber);
+            for (int i = 0; i < encryptedCatalogNumber.Length; i++)
+                encryptedCatalogNumber[i] ^= 0xD1;
+            outputFile.AddRange(encryptedCatalogNumber);
 
-            return null;
+            string lengthWindowTitle = shiftJIS.GetByteCount(IniScheme.WindowTitle).ToString("D4");
+            outputFile.AddRange(Encoding.ASCII.GetBytes(lengthWindowTitle));
+
+            byte[] encryptedWindowTitle = shiftJIS.GetBytes(IniScheme.WindowTitle);
+            for (int i = 0; i < encryptedWindowTitle.Length; i++)
+                encryptedWindowTitle[i] ^= 0xD1;
+            outputFile.AddRange(encryptedWindowTitle);
+
+            byte gameResolution = IniScheme.GameResolution;
+            outputFile.Add(gameResolution);
+
+            byte voiceChannels = Encoding.ASCII.GetBytes("0")[0]; //The game never really bothers with this value, so it is always set to 0.
+            outputFile.Add(voiceChannels);
+
+            byte[] characterNames = new byte[144]; //Hardcoded value from what it seems, all of the games have this length for the character names.
+            characterNames.Initialize(); //To ensure that the array is filled with 0s.
+
+            for (int i = 0; i < 3; i++)
+            {
+                byte[] characterName = shiftJIS.GetBytes(IniScheme.CharacterNames[i]);
+                for (int j = 0; j < characterName.Length; j++)
+                    characterNames[i + 3 * j] = characterName[j];           //Character names are interleaved in the original system.ini file.
+            }
+            outputFile.AddRange(characterNames);
+
+            return outputFile.ToArray();
         }
     }
 }
