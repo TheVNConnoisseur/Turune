@@ -17,8 +17,10 @@ namespace Turune.Models.Formats.Initialization
             public string[] CharacterNames { get; set; } = Array.Empty<string>();
         }
 
-        public INIScheme iniScheme { get; private set; }
-        public void Parse(byte[] inputFile)
+        public INIScheme IniScheme { get; private set; }
+
+        ///<summary>Gets the INI scheme from an original system.ini file.</summary>
+        public void ParsePacked(byte[] inputFile)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
@@ -76,7 +78,7 @@ namespace Turune.Models.Formats.Initialization
             for (int i = 0; i < 3; i++)
                 characterNames[i] = shiftJIS.GetString(characterNamesArray[i].ToArray()).Replace("\0", "");
 
-            iniScheme = new INIScheme
+            IniScheme = new INIScheme
             {
                 CatalogNumber = catalogNumber,
                 WindowTitle = windowTitle,
@@ -85,26 +87,56 @@ namespace Turune.Models.Formats.Initialization
                 CharacterNames = characterNames
             };
         }
-        public string Export()
+
+        ///<summary>Gets the INI scheme from a normal INI file.</summary>
+        public void ParseUnpacked()
         {
-            var sb = new StringBuilder();
+            var iniReader = new Utils.IniFile();
+            if (!iniReader.SectionExists("General") || !iniReader.SectionExists("Debug"))
+                throw new Exception("The INI file is missing required sections.");
 
-            sb.AppendLine("[General]");
-            sb.AppendLine($"CatalogNumber={iniScheme.CatalogNumber}");
-            sb.AppendLine($"WindowTitle={iniScheme.WindowTitle}");
-            sb.AppendLine($"Resolution={iniScheme.GameResolution}");
-            sb.AppendLine();
-            sb.AppendLine("[Debug]");
-            sb.AppendLine($"VoiceChannels={iniScheme.VoiceChannels}");
-            for (int i = 0; i < iniScheme.CharacterNames.Length; i++)
-                sb.AppendLine($"Character_{i + 1}={iniScheme.CharacterNames[i]}");
+            IniScheme = new INIScheme
+            {
+                CatalogNumber = iniReader.Read("General", "CatalogNumber"),
+                WindowTitle = iniReader.Read("General", "WindowTitle"),
+                GameResolution = byte.Parse(iniReader.Read("General", "Resolution")),
+                VoiceChannels = byte.Parse(iniReader.Read("Debug", "VoiceChannels")),
+                CharacterNames = new string[3]
+            };
 
-            return sb.ToString();
+            for (int i = 0; i < 3; i++)
+                IniScheme.CharacterNames[i] = iniReader.Read("Debug", $"Character_{i + 1}");
         }
 
-        public void Import()
+        ///<summary>Exports the INI scheme to a string array.</summary>
+        public string[] Export()
         {
+            var iniCreator = new Utils.IniFile();
 
+            iniCreator.Write("General", "CatalogNumber", IniScheme.CatalogNumber);
+            iniCreator.Write("General", "WindowTitle", IniScheme.WindowTitle);
+            iniCreator.Write("General", "Resolution", IniScheme.GameResolution.ToString());
+
+            iniCreator.Write("Debug", "VoiceChannels", IniScheme.VoiceChannels.ToString());
+            for (int i = 0; i < IniScheme.CharacterNames.Length; i++)
+                iniCreator.Write("Debug", $"Character_{i + 1}", IniScheme.CharacterNames[i]);
+
+            return iniCreator.Create();
+        }
+
+        ///<summary>Create an original system.ini file from the INI scheme.</summary>
+        public byte[] Generate()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
+
+            List<byte> outputFile = new List<byte>();
+
+            byte[] lengthCatalogNumber = Encoding.ASCII.GetBytes(
+                Encoding.ASCII.GetByteCount(IniScheme.CatalogNumber).ToString("D4"));
+
+
+            return null;
         }
     }
 }
