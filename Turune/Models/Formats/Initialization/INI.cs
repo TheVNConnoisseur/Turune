@@ -20,6 +20,7 @@ namespace Turune.Models.Formats.Initialization
         public INIScheme IniScheme { get; private set; }
 
         ///<summary>Gets the INI scheme from an original system.ini file.</summary>
+        ///<param name="inputFile">Original system.ini file.</param>
         public void ParsePacked(byte[] inputFile)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -89,6 +90,7 @@ namespace Turune.Models.Formats.Initialization
         }
 
         ///<summary>Gets the INI scheme from a normal INI file.</summary>
+        ///<param name="inputLines">INI file as an array of strings.</param>
         public void ParseUnpacked(string[] inputLines)
         {
             var iniReader = new Utils.IniFile();
