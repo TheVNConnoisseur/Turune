@@ -193,7 +193,82 @@ namespace Turune.Models.Formats.Initialization
         //0x6A90 bytes (hardcoded value)
         internal class DATScheme_Part3
         {
+            //Choice boxes: main parameters
+            public byte ChoiceBox_Text_Alignment { get; set; } = 4;
+            public byte Reserved0 { get; set; } = 0;
+            public short ChoiceBox_Text_FontID { get; set; } = 0;
+            public byte[] ChoiceBox_Text_RGB { get; set; } = [0xFF, 0xFF, 0xFF];
+            public byte ChoiceBox_BackgroundFill_Enable { get; set; } = 0;
 
+            //Choice boxes: RECT positions
+            public short ChoiceBox_Text_RECT_X { get; set; } = 135;
+            public short ChoiceBox_Text_RECT_Y { get; set; } = 11;
+            public ushort ChoiceBox_Text_RECT_Width { get; set; } = 600;
+            public ushort ChoiceBox_Text_RECT_Height { get; set; } = 47;
+            public ushort ChoiceBox_Unknown1 { get; set; } = 0;
+            public ushort ChoiceBox_Unknown2 { get; set; } = 0;
+            public ushort ChoiceBox_Unknown3 { get; set; } = 660;
+            public ushort ChoiceBox_BackgroundFill_Height { get; set; } = 47;
+            public ushort ChoiceBox_BackgroundFill_Width { get; set; } = 660;
+            public short ChoiceBox_Unknown4 { get; set; } = 47;
+            public short ChoiceBox_Image_YMargin { get; set; } = 65;
+            public short ChoiceBox_Image_XMargin { get; set; } = 310;
+            public short ChoiceBox_Unknown5 { get; set; } = 302;
+            public string ChoiceBox_Image_NotChosen { get; set; } = "選択肢枠(基本).mg2";
+            public string ChoiceBox_Image_NotChosen_MouseHovered { get; set; } = "選択肢枠(ロール).mg2";
+            public string ChoiceBox_Image_AlreadyChosen { get; set; } = "選択肢枠(既読).mg2";
+            public string ChoiceBox_Image_AlreadyChosen_MouseHovered { get; set; } = "選択肢枠(ロール).mg2";
+
+            //Unused
+            public int Unused0 { get; set; } = 0;
+            public int Unused1 { get; set; } = 0;
+            public int Unused2 { get; set; } = 0;
+            public byte[] Reserved1 { get; set; } = [0x00, 0x00, 0x00, 0x00];
+            public int Unused3 { get; set; } = 0;
+            public int Unused4 { get; set; } = 0;
+            public int Unused5 { get; set; } = 0;
+            public int Unused6 { get; set; } = 0;
+            public byte[] Reserved2 =
+                [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public int Unused7 { get; set; } = 0;
+            public int Unused8 { get; set; } = 0;
+            public int Unused9 { get; set; } = 0;
+            public byte[] Reserved3 { get; set; } = [0x00, 0x00, 0x00, 0x00];
+            public int Unused10 { get; set; } = 0;
+            public int Unused11 { get; set; } = 0;
+            public int Unused12 { get; set; } = 0;
+            public int Unused13 { get; set; } = 0;
+            public byte[] Reserved4 =
+                [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public int Unused14 { get; set; } = 0;
+            public int Unused15 { get; set; } = 0;
+            public byte[] Reserved5 =
+                [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public int Unused16 { get; set; } = 0;
+            public int Unused17 { get; set; } = 0;
+            public int Unused18 { get; set; } = 0;
+            public byte[] Reserved6 =
+                [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public int Unused19 { get; set; } = 0;
+            public int Unused20 { get; set; } = 0;
+            public byte[] Reserved7 =
+                [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00];
+            public int Unused21 { get; set; } = 0;
+            public int Unused22 { get; set; } = 0;
+            public int Unused23 { get; set; } = 0;
+
+            //The remaining 25952 bytes have to be filled with 0's
         }
 
         internal class DATScheme_Font
