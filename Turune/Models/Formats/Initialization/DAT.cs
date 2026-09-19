@@ -14,6 +14,7 @@ namespace Turune.Models.Formats.Initialization
             public DATScheme_Part2 Part2 { get; set; } = new DATScheme_Part2();
             public DATScheme_Part3 Part3 { get; set; } = new DATScheme_Part3();
         }
+
         //0x2194 bytes (hardcoded value)
         internal class DATScheme_Part1
         {
@@ -80,7 +81,7 @@ namespace Turune.Models.Formats.Initialization
             public string[] MessageWindow_CustomColorCharName_CharName { get; set; } = new string[50];
             public byte[][] MessageWindow_CustomColorCharName_RGB { get; set; } = new byte[50][];
             public byte[] MessageWindow_CharacterName_DefaultRGB { get; set; } = [0xFF, 0xFF, 0xFF];
-            public byte MessageWindow_CustomColorCharName_Enabled { get; set; } = 1;
+            public byte MessageWindow_CustomColorCharName_Enable { get; set; } = 1;
             public byte[] MessageWindow_Message_DefaultRGB { get; set; } = [0xFF, 0xFF, 0xFF];
 
             //Background fill
@@ -93,7 +94,7 @@ namespace Turune.Models.Formats.Initialization
             public byte[] Reserved2 { get; set; } = [0xA, 0x00];
 
             //Message window: font used and order of the RECTS
-            public ushort MessageWindow_FontID { get; set; } = 0;
+            public ushort MessageWindow_MessagePart_FontID { get; set; } = 0;
             public ushort MessageWindow_RECTOrder_SurfaceImage { get; set; } = 0;
             public ushort MessageWindow_RECTOrder_Image { get; set; } = 1;
             public ushort MessageWindow_RECTOrder_SurfaceMessageText { get; set; } = 2;
@@ -133,12 +134,66 @@ namespace Turune.Models.Formats.Initialization
         //0x37F0 bytes (hardcoded value)
         internal class DATScheme_Part2
         {
+            //Message window: message part background fill and RECTs
+            public byte MessageWindow_MessagePart_BackgroundFill_Enable { get; set; } = 0;
+            public short MessageWindow_MessagePart_Background_X { get; set; } = 128;
+            public short MessageWindow_MessagePart_Background_Y { get; set; } = 546;
+            public short MessageWindow_MessagePart_Text_X { get; set; } = 308;
+            public short MessageWindow_MessagePart_Text_Y { get; set; } = 587;
+            public ushort MessageWindow_MessagePart_Text_Width { get; set; } = 722;
+            public ushort MessageWindow_MessagePart_Text_Height { get; set; } = 110;
+            public short MessageWindow_MessagePart_BackgroundFill_X { get; set; } = 128;
+            public short MessageWindow_MessagePart_BackgroundFill_Y { get; set; } = 556;
+            public ushort MessageWindow_MessagePart_BackgroundFill_Width { get; set; } = 0;
+            public ushort MessageWindow_MessagePart_BackgroundFill_Height { get; set; } = 0;
+            public string MessageWindow_MessagePart_Background_ImageFile { get; set; } = "メッセージウインドウ01.mg2";
 
+            //Message window: character name part
+            public short MessageWindow_CharacterNamePart_FontID { get; set; } = 0;
+            public byte MessageWindow_CharacterNamePart_BackgroundFill_Enable { get; set; } = 0;
+            public byte Reserved0 { get; set; } = 0;
+            public short MessageWindow_CharacterNamePart_Background_X { get; set; } = 128;
+            public short MessageWindow_CharacterNamePart_Background_Y { get; set; } = 546;
+            public short MessageWindow_CharacterNamePart_Text_X { get; set; } = 283;
+            public short MessageWindow_CharacterNamePart_Text_Y { get; set; } = 562;
+            public ushort MessageWindow_CharacterNamePart_Text_Width { get; set; } = 600;
+            public ushort MessageWindow_CharacterNamePart_Text_Height { get; set; } = 35;
+            public short MessageWindow_CharacterNamePart_BackgroundFill_X { get; set; } = 0;
+            public short MessageWindow_CharacterNamePart_BackgroundFill_Y { get; set; } = 0;
+            public ushort MessageWindow_CharacterNamePart_BackgroundFill_Width { get; set; } = 0;
+            public ushort MessageWindow_CharacterNamePart_BackgroundFill_Height { get; set; } = 0;
+            public ushort MessageWindow_CharacterNamePart_Unknown1 { get; set; } = 600;
+            public ushort MessageWindow_CharacterNamePart_Unknown2 { get; set; } = 0;
+            public byte MessageWindow_CharacterNamePart_Unknown3 { get; set; } = 0;
+            public string MessageWindow_CharacterNamePart_Background_ImageFile { get; set; } = "null.mg2";
+
+            //Reserved
+            public byte[] Reserved1 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved2 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved3 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved4 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved5 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved6 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved7 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved8 = 
+                [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved9 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved10 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved11 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved12 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved13 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved14 = [0x00, 0x00, 0x00, 0x00];
+
+            //The remaining 13644 bytes are simply unassigned to any variable, so they have to be filled with 0's
         }
 
         //0x6A90 bytes (hardcoded value)
         internal class DATScheme_Part3
         {
+
         }
 
         internal class DATScheme_Font
