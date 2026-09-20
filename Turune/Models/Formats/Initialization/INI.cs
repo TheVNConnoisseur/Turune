@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using static Turune.Models.Formats.Initialization.DAT;
 
 namespace Turune.Models.Formats.Initialization
 {
@@ -14,10 +15,10 @@ namespace Turune.Models.Formats.Initialization
             public string WindowTitle { get; set; } = "";
             public byte GameResolution { get; set; }
             public byte VoiceChannels { get; set; }
-            public string[] CharacterNames { get; set; } = Array.Empty<string>();
+            public string[] CharacterNames { get; set; } = new string[3];
         }
 
-        public INIScheme IniScheme { get; private set; }
+        public INIScheme IniScheme { get; private set; } = new INIScheme();
 
         ///<summary>Gets the INI scheme from an original system.ini file.</summary>
         ///<param name="inputFile">Original system.ini file.</param>
@@ -33,12 +34,12 @@ namespace Turune.Models.Formats.Initialization
             currentOffset += 4;
 
             
-            byte[] encryptedCatalogNumber = inputFile.AsSpan(0x4, (int)lengthCatalogNumber).ToArray();
+            byte[] encryptedCatalogNumber = inputFile.AsSpan(currentOffset, (int)lengthCatalogNumber).ToArray();
             for (int i = 0; i < encryptedCatalogNumber.Length; i++)
                 encryptedCatalogNumber[i] ^= 0xD1;
             currentOffset += (int)lengthCatalogNumber;
 
-            string catalogNumber = shiftJIS.GetString(encryptedCatalogNumber);
+            IniScheme.CatalogNumber = shiftJIS.GetString(encryptedCatalogNumber);
 
             //Window title
             uint windowTitleLength = Convert.ToUInt32(Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 4)));
@@ -49,17 +50,16 @@ namespace Turune.Models.Formats.Initialization
                 encryptedWindowTitle[i] ^= 0xD1;
             currentOffset += (int)windowTitleLength;
 
-            string windowTitle = shiftJIS.GetString(encryptedWindowTitle);
+            IniScheme.WindowTitle = shiftJIS.GetString(encryptedWindowTitle);
 
             //Game resolution
-            byte gameResolution = inputFile[currentOffset];
+            IniScheme.GameResolution = inputFile[currentOffset];
             currentOffset++;
 
             //Voice channels
-            byte voiceChannels = Convert.ToByte(Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 1)));
+            IniScheme.VoiceChannels = Convert.ToByte(Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 1)));
             currentOffset++;
 
-            string[] characterNames = new string[3];
             List<List<byte>> characterNamesArray = new List<List<byte>>();
 
             for (int i = 0; i < 3; i++)
@@ -77,16 +77,7 @@ namespace Turune.Models.Formats.Initialization
             }
 
             for (int i = 0; i < 3; i++)
-                characterNames[i] = shiftJIS.GetString(characterNamesArray[i].ToArray()).Replace("\0", "");
-
-            IniScheme = new INIScheme
-            {
-                CatalogNumber = catalogNumber,
-                WindowTitle = windowTitle,
-                GameResolution = gameResolution,
-                VoiceChannels = voiceChannels,
-                CharacterNames = characterNames
-            };
+                IniScheme.CharacterNames[i] = shiftJIS.GetString(characterNamesArray[i].ToArray()).Replace("\0", "");
         }
 
         ///<summary>Gets the INI scheme from a normal INI file.</summary>
@@ -98,19 +89,13 @@ namespace Turune.Models.Formats.Initialization
 
             if (!iniReader.SectionExists("General"))
                 throw new Exception("The INI file is missing the [General] section.");
-
             if (!iniReader.SectionExists("Debug"))
                 throw new Exception("The INI file is missing the [Debug] section.");
 
-            IniScheme = new INIScheme
-            {
-                CatalogNumber = iniReader.Read("General", "CatalogNumber"),
-                WindowTitle = iniReader.Read("General", "WindowTitle"),
-                GameResolution = byte.Parse(iniReader.Read("General", "Resolution")),
-                VoiceChannels = byte.Parse(iniReader.Read("Debug", "VoiceChannels")),
-                CharacterNames = new string[3]
-            };
-
+            IniScheme.CatalogNumber = iniReader.Read("General", "CatalogNumber");
+            IniScheme.WindowTitle = iniReader.Read("General", "WindowTitle");
+            IniScheme.GameResolution = byte.Parse(iniReader.Read("General", "Resolution"));
+            IniScheme.VoiceChannels = byte.Parse(iniReader.Read("Debug", "VoiceChannels"));
             for (int i = 0; i < 3; i++)
                 IniScheme.CharacterNames[i] = iniReader.Read("Debug", $"Character_{i + 1}");
         }
