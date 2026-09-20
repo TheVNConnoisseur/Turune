@@ -202,7 +202,7 @@ namespace Turune.Models.Formats.Initialization
             //Choice boxes: main parameters
             public byte ChoiceBox_Text_Alignment { get; set; } = 4;
             public byte Reserved0 { get; set; } = 0;
-            public short ChoiceBox_Text_FontID { get; set; } = 0;
+            public ushort ChoiceBox_Text_FontID { get; set; } = 0;
             public byte[] ChoiceBox_Text_RGB { get; set; } = [0xFF, 0xFF, 0xFF];
             public byte ChoiceBox_BackgroundFill_Enable { get; set; } = 0;
 
@@ -226,15 +226,16 @@ namespace Turune.Models.Formats.Initialization
             public string ChoiceBox_Image_AlreadyChosen_MouseHovered { get; set; } = "選択肢枠(ロール).mg2";
 
             //Unused
+            public byte[] Reserved1 { get; set; } = [0x00, 0x00];
             public int Unused0 { get; set; } = 0;
             public int Unused1 { get; set; } = 0;
             public int Unused2 { get; set; } = 0;
-            public byte[] Reserved1 { get; set; } = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved2 { get; set; } = [0x00, 0x00, 0x00, 0x00];
             public int Unused3 { get; set; } = 0;
             public int Unused4 { get; set; } = 0;
             public int Unused5 { get; set; } = 0;
             public int Unused6 { get; set; } = 0;
-            public byte[] Reserved2 =
+            public byte[] Reserved3 =
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -242,32 +243,32 @@ namespace Turune.Models.Formats.Initialization
             public int Unused7 { get; set; } = 0;
             public int Unused8 { get; set; } = 0;
             public int Unused9 { get; set; } = 0;
-            public byte[] Reserved3 { get; set; } = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved4 { get; set; } = [0x00, 0x00, 0x00, 0x00];
             public int Unused10 { get; set; } = 0;
             public int Unused11 { get; set; } = 0;
             public int Unused12 { get; set; } = 0;
             public int Unused13 { get; set; } = 0;
-            public byte[] Reserved4 =
+            public byte[] Reserved5 =
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             public int Unused14 { get; set; } = 0;
             public int Unused15 { get; set; } = 0;
-            public byte[] Reserved5 =
+            public byte[] Reserved6 =
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             public int Unused16 { get; set; } = 0;
             public int Unused17 { get; set; } = 0;
             public int Unused18 { get; set; } = 0;
-            public byte[] Reserved6 =
+            public byte[] Reserved7 =
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             public int Unused19 { get; set; } = 0;
             public int Unused20 { get; set; } = 0;
-            public byte[] Reserved7 =
+            public byte[] Reserved8 =
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00];
             public int Unused21 { get; set; } = 0;
@@ -659,6 +660,108 @@ namespace Turune.Models.Formats.Initialization
             // 3rd PART
             ////////////
 
+            //Choice boxes: main parameters
+            datScheme.Part3.ChoiceBox_Text_Alignment = inputFile[currentOffset];
+            currentOffset++;
+
+            currentOffset++; //datScheme.Part3.Reserved0
+
+            datScheme.Part3.ChoiceBox_Text_FontID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Text_RGB = inputFile.AsSpan(currentOffset, 3).ToArray();
+            currentOffset += 3;
+
+            datScheme.Part3.ChoiceBox_BackgroundFill_Enable = inputFile[currentOffset];
+            currentOffset++;
+
+            //Choice boxes: RECT positions
+            datScheme.Part3.ChoiceBox_Text_RECT_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Text_RECT_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Text_RECT_Width = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Text_RECT_Height = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Unknown1 = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Unknown2 = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Unknown3 = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_BackgroundFill_Height = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_BackgroundFill_Width = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Unknown4 = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Image_YMargin = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Image_XMargin = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Unknown5 = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part3.ChoiceBox_Image_NotChosen = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part3.ChoiceBox_Image_NotChosen_MouseHovered = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part3.ChoiceBox_Image_AlreadyChosen = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Unused
+            currentOffset += 2; //datScheme.Part3.Reserved1
+            currentOffset += 4; //datScheme.Part3.Unused0
+            currentOffset += 4; //datScheme.Part3.Unused1
+            currentOffset += 4; //datScheme.Part3.Unused2
+            currentOffset += 4; //datScheme.Part3.Reserved2
+            currentOffset += 4; //datScheme.Part3.Unused3
+            currentOffset += 4; //datScheme.Part3.Unused4
+            currentOffset += 4; //datScheme.Part3.Unused5
+            currentOffset += 4; //datScheme.Part3.Unused6
+            currentOffset += 40; //datScheme.Part3.Reserved3
+            currentOffset += 4; //datScheme.Part3.Unused7
+            currentOffset += 4; //datScheme.Part3.Unused8
+            currentOffset += 4; //datScheme.Part3.Unused9
+            currentOffset += 4; //datScheme.Part3.Reserved4
+            currentOffset += 4; //datScheme.Part3.Unused10
+            currentOffset += 4; //datScheme.Part3.Unused11
+            currentOffset += 4; //datScheme.Part3.Unused12
+            currentOffset += 4; //datScheme.Part3.Unused13
+            currentOffset += 40; //datScheme.Part3.Reserved5
+            currentOffset += 4; //datScheme.Part3.Unused14
+            currentOffset += 4; //datScheme.Part3.Unused15
+            currentOffset += 16; //datScheme.Part3.Reserved6
+            currentOffset += 4; //datScheme.Part3.Unused16
+            currentOffset += 4; //datScheme.Part3.Unused17
+            currentOffset += 4; //datScheme.Part3.Unused18
+            currentOffset += 40; //datScheme.Part3.Reserved7
+            currentOffset += 4; //datScheme.Part3.Unused19
+            currentOffset += 4; //datScheme.Part3.Unused20
+            currentOffset += 12; //datScheme.Part3.Reserved8
+            currentOffset += 4; //datScheme.Part3.Unused21
+            currentOffset += 4; //datScheme.Part3.Unused22
+            currentOffset += 4; //datScheme.Part3.Unused23
+
+            currentOffset += 25952;
 
         }
     }
