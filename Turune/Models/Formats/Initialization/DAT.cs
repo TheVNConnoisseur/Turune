@@ -139,6 +139,7 @@ namespace Turune.Models.Formats.Initialization
         {
             //Message window: message part background fill and RECTs
             public byte MessageWindow_MessagePart_BackgroundFill_Enable { get; set; } = 0;
+            public byte Reserved0 { get; set; } = 0;
             public short MessageWindow_MessagePart_Background_X { get; set; } = 128;
             public short MessageWindow_MessagePart_Background_Y { get; set; } = 546;
             public short MessageWindow_MessagePart_Text_X { get; set; } = 308;
@@ -154,7 +155,7 @@ namespace Turune.Models.Formats.Initialization
             //Message window: character name part
             public short MessageWindow_CharacterNamePart_FontID { get; set; } = 0;
             public byte MessageWindow_CharacterNamePart_BackgroundFill_Enable { get; set; } = 0;
-            public byte Reserved0 { get; set; } = 0;
+            public byte Reserved1 { get; set; } = 0;
             public short MessageWindow_CharacterNamePart_Background_X { get; set; } = 128;
             public short MessageWindow_CharacterNamePart_Background_Y { get; set; } = 546;
             public short MessageWindow_CharacterNamePart_Text_X { get; set; } = 283;
@@ -171,24 +172,26 @@ namespace Turune.Models.Formats.Initialization
             public string MessageWindow_CharacterNamePart_Background_ImageFile { get; set; } = "null.mg2";
 
             //Reserved
-            public byte[] Reserved1 = [0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved2 = [0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved3 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            public byte Reserved2 = 0;
+            public byte[] Reserved3 = [0x00, 0x00, 0x00, 0x00];
             public byte[] Reserved4 = [0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved5 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved5 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             public byte[] Reserved6 = [0x00, 0x00, 0x00, 0x00];
             public byte[] Reserved7 = [0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved8 = 
+            public byte[] Reserved8 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved9 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved10 = 
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved9 = [0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved10 = [0x00, 0x00, 0x00, 0x00];
             public byte[] Reserved11 = [0x00, 0x00, 0x00, 0x00];
             public byte[] Reserved12 = [0x00, 0x00, 0x00, 0x00];
-            public byte[] Reserved13 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved13 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             public byte[] Reserved14 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved15 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved16 = [0x00, 0x00, 0x00, 0x00];
+            public byte[] Reserved17 = [0x00, 0x00, 0x00, 0x00];
 
             //The remaining 13644 bytes are simply unassigned to any variable, so they have to be filled with 0's
         }
@@ -299,247 +302,363 @@ namespace Turune.Models.Formats.Initialization
 
             int currentOffset = 0;
 
-            while (currentOffset < 8596) //The 1st part
+            ////////////
+            // 1st PART
+            ////////////
+            
+            int gameIdentifier = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            datScheme.Part1.GameIdentifier = new DateTime(1970, 1, 1).AddSeconds(gameIdentifier);
+            currentOffset += 4;
+
+            datScheme.Part1.GameSystemMode = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.ExclusiveFullscreen = inputFile[currentOffset];
+            currentOffset++;
+
+            datScheme.Part1.LocaleEnglish = inputFile[currentOffset];
+            currentOffset++;
+
+            datScheme.Part1.WindowTitle = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.DATKey = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.WindowWidth = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.WindowHeight = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            currentOffset += 2; //datScheme.Part1.Reserved0
+
+            //Flags
+            datScheme.Part1.DI_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.DG_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.DT_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.SI_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.SG_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.ST_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            //Slots
+            datScheme.Part1.Obj_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.MSK_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.CGB_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.Button_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.Box_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.MessageLog_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            //obj IDs
+            datScheme.Part1.ObjID_MessageWindow = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.ObjID_MaxValueOnBoot = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            //Folder names
+            datScheme.Part1.SDT_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.MG2_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.MAL_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.BGM_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.Voice_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.SE_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.AM2_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.Unused_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Save files
+            datScheme.Part1.SaveData_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.SaveData_FileName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Close game process
+            datScheme.Part1.CloseGame_UseMessageBox = inputFile[currentOffset];
+            currentOffset++;
+
+            currentOffset++; //datScheme.Part1.Reserved1
+
+            datScheme.Part1.CloseGame_SeenNumber = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.CloseGame_JumpLabel = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Screen mode process
+            datScheme.Part1.ScreenMode_ActivateFullScreen_SeenNumber = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            datScheme.Part1.ScreenMode_ActivateWindowed_SeenNumber = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+            currentOffset += 4;
+
+            datScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Fonts
+            datScheme.Part1.FontName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            var Fonts = new DATScheme_Font[50];
+
+            for (int i = 0; i < 50; i++)
             {
-                int gameIdentifier = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                datScheme.Part1.GameIdentifier = new DateTime(1970, 1, 1).AddSeconds(gameIdentifier);
-                currentOffset += 4;
-
-                datScheme.Part1.GameSystemMode = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.ExclusiveFullscreen = inputFile[currentOffset];
-                currentOffset++;
-
-                datScheme.Part1.LocaleEnglish = inputFile[currentOffset];
-                currentOffset++;
-
-                datScheme.Part1.WindowTitle = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.DATKey = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.WindowWidth = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.WindowHeight = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                currentOffset += 2; //datScheme.Part1.Reserved0
-
-                //Flags
-                datScheme.Part1.DI_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.DG_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.DT_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.SI_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.SG_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.ST_Flags = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                //Slots
-                datScheme.Part1.Obj_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.MSK_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.CGB_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.Button_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.Box_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.MessageLog_Slots = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                //obj IDs
-                datScheme.Part1.ObjID_MessageWindow = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.ObjID_MaxValueOnBoot = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                //Folder names
-                datScheme.Part1.SDT_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.MG2_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.MAL_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.BGM_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.Voice_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.SE_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.AM2_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.Unused_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                //Save files
-                datScheme.Part1.SaveData_FolderName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.SaveData_FileName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                //Close game process
-                datScheme.Part1.CloseGame_UseMessageBox = inputFile[currentOffset];
-                currentOffset++;
-
-                currentOffset++; //datScheme.Part1.Reserved1
-
-                datScheme.Part1.CloseGame_SeenNumber = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.CloseGame_JumpLabel = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                //Screen mode process
-                datScheme.Part1.ScreenMode_ActivateFullScreen_SeenNumber = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                datScheme.Part1.ScreenMode_ActivateWindowed_SeenNumber = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
-                currentOffset += 4;
-
-                datScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                //Fonts
-                datScheme.Part1.FontName = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
-                currentOffset += 260;
-
-                var Fonts = new DATScheme_Font[50];
-
-                for (int i = 0; i < 50; i++)
+                Fonts[i] = new DATScheme_Font
                 {
-                    Fonts[i] = new DATScheme_Font
-                    {
-                        Height = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)),
-                        Width = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 4, 4)),
-                        Weight = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 8, 4)),
-                        DropShadow_HorizontalOffset = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 12, 4)),
-                        DropShadow_VerticalOffset = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 16, 4)),
-                        DropShadow_RGBA = inputFile.AsSpan(currentOffset + 20, 4).ToArray(),
-                    };
-                    currentOffset += 28;
-                }
-
-                //Message window: color customization
-                for (int i = 0; i < 50; i++)
-                {
-                    datScheme.Part1.MessageWindow_CustomColorCharName_CharName[i] = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 50)).Replace("\0", "");
-                    currentOffset += 50;
-                }
-
-                for (int i = 0; i < 50; i++)
-                {
-                    datScheme.Part1.MessageWindow_CustomColorCharName_RGB[i] = inputFile.AsSpan(currentOffset, 3).ToArray();
-                    currentOffset += 3;
-                }
-
-                datScheme.Part1.MessageWindow_CharacterName_DefaultRGB = inputFile.AsSpan(currentOffset, 3).ToArray();
-                currentOffset += 3;
-
-                datScheme.Part1.MessageWindow_CustomColorCharName_Enable = inputFile[currentOffset];
-                currentOffset++;
-
-                datScheme.Part1.MessageWindow_Message_DefaultRGB = inputFile.AsSpan(currentOffset, 3).ToArray();
-                currentOffset += 3;
-
-                //Background fill
-                datScheme.Part1.BackgroundFill_RGB = inputFile.AsSpan(currentOffset, 3).ToArray();
-                currentOffset += 3;
-
-                datScheme.Part1.BackgroundFill_Opacity = inputFile[currentOffset];
-                currentOffset++;
-
-                //Reserved
-                currentOffset++; //datScheme.Part1.ReservedSaveGame0
-                currentOffset++; //datScheme.Part1.ReservedSaveGame1
-                currentOffset++; //datScheme.Part1.Reserved2
-                currentOffset += 2; //datScheme.Part1.ReservedSaveGame2
-
-                //Message window: font used and order of the RECTS
-                datScheme.Part1.MessageWindow_MessagePart_FontID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.MessageWindow_RECTOrder_SurfaceImage = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.MessageWindow_RECTOrder_Image = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.MessageWindow_RECTOrder_SurfaceMessageText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.MessageWindow_RECTOrder_SurfaceCharacterNameText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.MessageWindow_RECTOrder_MessageText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.MessageWindow_RECTOrder_CharacterNameText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                //Choice boxes: obj IDs slots
-                datScheme.Part1.ChoiceBox_FirstID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.ChoiceBox_LastID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                //Audio instances
-                datScheme.Part1.AudioInstances_TotalAmount = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.AudioInstances_BGM = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.AudioInstances_Voice = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
-                currentOffset += 2;
-
-                datScheme.Part1.AudioInstances_Unused = inputFile[currentOffset];
-                currentOffset++;
-
-                //SDT key
-                datScheme.Part1.SDTKey_Shuffler = inputFile[currentOffset];
-                currentOffset++;
-
-                datScheme.Part1.SDTKey = inputFile.AsSpan(currentOffset, 260).ToArray();
-                currentOffset += 260;
+                    Height = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)),
+                    Width = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 4, 4)),
+                    Weight = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 8, 4)),
+                    DropShadow_HorizontalOffset = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 12, 4)),
+                    DropShadow_VerticalOffset = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset + 16, 4)),
+                    DropShadow_RGBA = inputFile.AsSpan(currentOffset + 20, 4).ToArray(),
+                };
+                currentOffset += 28;
             }
 
-            while (currentOffset < 22916) //0x5984, the 2nd part
+            //Message window: color customization
+            for (int i = 0; i < 50; i++)
             {
-
+                datScheme.Part1.MessageWindow_CustomColorCharName_CharName[i] = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 50)).Replace("\0", "");
+                currentOffset += 50;
             }
-            //The 3rd and final part of the INI file
+
+            for (int i = 0; i < 50; i++)
+            {
+                datScheme.Part1.MessageWindow_CustomColorCharName_RGB[i] = inputFile.AsSpan(currentOffset, 3).ToArray();
+                currentOffset += 3;
+            }
+
+            datScheme.Part1.MessageWindow_CharacterName_DefaultRGB = inputFile.AsSpan(currentOffset, 3).ToArray();
+            currentOffset += 3;
+
+            datScheme.Part1.MessageWindow_CustomColorCharName_Enable = inputFile[currentOffset];
+            currentOffset++;
+
+            datScheme.Part1.MessageWindow_Message_DefaultRGB = inputFile.AsSpan(currentOffset, 3).ToArray();
+            currentOffset += 3;
+
+            //Background fill
+            datScheme.Part1.BackgroundFill_RGB = inputFile.AsSpan(currentOffset, 3).ToArray();
+            currentOffset += 3;
+
+            datScheme.Part1.BackgroundFill_Opacity = inputFile[currentOffset];
+            currentOffset++;
+
+            //Reserved
+            currentOffset++; //datScheme.Part1.ReservedSaveGame0
+            currentOffset++; //datScheme.Part1.ReservedSaveGame1
+            currentOffset++; //datScheme.Part1.Reserved2
+            currentOffset += 2; //datScheme.Part1.ReservedSaveGame2
+
+            //Message window: font used and order of the RECTS
+            datScheme.Part1.MessageWindow_MessagePart_FontID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.MessageWindow_RECTOrder_SurfaceImage = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.MessageWindow_RECTOrder_Image = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.MessageWindow_RECTOrder_SurfaceMessageText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.MessageWindow_RECTOrder_SurfaceCharacterNameText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.MessageWindow_RECTOrder_MessageText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.MessageWindow_RECTOrder_CharacterNameText = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            //Choice boxes: obj IDs slots
+            datScheme.Part1.ChoiceBox_FirstID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.ChoiceBox_LastID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            //Audio instances
+            datScheme.Part1.AudioInstances_TotalAmount = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.AudioInstances_BGM = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.AudioInstances_Voice = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part1.AudioInstances_Unused = inputFile[currentOffset];
+            currentOffset++;
+
+            //SDT key
+            datScheme.Part1.SDTKey_Shuffler = inputFile[currentOffset];
+            currentOffset++;
+
+            datScheme.Part1.SDTKey = inputFile.AsSpan(currentOffset, 260).ToArray();
+            currentOffset += 260;
+
+
+            ////////////
+            // 2nd PART
+            ////////////
+
+            //Message window: message part background fill and RECTs
+            datScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Enable = inputFile[currentOffset];
+            currentOffset++;
+
+            currentOffset++; //dataScheme.Part2.Reserved0
+
+            datScheme.Part2.MessageWindow_MessagePart_Background_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_Background_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_Text_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_Text_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_Text_Width = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_Text_Height = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_BackgroundFill_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Width = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Height = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_MessagePart_Background_ImageFile = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Message window: character name part
+            datScheme.Part2.MessageWindow_CharacterNamePart_FontID = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Enable = inputFile[currentOffset];
+            currentOffset++;
+
+            currentOffset++; //datScheme.Part2.Reserved1
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Background_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Background_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Text_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Text_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Text_Width = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Text_Height = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_X = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Y = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Width = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Height = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Unknown1 = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Unknown2 = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            currentOffset += 2;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Unknown3 = inputFile[currentOffset];
+            currentOffset++;
+
+            datScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile = shiftJIS.GetString(inputFile.AsSpan(currentOffset, 260)).Replace("\0", "");
+            currentOffset += 260;
+
+            //Reserved
+            currentOffset++; //datScheme.Part2.Reserved2
+            currentOffset += 4; //datScheme.Part2.Reserved3
+            currentOffset += 4; //datScheme.Part2.Reserved4
+            currentOffset += 8; //datScheme.Part2.Reserved5
+            currentOffset += 4; //datScheme.Part2.Reserved6
+            currentOffset += 4; //datScheme.Part2.Reserved7
+            currentOffset += 4; //datScheme.Part2.Reserved8
+            currentOffset += 4; //datScheme.Part2.Reserved9
+            currentOffset += 40; //datScheme.Part2.Reserved10
+            currentOffset += 4; //datScheme.Part2.Reserved11
+            currentOffset += 4; //datScheme.Part2.Reserved12
+            currentOffset += 8; //datScheme.Part2.Reserved13
+            currentOffset += 4; //datScheme.Part2.Reserved14
+            currentOffset += 4; //datScheme.Part2.Reserved15
+            currentOffset += 4; //datScheme.Part2.Reserved16
+            currentOffset += 4; //datScheme.Part2.Reserved17
+
+            currentOffset += 13644; //Skip the padding for the 2nd part
+
+
+            ////////////
+            // 3rd PART
+            ////////////
+
 
         }
     }
