@@ -87,10 +87,16 @@ namespace Turune.Models.Formats.Initialization
             var iniReader = new Utils.IniFile();
             iniReader.Parse(inputLines);
 
-            if (!iniReader.SectionExists("General"))
-                throw new Exception("The INI file is missing the [General] section.");
-            if (!iniReader.SectionExists("Debug"))
-                throw new Exception("The INI file is missing the [Debug] section.");
+            //Sanity check to ensure that the game has the fundamental sections
+            string[] requiredSections =
+            {
+                "General", "Debug"
+            };
+
+            string[] missingSections = requiredSections.Where(section => !iniReader.SectionExists(section)).ToArray();
+
+            if (missingSections.Length > 0)
+                throw new Exception($"The INI file is missing the following sections: {string.Join(", ", missingSections)}");
 
             IniScheme.CatalogNumber = iniReader.Read("General", "CatalogNumber");
             IniScheme.WindowTitle = iniReader.Read("General", "WindowTitle");

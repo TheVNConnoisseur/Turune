@@ -1,8 +1,16 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media.Media3D;
+using System.Xml.Linq;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Turune.Models.Formats.Initialization.INI;
 
 namespace Turune.Models.Formats.Initialization
@@ -155,7 +163,7 @@ namespace Turune.Models.Formats.Initialization
             public string MessageWindow_MessagePart_Background_ImageFile { get; set; } = "メッセージウインドウ01.mg2";
 
             //Message window: character name part
-            public short MessageWindow_CharacterNamePart_FontID { get; set; } = 0;
+            public ushort MessageWindow_CharacterNamePart_FontID { get; set; } = 0;
             public byte MessageWindow_CharacterNamePart_BackgroundFill_Enable { get; set; } = 0;
             public byte Reserved1 { get; set; } = 0;
             public short MessageWindow_CharacterNamePart_Background_X { get; set; } = 128;
@@ -590,7 +598,7 @@ namespace Turune.Models.Formats.Initialization
             currentOffset += 260;
 
             //Message window: character name part
-            DatScheme.Part2.MessageWindow_CharacterNamePart_FontID = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_FontID = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
             currentOffset += 2;
 
             DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Enable = inputFile[currentOffset];
@@ -791,8 +799,202 @@ namespace Turune.Models.Formats.Initialization
             if (missingSections.Length > 0)
                 throw new Exception($"The INI file is missing the following sections: {string.Join(", ", missingSections)}");
 
+            //General
+            DatScheme.Part1.GameIdentifier = Convert.ToDateTime(iniReader.Read("General", "GameIdentifier"));
+            DatScheme.Part1.GameSystemMode = Convert.ToUInt32(iniReader.Read("General", "GameSystemMode"));
+            DatScheme.Part1.ExclusiveFullscreen = Convert.ToByte(iniReader.Read("General", "ExclusiveFullscreen"));
+            DatScheme.Part1.LocaleEnglish = Convert.ToByte(iniReader.Read("General", "LocaleEnglish"));
+            DatScheme.Part1.WindowTitle = iniReader.Read("General", "WindowTitle");
+            DatScheme.Part1.WindowWidth = Convert.ToUInt16(iniReader.Read("General", "WindowWidth"));
+            DatScheme.Part1.WindowHeight = Convert.ToUInt16(iniReader.Read("General", "WindowHeight"));
 
+            //Security
+            DatScheme.Part1.DATKey = iniReader.Read("Security", "DATKey");
+            DatScheme.Part1.SDTKey = iniReader.Read("Security", "SDTKey");
 
+            //Flags
+            DatScheme.Part1.DI_Flags = Convert.ToInt32(iniReader.Read("Flags", "DI"));
+            DatScheme.Part1.DG_Flags = Convert.ToInt32(iniReader.Read("Flags", "DG"));
+            DatScheme.Part1.DT_Flags = Convert.ToInt32(iniReader.Read("Flags", "DT"));
+            DatScheme.Part1.SI_Flags = Convert.ToInt32(iniReader.Read("Flags", "SI"));
+            DatScheme.Part1.SG_Flags = Convert.ToInt32(iniReader.Read("Flags", "SG"));
+            DatScheme.Part1.ST_Flags = Convert.ToInt32(iniReader.Read("Flags", "ST"));
+
+            //Slots
+            DatScheme.Part1.Obj_Slots = Convert.ToInt32(iniReader.Read("Slots", "Objects"));
+            DatScheme.Part1.MSK_Slots = Convert.ToInt32(iniReader.Read("Slots", "Mask"));
+            DatScheme.Part1.CGB_Slots = Convert.ToInt32(iniReader.Read("Slots", "CGB"));
+            DatScheme.Part1.Button_Slots = Convert.ToInt32(iniReader.Read("Slots", "Button"));
+            DatScheme.Part1.Box_Slots = Convert.ToInt32(iniReader.Read("Slots", "Box"));
+            DatScheme.Part1.MessageLog_Slots = Convert.ToInt32(iniReader.Read("Slots", "MessageLog"));
+
+            //Object_ID
+            DatScheme.Part1.ObjID_MessageWindow = Convert.ToInt32(iniReader.Read("Object_ID", "MessageWindow"));
+            DatScheme.Part1.ObjID_MaxValueOnBoot = Convert.ToInt32(iniReader.Read("Object_ID", "MaxValueOnBoot"));
+
+            //FolderNames
+            DatScheme.Part1.SDT_FolderName = iniReader.Read("FolderNames", "SDT");
+            DatScheme.Part1.MG2_FolderName = iniReader.Read("FolderNames", "MG2");
+            DatScheme.Part1.MAL_FolderName = iniReader.Read("FolderNames", "MAL");
+            DatScheme.Part1.BGM_FolderName = iniReader.Read("FolderNames", "BGM");
+            DatScheme.Part1.Voice_FolderName = iniReader.Read("FolderNames", "Voice");
+            DatScheme.Part1.SE_FolderName = iniReader.Read("FolderNames", "SE");
+            DatScheme.Part1.AM2_FolderName = iniReader.Read("FolderNames", "AM2");
+            DatScheme.Part1.Unused_FolderName = iniReader.Read("FolderNames", "Unused");
+
+            //SaveGames
+            DatScheme.Part1.SaveData_FolderName = iniReader.Read("SaveGames", "FolderName");
+            DatScheme.Part1.SaveData_FileName = iniReader.Read("SaveGames", "SaveName");
+
+            //Process_CloseGame
+            DatScheme.Part1.CloseGame_UseMessageBox = Convert.ToByte(iniReader.Read("Process_CloseGame", "UseMessageBox"));
+            DatScheme.Part1.CloseGame_SeenNumber = Convert.ToUInt16(iniReader.Read("Process_CloseGame", "SeenNumber"));
+            DatScheme.Part1.CloseGame_JumpLabel = iniReader.Read("Process_CloseGame", "JumpLabel");
+
+            //Process_ScreenMode
+            DatScheme.Part1.ScreenMode_ActivateFullScreen_SeenNumber = Convert.ToUInt16(iniReader.Read("Process_ScreenMode", "FullScreen_SeenNumber"));
+            DatScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel = iniReader.Read("Process_ScreenMode", "FullScreen_JumpLabel");
+            DatScheme.Part1.ScreenMode_ActivateWindowed_SeenNumber = Convert.ToUInt16(iniReader.Read("Process_ScreenMode", "Windowed_SeenNumber"));
+            DatScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel = iniReader.Read("Process_ScreenMode", "Windowed_JumpLabel");
+
+            //Font
+            DatScheme.Part1.FontName = iniReader.Read("Fonts", "Name");
+            string color_CharacterName = iniReader.Read("Fonts", "Color_CharacterName").TrimStart('#');
+            DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB = new byte[]
+            {
+                Convert.ToByte(color_CharacterName.Substring(4, 2), 16), // B
+                Convert.ToByte(color_CharacterName.Substring(2, 2), 16), // G
+                Convert.ToByte(color_CharacterName.Substring(0, 2), 16)  // R
+            };
+            string color_MessageText = iniReader.Read("Fonts", "Color_MessageText").TrimStart('#');
+            DatScheme.Part1.MessageWindow_Message_DefaultRGB = new byte[]
+            {
+                Convert.ToByte(color_MessageText.Substring(4, 2), 16), // B
+                Convert.ToByte(color_MessageText.Substring(2, 2), 16), // G
+                Convert.ToByte(color_MessageText.Substring(0, 2), 16)  // R
+            };
+            string color_ChoiceBoxText = iniReader.Read("Fonts", "ChoiceBox_Text_RGB").TrimStart('#');
+            DatScheme.Part3.ChoiceBox_Text_RGB = new byte[]
+            {
+                Convert.ToByte(color_ChoiceBoxText.Substring(4, 2), 16), //B
+                Convert.ToByte(color_ChoiceBoxText.Substring(2, 2), 16), //G
+                Convert.ToByte(color_ChoiceBoxText.Substring(0, 2), 16)  //R
+            };
+            for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
+            {
+                DatScheme.Part1.Font[i].Height = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "Height"));
+                DatScheme.Part1.Font[i].Width = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "Width"));
+                DatScheme.Part1.Font[i].Weight = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "Weight"));
+                DatScheme.Part1.Font[i].DropShadow_HorizontalOffset = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "DropShadow_HorizontalOffset"));
+                DatScheme.Part1.Font[i].DropShadow_VerticalOffset = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "DropShadow_VerticalOffset"));
+                string color_DropShadow = iniReader.Read($"Fonts_{i}", "DropShadow_RGBA").TrimStart('#');
+                DatScheme.Part1.Font[i].DropShadow_RGBA = new byte[]
+                {
+                    Convert.FromHexString(color_DropShadow)[3], //A
+                    Convert.FromHexString(color_DropShadow)[2], //B
+                    Convert.FromHexString(color_DropShadow)[1], //G
+                    Convert.FromHexString(color_DropShadow)[0], //R
+                };
+            }
+
+            //Fonts_CharacterNameCustomColor
+            DatScheme.Part1.MessageWindow_CustomColorCharName_Enable = Convert.ToByte(iniReader.Read("Fonts_CharacterNameCustomColor", "Enabled"));
+            for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
+            {
+                iniReader.Read($"Fonts_CharacterNameCustomColor_{i}", "CharacterName");
+                string color_CustomCharacterName = iniReader.Read($"Fonts_CharacterNameCustomColor_{i}", "Color").TrimStart('#');
+                DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i] = new byte[]
+                {
+                Convert.ToByte(color_CustomCharacterName.Substring(4, 2), 16), // B
+                Convert.ToByte(color_CustomCharacterName.Substring(2, 2), 16), // G
+                Convert.ToByte(color_CustomCharacterName.Substring(0, 2), 16)  // R
+                };
+            }
+
+            //BackgroundFill
+            string color_BackgroundFill = iniReader.Read("BackgroundFill", "Color").TrimStart('#');
+            DatScheme.Part1.BackgroundFill_RGB = new byte[]
+            {
+                Convert.ToByte(color_BackgroundFill.Substring(4, 2), 16), //B
+                Convert.ToByte(color_BackgroundFill.Substring(2, 2), 16), //G
+                Convert.ToByte(color_BackgroundFill.Substring(0, 2), 16)  //R
+            };
+            DatScheme.Part1.BackgroundFill_Opacity = Convert.ToByte(iniReader.Read("BackgroundFill", "Opacity"));
+
+            //Fonts_ID
+            DatScheme.Part1.MessageWindow_MessagePart_FontID = Convert.ToUInt16(iniReader.Read("Fonts_ID", "MessageWindow_Message"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_FontID = Convert.ToUInt16(iniReader.Read("Fonts_ID", "MessageWindow_CharacterName"));
+            DatScheme.Part3.ChoiceBox_Text_FontID = Convert.ToUInt16(iniReader.Read("Fonts_ID", "ChoiceBoxes"));
+
+            //MessageWindow_LayerOrder
+            DatScheme.Part1.MessageWindow_RECTOrder_SurfaceImage = Convert.ToUInt16(iniReader.Read("MessageWindow_LayerOrder", "SurfaceImage"));
+            DatScheme.Part1.MessageWindow_RECTOrder_Image = Convert.ToUInt16(iniReader.Read("MessageWindow_LayerOrder", "Image"));
+            DatScheme.Part1.MessageWindow_RECTOrder_SurfaceMessageText = Convert.ToUInt16(iniReader.Read("MessageWindow_LayerOrder", "SurfaceMessageText"));
+            DatScheme.Part1.MessageWindow_RECTOrder_SurfaceCharacterNameText = Convert.ToUInt16(iniReader.Read("MessageWindow_LayerOrder", "SurfaceCharacterNameText"));
+            DatScheme.Part1.MessageWindow_RECTOrder_MessageText = Convert.ToUInt16(iniReader.Read("MessageWindow_LayerOrder", "MessageText"));
+            DatScheme.Part1.MessageWindow_RECTOrder_CharacterNameText = Convert.ToUInt16(iniReader.Read("MessageWindow_LayerOrder", "CharacterNameText"));
+
+            //Slots_ChoiceBoxes
+            DatScheme.Part1.ChoiceBox_FirstID = Convert.ToUInt16(iniReader.Read("Slots_ChoiceBoxes", "FirstID"));
+            DatScheme.Part1.ChoiceBox_LastID = Convert.ToUInt16(iniReader.Read("Slots_ChoiceBoxes", "LastID"));
+
+            //Audio
+            DatScheme.Part1.AudioInstances_TotalAmount = Convert.ToUInt16(iniReader.Read("Audio", "TotalChannels"));
+            DatScheme.Part1.AudioInstances_BGM = Convert.ToUInt16(iniReader.Read("Audio", "BGM_ID"));
+            DatScheme.Part1.AudioInstances_Voice = Convert.ToUInt16(iniReader.Read("Audio", "Voice_ID"));
+            DatScheme.Part1.AudioInstances_Unused = Convert.ToByte(iniReader.Read("Audio", "Unused_ID"));
+
+            //MessageWindow_Message
+            DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Enable = Convert.ToByte(iniReader.Read("MessageWindow_Message", "BackgroundFill_Enabled"));
+            DatScheme.Part2.MessageWindow_MessagePart_Background_X = Convert.ToInt16(iniReader.Read("MessageWindow_Message", "Background_X"));
+            DatScheme.Part2.MessageWindow_MessagePart_Background_Y = Convert.ToInt16(iniReader.Read("MessageWindow_Message", "Background_Y"));
+            DatScheme.Part2.MessageWindow_MessagePart_Text_X = Convert.ToInt16(iniReader.Read("MessageWindow_Message", "Text_X"));
+            DatScheme.Part2.MessageWindow_MessagePart_Text_Y = Convert.ToInt16(iniReader.Read("MessageWindow_Message", "Text_Y"));
+            DatScheme.Part2.MessageWindow_MessagePart_Text_Width = Convert.ToUInt16(iniReader.Read("MessageWindow_Message", "Text_Width"));
+            DatScheme.Part2.MessageWindow_MessagePart_Text_Height = Convert.ToUInt16(iniReader.Read("MessageWindow_Message", "Text_Height"));
+            DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_X = Convert.ToInt16(iniReader.Read("MessageWindow_Message", "BackgroundFill_X"));
+            DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Y = Convert.ToInt16(iniReader.Read("MessageWindow_Message", "BackgroundFill_Y"));
+            DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Width = Convert.ToUInt16(iniReader.Read("MessageWindow_Message", "BackgroundFill_Width"));
+            DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Height = Convert.ToUInt16(iniReader.Read("MessageWindow_Message", "BackgroundFill_Height"));
+            DatScheme.Part2.MessageWindow_MessagePart_Background_ImageFile = iniReader.Read("MessageWindow_Message", "ImageFile");
+
+            //MessageWindow_CharacterName
+            DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Enable = Convert.ToByte(iniReader.Read("MessageWindow_CharacterName", "BackgroundFill_Enabled"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Background_X = Convert.ToInt16(iniReader.Read("MessageWindow_CharacterName", "Background_X"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Background_Y = Convert.ToInt16(iniReader.Read("MessageWindow_CharacterName", "Background_Y"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Text_X = Convert.ToInt16(iniReader.Read("MessageWindow_CharacterName", "Text_X"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Y = Convert.ToInt16(iniReader.Read("MessageWindow_CharacterName", "Text_Y"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Width = Convert.ToUInt16(iniReader.Read("MessageWindow_CharacterName", "Text_Width"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Height = Convert.ToUInt16(iniReader.Read("MessageWindow_CharacterName", "Text_Height"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_X = Convert.ToInt16(iniReader.Read("MessageWindow_CharacterName", "BackgroundFill_X"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Y = Convert.ToInt16(iniReader.Read("MessageWindow_CharacterName", "BackgroundFill_Y"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Width = Convert.ToUInt16(iniReader.Read("MessageWindow_CharacterName", "BackgroundFill_Width"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Height = Convert.ToUInt16(iniReader.Read("MessageWindow_CharacterName", "BackgroundFill_Height"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown1 = Convert.ToUInt16(iniReader.Read("MessageWindow_CharacterName", "Unknown_1"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown2 = Convert.ToUInt16(iniReader.Read("MessageWindow_CharacterName", "Unknown_2"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown3 = Convert.ToByte(iniReader.Read("MessageWindow_CharacterName", "Unknown_3"));
+            DatScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile = iniReader.Read("MessageWindow_CharacterName", "ImageFile");
+
+            //ChoiceBoxes
+            DatScheme.Part3.ChoiceBox_Text_Alignment = Convert.ToByte(iniReader.Read("ChoiceBoxes", "TextAlignment"));
+            DatScheme.Part3.ChoiceBox_BackgroundFill_Enable = Convert.ToByte(iniReader.Read("ChoiceBoxes", "BackgroundFill_Enabled"));
+            DatScheme.Part3.ChoiceBox_Text_RECT_X = Convert.ToInt16(iniReader.Read("ChoiceBoxes", "RECT_X"));
+            DatScheme.Part3.ChoiceBox_Text_RECT_Y = Convert.ToInt16(iniReader.Read("ChoiceBoxes", "RECT_Y"));
+            DatScheme.Part3.ChoiceBox_Text_RECT_Width = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "Text_RECT_Width"));
+            DatScheme.Part3.ChoiceBox_Text_RECT_Height = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "Text_RECT_Height"));
+            DatScheme.Part3.ChoiceBox_Unknown1 = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "Unknown_1"));
+            DatScheme.Part3.ChoiceBox_Unknown2 = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "Unknown_2"));
+            DatScheme.Part3.ChoiceBox_Unknown3 = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "Unknown_3"));
+            DatScheme.Part3.ChoiceBox_BackgroundFill_Height = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "BackgroundFill_Height"));
+            DatScheme.Part3.ChoiceBox_BackgroundFill_Width = Convert.ToUInt16(iniReader.Read("ChoiceBoxes", "BackgroundFill_Width"));
+            DatScheme.Part3.ChoiceBox_Unknown4 = Convert.ToInt16(iniReader.Read("ChoiceBoxes", "Unknown_4"));
+            DatScheme.Part3.ChoiceBox_Image_YMargin = Convert.ToInt16(iniReader.Read("ChoiceBoxes", "Image_YMargin"));
+            DatScheme.Part3.ChoiceBox_Image_XMargin = Convert.ToInt16(iniReader.Read("ChoiceBoxes", "Image_XMargin"));
+            DatScheme.Part3.ChoiceBox_Unknown5 = Convert.ToInt16(iniReader.Read("ChoiceBoxes", "Unknown_5"));
+            DatScheme.Part3.ChoiceBox_Image_NotChosen = iniReader.Read("ChoiceBoxes", "ImageFile_NotChosen");
+            DatScheme.Part3.ChoiceBox_Image_NotChosen_MouseHovered = iniReader.Read("ChoiceBoxes", "ImageFile_NotChosen_MouseHovered");
+            DatScheme.Part3.ChoiceBox_Image_AlreadyChosen = iniReader.Read("ChoiceBoxes", "ImageFile_AlreadyChosen");
+            DatScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered = iniReader.Read("ChoiceBoxes", "ImageFile_AlreadyChosen_MouseHovered");
         }
 
         ///<summary>Exports the DAT scheme to a string array.</summary>
@@ -825,8 +1027,8 @@ namespace Turune.Models.Formats.Initialization
             iniCreator.Write("Slots", "Objects", DatScheme.Part1.Obj_Slots.ToString());
             iniCreator.Write("Slots", "Mask", DatScheme.Part1.MSK_Slots.ToString());
             iniCreator.Write("Slots", "CGB", DatScheme.Part1.CGB_Slots.ToString());
-            iniCreator.Write("Slots", "SI", DatScheme.Part1.Button_Slots.ToString());
-            iniCreator.Write("Slots", "Button", DatScheme.Part1.Box_Slots.ToString());
+            iniCreator.Write("Slots", "Button", DatScheme.Part1.Button_Slots.ToString());
+            iniCreator.Write("Slots", "Box", DatScheme.Part1.Box_Slots.ToString());
             iniCreator.Write("Slots", "MessageLog", DatScheme.Part1.MessageLog_Slots.ToString());
 
             //obj IDs
