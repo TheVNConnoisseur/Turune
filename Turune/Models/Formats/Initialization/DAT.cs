@@ -37,7 +37,7 @@ namespace Turune.Models.Formats.Initialization
             public string DATKey { get; set; } = "";
             public ushort WindowWidth { get; set; }
             public ushort WindowHeight { get; set; }
-            public byte[] Reserved0 { get; set; } = [0xD0, 0x02];
+            public byte[] Reserved0 { get; set; } = [0x00, 0x00];
 
             //Flags
             public int DI_Flags { get; set; }
@@ -292,7 +292,7 @@ namespace Turune.Models.Formats.Initialization
         {
             public int Height { get; set; } = 25;
             public int Width { get; set; } = 0;
-            public int Weight { get; set; } = 44;
+            public int Weight { get; set; } = 300;
             public int DropShadow_HorizontalOffset { get; set; } = 1;
             public int DropShadow_VerticalOffset { get; set; } = 1;
             public byte[] DropShadow_RGBA { get; set; } = [0x41, 0x00, 0x00, 0x00]; //RGBA is a class present only in .NET 11 and above (https://learn.microsoft.com/en-us/dotnet/api/system.numerics.colors.rgba?view=net-11.0)
@@ -1017,11 +1017,11 @@ namespace Turune.Models.Formats.Initialization
 
             //Flags
             iniCreator.Write("Flags", "DI", DatScheme.Part1.DI_Flags.ToString());
-            iniCreator.Write("Flags", "DG", DatScheme.Part1.DI_Flags.ToString());
-            iniCreator.Write("Flags", "DT", DatScheme.Part1.DI_Flags.ToString());
-            iniCreator.Write("Flags", "SI", DatScheme.Part1.DI_Flags.ToString());
-            iniCreator.Write("Flags", "SG", DatScheme.Part1.DI_Flags.ToString());
-            iniCreator.Write("Flags", "ST", DatScheme.Part1.DI_Flags.ToString());
+            iniCreator.Write("Flags", "DG", DatScheme.Part1.DG_Flags.ToString());
+            iniCreator.Write("Flags", "DT", DatScheme.Part1.DT_Flags.ToString());
+            iniCreator.Write("Flags", "SI", DatScheme.Part1.SI_Flags.ToString());
+            iniCreator.Write("Flags", "SG", DatScheme.Part1.SG_Flags.ToString());
+            iniCreator.Write("Flags", "ST", DatScheme.Part1.ST_Flags.ToString());
 
             //Slots
             iniCreator.Write("Slots", "Objects", DatScheme.Part1.Obj_Slots.ToString());
@@ -1333,8 +1333,134 @@ namespace Turune.Models.Formats.Initialization
             ////////////
             // 2nd PART
             ////////////
-            
 
+            //Message window: message part background fill and RECTs
+            outputFile.AddRange(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Enable);
+            outputFile.AddRange(DatScheme.Part2.Reserved0);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_Background_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_Background_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_Text_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_Text_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_Text_Width));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_Text_Height));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Width));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Height));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part2.MessageWindow_MessagePart_Background_ImageFile, 260, shiftJIS));
+
+            //Message window: character name part
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_FontID));
+            outputFile.AddRange(DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Enable);
+            outputFile.AddRange(DatScheme.Part2.Reserved1);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Background_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Background_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Text_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Width));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Height));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Width));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Height));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown1));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown2));
+            outputFile.AddRange(DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown3);
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile, 260, shiftJIS));
+
+            //Reserved
+            outputFile.AddRange(DatScheme.Part2.Reserved2);
+            outputFile.AddRange(DatScheme.Part2.Reserved3);
+            outputFile.AddRange(DatScheme.Part2.Reserved4);
+            outputFile.AddRange(DatScheme.Part2.Reserved5);
+            outputFile.AddRange(DatScheme.Part2.Reserved6);
+            outputFile.AddRange(DatScheme.Part2.Reserved7);
+            outputFile.AddRange(DatScheme.Part2.Reserved8);
+            outputFile.AddRange(DatScheme.Part2.Reserved9);
+            outputFile.AddRange(DatScheme.Part2.Reserved10);
+            outputFile.AddRange(DatScheme.Part2.Reserved11);
+            outputFile.AddRange(DatScheme.Part2.Reserved12);
+            outputFile.AddRange(DatScheme.Part2.Reserved13);
+            outputFile.AddRange(DatScheme.Part2.Reserved14);
+            outputFile.AddRange(DatScheme.Part2.Reserved15);
+            outputFile.AddRange(DatScheme.Part2.Reserved16);
+            outputFile.AddRange(DatScheme.Part2.Reserved17);
+
+            while (outputFile.Count < 22916)    //Adding the padding until the next section
+                outputFile.Add(0x00);
+
+            ////////////
+            // 2nd PART
+            ////////////
+
+            //Choice boxes: main parameters
+            outputFile.AddRange(DatScheme.Part3.ChoiceBox_Text_Alignment);
+            outputFile.AddRange(DatScheme.Part3.Reserved0);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Text_FontID));
+            outputFile.AddRange(DatScheme.Part3.ChoiceBox_Text_RGB);
+            outputFile.AddRange(DatScheme.Part3.ChoiceBox_BackgroundFill_Enable);
+
+            //Choice boxes: RECT positions
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Text_RECT_X));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Text_RECT_Y));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Text_RECT_Width));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Text_RECT_Height));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Unknown1));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Unknown2));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Unknown3));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_BackgroundFill_Height));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_BackgroundFill_Width));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Unknown4));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Image_YMargin));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Image_XMargin));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Unknown5));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_NotChosen, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_NotChosen_MouseHovered, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_AlreadyChosen, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered, 260, shiftJIS));
+
+            //Unused
+            outputFile.AddRange(DatScheme.Part3.Reserved1);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused0));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused1));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused2));
+            outputFile.AddRange(DatScheme.Part3.Reserved2);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused3));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused4));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused5));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused6));
+            outputFile.AddRange(DatScheme.Part3.Reserved3);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused7));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused8));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused9));
+            outputFile.AddRange(DatScheme.Part3.Reserved4);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused10));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused11));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused12));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused13));
+            outputFile.AddRange(DatScheme.Part3.Reserved5);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused14));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused15));
+            outputFile.AddRange(DatScheme.Part3.Reserved6);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused16));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused17));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused18));
+            outputFile.AddRange(DatScheme.Part3.Reserved7);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused19));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused20));
+            outputFile.AddRange(DatScheme.Part3.Reserved8);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused21));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused22));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.Unused23));
+
+            while (outputFile.Count < 50196)    //Adding the padding until the expecting end of file
+                outputFile.Add(0x00);
 
             return outputFile.ToArray();
         }
