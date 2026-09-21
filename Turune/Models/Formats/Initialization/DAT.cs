@@ -905,6 +905,38 @@ namespace Turune.Models.Formats.Initialization
             // 2nd PART
             ////////////
 
+            //Message window: message part background fill and RECTs
+            iniCreator.Write("MessageWindow_Message", "BackgroundFill_Enabled", DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Enable.ToString());
+            iniCreator.Write("MessageWindow_Message", "Background_X", DatScheme.Part2.MessageWindow_MessagePart_Background_X.ToString());
+            iniCreator.Write("MessageWindow_Message", "Background_Y", DatScheme.Part2.MessageWindow_MessagePart_Background_Y.ToString());
+            iniCreator.Write("MessageWindow_Message", "Text_X", DatScheme.Part2.MessageWindow_MessagePart_Text_X.ToString());
+            iniCreator.Write("MessageWindow_Message", "Text_Y", DatScheme.Part2.MessageWindow_MessagePart_Text_Y.ToString());
+            iniCreator.Write("MessageWindow_Message", "Text_Width", DatScheme.Part2.MessageWindow_MessagePart_Text_Width.ToString());
+            iniCreator.Write("MessageWindow_Message", "Text_Height", DatScheme.Part2.MessageWindow_MessagePart_Text_Height.ToString());
+            iniCreator.Write("MessageWindow_Message", "BackgroundFill_X", DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_X.ToString());
+            iniCreator.Write("MessageWindow_Message", "BackgroundFill_Y", DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Y.ToString());
+            iniCreator.Write("MessageWindow_Message", "BackgroundFill_Width", DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Width.ToString());
+            iniCreator.Write("MessageWindow_Message", "BackgroundFill_Height", DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Height.ToString());
+            iniCreator.Write("MessageWindow_Message", "ImageFile", DatScheme.Part2.MessageWindow_MessagePart_Background_ImageFile);
+
+            //Message window: character name part
+            iniCreator.Write("Fonts_ID", "MessageWindow_CharacterName", DatScheme.Part2.MessageWindow_CharacterNamePart_FontID.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "BackgroundFill_Enabled", DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Enable.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Background_X", DatScheme.Part2.MessageWindow_CharacterNamePart_Background_X.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Background_Y", DatScheme.Part2.MessageWindow_CharacterNamePart_Background_Y.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Text_X", DatScheme.Part2.MessageWindow_CharacterNamePart_Text_X.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Text_Y", DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Y.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Text_Width", DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Width.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Text_Height", DatScheme.Part2.MessageWindow_CharacterNamePart_Text_Height.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "BackgroundFill_X", DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_X.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "BackgroundFill_Y", DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Y.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "BackgroundFill_Width", DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Width.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "BackgroundFill_Height", DatScheme.Part2.MessageWindow_CharacterNamePart_BackgroundFill_Height.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Unknown_1", DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown1.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Unknown_2", DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown2.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "Unknown_3", DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown3.ToString());
+            iniCreator.Write("MessageWindow_CharacterName", "ImageFile", DatScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile);
+
             return iniCreator.Create();
         }
     }
