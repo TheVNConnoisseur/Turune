@@ -1185,14 +1185,169 @@ namespace Turune.Models.Formats.Initialization
             return iniCreator.Create();
         }
 
+        ///<summary>Create an original system.dat file from the DAT scheme.</summary>
+        public byte[] Generate()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
+
+            List<byte> outputFile = new List<byte>();
+
+            ////////////
+            // 1st PART
+            ////////////
+
+            int gameIdentifier = (int)(DatScheme.Part1.GameIdentifier - new DateTime(1970, 1, 1)).TotalSeconds;
+            outputFile.AddRange(BitConverter.GetBytes(gameIdentifier));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.GameSystemMode));
+            outputFile.AddRange(DatScheme.Part1.ExclusiveFullscreen);
+            outputFile.AddRange(DatScheme.Part1.LocaleEnglish);
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.WindowTitle, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.DATKey, 260, shiftJIS));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.WindowWidth));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.WindowHeight));
+            outputFile.AddRange(DatScheme.Part1.Reserved0);
+
+            //Flags
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.DI_Flags));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.DG_Flags));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.DT_Flags));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.SI_Flags));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.SG_Flags));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ST_Flags));
+
+            //Slots
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Obj_Slots));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MSK_Slots));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.CGB_Slots));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Button_Slots));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Box_Slots));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageLog_Slots));
+
+            //obj IDs
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ObjID_MessageWindow));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ObjID_MaxValueOnBoot));
+
+            //Folder names
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.SDT_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.MG2_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.MAL_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.BGM_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.Voice_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.SE_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.AM2_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.Unused_FolderName, 260, shiftJIS));
+
+            //Save files
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.SaveData_FolderName, 260, shiftJIS));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.SaveData_FileName, 260, shiftJIS));
+
+            //Close game process
+            outputFile.AddRange(DatScheme.Part1.CloseGame_UseMessageBox);
+            outputFile.AddRange(DatScheme.Part1.Reserved1);
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.CloseGame_SeenNumber));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.CloseGame_JumpLabel, 260, shiftJIS));
+
+            //Screen mode process
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ScreenMode_ActivateFullScreen_SeenNumber));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel, 260, shiftJIS));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ScreenMode_ActivateWindowed_SeenNumber));
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel, 260, shiftJIS));
+
+            //Fonts
+            outputFile.AddRange(
+                CreateByteArrayFromString(DatScheme.Part1.FontName, 260, shiftJIS));
+            for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
+            {
+                outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].Height));
+                outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].Width));
+                outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].Weight));
+                outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].DropShadow_HorizontalOffset));
+                outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].DropShadow_VerticalOffset));
+                outputFile.AddRange(DatScheme.Part1.Font[i].DropShadow_RGBA);
+                outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].Reserved));
+            }
+
+            //Message window: color customization
+            for (int i = 0; i < DatScheme.Part1.MessageWindow_CustomColorCharName_CharName.Length; i++)
+                outputFile.AddRange(
+                        CreateByteArrayFromString(DatScheme.Part1.MessageWindow_CustomColorCharName_CharName[i], 50, shiftJIS));
+            for (int i = 0; i < DatScheme.Part1.MessageWindow_CustomColorCharName_RGB.Length; i++)
+                outputFile.AddRange(DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i]);
+            outputFile.AddRange(DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB);
+            outputFile.AddRange(DatScheme.Part1.MessageWindow_CustomColorCharName_Enable);
+            outputFile.AddRange(DatScheme.Part1.MessageWindow_Message_DefaultRGB);
+
+            //Background fill
+            outputFile.AddRange(DatScheme.Part1.BackgroundFill_RGB);
+            outputFile.AddRange(DatScheme.Part1.BackgroundFill_Opacity);
+
+            //Reserved: some of these values get copied directly to the save game file, but they are not used by the game in any way.
+            outputFile.AddRange(DatScheme.Part1.ReservedSaveGame0);
+            outputFile.AddRange(DatScheme.Part1.ReservedSaveGame1);
+            outputFile.AddRange(DatScheme.Part1.Reserved2);
+            outputFile.AddRange(DatScheme.Part1.ReservedSaveGame2);
+
+            //Message window: font used and order of the RECTS
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_MessagePart_FontID));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_RECTOrder_SurfaceImage));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_RECTOrder_Image));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_RECTOrder_SurfaceMessageText));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_RECTOrder_SurfaceCharacterNameText));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_RECTOrder_MessageText));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.MessageWindow_RECTOrder_CharacterNameText));
+
+            //Choice boxes: obj IDs slots
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ChoiceBox_FirstID));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ChoiceBox_LastID));
+
+            //Audio instances
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.AudioInstances_TotalAmount));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.AudioInstances_BGM));
+            outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.AudioInstances_Voice));
+            outputFile.AddRange(DatScheme.Part1.AudioInstances_Unused);
+
+            //SDT key
+            outputFile.AddRange(DatScheme.Part1.SDTKey_Shuffler);
+            byte[] sdtkey_Trimmed = EncryptSDTKey(DatScheme.Part1.SDTKey, DatScheme.Part1.DATKey);
+            byte[] sdtKey = new byte[260]; sdtKey.Initialize();
+            Buffer.BlockCopy(sdtkey_Trimmed, 0, sdtKey, 0, sdtkey_Trimmed.Length);
+            outputFile.AddRange(sdtKey);
+
+
+            ////////////
+            // 2nd PART
+            ////////////
+            
+
+
+            return outputFile.ToArray();
+        }
+
         ///<summary>Decrypts the SDT key.</summary>
         ///<param name="encryptedSDTKey">Byte array of the encrypted key.</param>
+        ///<param name="datKey">String of the DAT key.</param>
         private static string DecryptSDTKey(byte[] encryptedSDTKey, string datKey)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
 
-            //Calculate the string lengths of SDT encrypted key and DAT key
+            //Calculate the string lengths of the SDT encrypted key and DAT key
             int datKey_Length = shiftJIS.GetByteCount(datKey);
             int sdtKey_Length = encryptedSDTKey.Length;
 
@@ -1202,11 +1357,53 @@ namespace Turune.Models.Formats.Initialization
             encryptedSDTKey[^1] = unchecked((byte)(encryptedSDTKey[^1] + lastbyte_Adjustment));
             
             //Nibble swap all of the SDT key bytes
-            for (int i = 0; i < sdtKey_Length; ++i)
+            for (int i = 0; i < sdtKey_Length; i++)
                 encryptedSDTKey[i] = (byte)((16 * encryptedSDTKey[i]) | (encryptedSDTKey[i] >> 4));
 
             //The key in reality is an ASCII string
             return Encoding.ASCII.GetString(encryptedSDTKey);
+        }
+
+        ///<summary>Encrypts the SDT key.</summary>
+        ///<param name="decryptedSDTkey">String of the decrypted key.</param>
+        ///<param name="datKey">String of the DAT key.</param>
+        private static byte[] EncryptSDTKey(string decryptedSDTkey, string datKey)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
+
+            byte[] encryptedSDTKey = Encoding.ASCII.GetBytes(decryptedSDTkey);
+
+            //Calculate the string lengths of the SDT encrypted key and DAT key
+            int datKey_Length = shiftJIS.GetByteCount(datKey);
+            int sdtKey_Length = encryptedSDTKey.Length;
+
+            //Nibble swap all of the SDT key bytes
+            for (int i = 0; i < sdtKey_Length; i++)
+                encryptedSDTKey[i] = (byte)((16 * encryptedSDTKey[i]) | (encryptedSDTKey[i] >> 4));
+
+            //Calculate the first and last byte for the SDT key
+            int lastbyte_Adjustment = 47 * (datKey_Length / 47) - datKey_Length;
+            encryptedSDTKey[^1] = unchecked((byte)(encryptedSDTKey[^1] - lastbyte_Adjustment));
+            encryptedSDTKey[0] = unchecked((byte)(encryptedSDTKey[0] + datKey_Length));
+
+            return encryptedSDTKey;
+        }
+
+        ///<summary>Creates an arbitrary byte long array from a string,
+        ///the length the game expects for all strings.</summary>
+        ///<param name="name">String to include in the byte array.</param>
+        ///<param name="length">Length of the resulting byte array.</param>
+        ///<param name="encoding">Encoding used to store the string as.</param>
+        private static byte[] CreateByteArrayFromString(string name, int length, Encoding encoding)
+        {
+            byte[] nameArray = new byte[length]; nameArray.Initialize();
+
+            if (name == null)
+                name = "";
+            Buffer.BlockCopy(encoding.GetBytes(name), 0, nameArray, 0, encoding.GetBytes(name).Length);
+
+            return nameArray;
         }
     }
 }
