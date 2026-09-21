@@ -2,6 +2,7 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Input;
 using static Turune.Models.Formats.Initialization.INI;
 
 namespace Turune.Models.Formats.Initialization
@@ -118,7 +119,7 @@ namespace Turune.Models.Formats.Initialization
 
             //SDT key
             public byte SDTKey_Shuffler { get; set; } = 0;
-            public byte[] SDTKey { get; set; } = new byte[260];
+            public string SDTKey { get; set; } = "";
 
             //Methods
             private static DATScheme_Font[] DefaultFonts()
@@ -538,7 +539,10 @@ namespace Turune.Models.Formats.Initialization
             DatScheme.Part1.SDTKey_Shuffler = inputFile[currentOffset];
             currentOffset++;
 
-            DatScheme.Part1.SDTKey = inputFile.AsSpan(currentOffset, 260).ToArray();
+            byte[] encryptedSDTKey = inputFile.AsSpan(currentOffset, 260).ToArray();    //The SDT key is encrypted from the get-go
+            int sdtKey_NullIndex = Array.IndexOf(encryptedSDTKey, (byte)0);     //Since it is a string when decrypted, we have to trim out the null bytes in the end (if there are)
+            encryptedSDTKey = encryptedSDTKey.AsSpan(0, sdtKey_NullIndex).ToArray();
+            DatScheme.Part1.SDTKey = DecryptSDTKey(encryptedSDTKey, DatScheme.Part1.DATKey);
             currentOffset += 260;
 
 
@@ -768,15 +772,26 @@ namespace Turune.Models.Formats.Initialization
 
         ///<summary>Gets the DAT scheme from a normal INI file.</summary>
         ///<param name="inputLines">DAT file as an array of strings.</param>
-        public void WIPParseUnpacked(string[] inputLines)
+        public void ParseUnpacked(string[] inputLines)
         {
             var iniReader = new Utils.IniFile();
             iniReader.Parse(inputLines);
 
-            if (!iniReader.SectionExists("General"))
-                throw new Exception("The INI file is missing the [General] section.");
-            if (!iniReader.SectionExists("Security"))
-                throw new Exception("The INI file is missing the [Security] section.");
+            //Sanity check to ensure that the game has the fundamental sections
+            string[] requiredSections =
+            {
+                "General", "Security", "Flags", "Slots", "Object_ID", "FolderNames", "SaveGames",
+                "Process_CloseGame", "Process_ScreenMode", "Fonts", "Fonts_CharacterNameCustomColor",
+                "BackgroundFill", "Fonts_ID", "MessageWindow_LayerOrder", "Slots_ChoiceBoxes", "Audio",
+                "MessageWindow_Message", "MessageWindow_CharacterName", "ChoiceBoxes"
+            };
+            
+            string[] missingSections = requiredSections.Where(section => !iniReader.SectionExists(section)).ToArray();
+
+            if (missingSections.Length > 0)
+                throw new Exception($"The INI file is missing the following sections: {string.Join(", ", missingSections)}");
+
+
 
         }
 
@@ -895,10 +910,7 @@ namespace Turune.Models.Formats.Initialization
             iniCreator.Write("Audio", "Unused_ID", DatScheme.Part1.AudioInstances_Unused.ToString());
 
             //SDT key
-            iniCreator.Write("Security", "SDTKey_Shuffler", DatScheme.Part1.SDTKey_Shuffler.ToString());
-            int sdtKey_NullIndex = Array.IndexOf(DatScheme.Part1.SDTKey, (byte)0);
-            string sdtKey_Trimmed = Convert.ToHexString(DatScheme.Part1.SDTKey, 0, sdtKey_NullIndex >= 0 ? sdtKey_NullIndex : DatScheme.Part1.SDTKey.Length);
-            iniCreator.Write("Security", "SDTKey", "0x" + sdtKey_Trimmed);
+            iniCreator.Write("Security", "SDTKey", DatScheme.Part1.SDTKey);
 
 
             ////////////
@@ -969,6 +981,30 @@ namespace Turune.Models.Formats.Initialization
             iniCreator.Write("ChoiceBoxes", "ImageFile_AlreadyChosen_MouseHovered", DatScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered);
 
             return iniCreator.Create();
+        }
+
+        ///<summary>Decrypts the SDT key.</summary>
+        ///<param name="encryptedSDTKey">Byte array of the encrypted key.</param>
+        private static string DecryptSDTKey(byte[] encryptedSDTKey, string datKey)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
+
+            //Calculate the string lengths of SDT encrypted key and DAT key
+            int datKey_Length = shiftJIS.GetByteCount(datKey);
+            int sdtKey_Length = encryptedSDTKey.Length;
+
+            //Calculate the first and last byte for the SDT key
+            encryptedSDTKey[0] = unchecked((byte)(encryptedSDTKey[0] - datKey_Length));
+            int lastbyte_Adjustment = 47 * (datKey_Length / 47) - datKey_Length;
+            encryptedSDTKey[^1] = unchecked((byte)(encryptedSDTKey[^1] + lastbyte_Adjustment));
+            
+            //Nibble swap all of the SDT key bytes
+            for (int i = 0; i < sdtKey_Length; ++i)
+                encryptedSDTKey[i] = (byte)((16 * encryptedSDTKey[i]) | (encryptedSDTKey[i] >> 4));
+
+            //The key in reality is an ASCII string
+            return Encoding.ASCII.GetString(encryptedSDTKey);
         }
     }
 }
