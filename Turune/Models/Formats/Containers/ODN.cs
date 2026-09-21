@@ -12,7 +12,7 @@ namespace Turune.Models.Formats.Containers
         internal class ODNScheme
         {
             public List<ODNScheme_Entry> Entries { get; set; } = [];
-            List<byte> RawData { get; set; } = [];
+            public byte[] RawData { get; set; } = [];
         }
 
         internal class ODNScheme_Entry
@@ -40,7 +40,32 @@ namespace Turune.Models.Formats.Containers
                 }
             }
 
+            firstEntryOffset = Encoding.ASCII.GetString(inputFile.AsSpan(8, 8).ToArray());  //Recalculate the offset in case the file was encrypted
+            int currentOffset = 0;
+            if (firstEntryOffset != "00000000")
+            {
+                uint rawDataOffset = uint.Parse(firstEntryOffset, NumberStyles.HexNumber);
+                while (currentOffset < rawDataOffset)
+                {
+                    string currentEntryOffset = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset + 8, 8).ToArray());
 
+                    ODNScheme_Entry entry = new ODNScheme_Entry
+                    {
+                        Name = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 8).ToArray()),
+                        Offset = uint.Parse(currentEntryOffset, NumberStyles.HexNumber) - rawDataOffset //Normalize to 0
+                    };
+
+                    OdnScheme.Entries.Add(entry);
+                    currentOffset += 16;
+                }
+
+                //Copy the contents from all entries
+                OdnScheme.RawData = new byte[inputFile.Length - rawDataOffset];
+                Buffer.BlockCopy(inputFile, (int)rawDataOffset, OdnScheme.RawData, 0, OdnScheme.RawData.Length);
+            }
+            else
+            {
+            }
         }
     }
 }
