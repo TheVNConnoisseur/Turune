@@ -937,6 +937,37 @@ namespace Turune.Models.Formats.Initialization
             iniCreator.Write("MessageWindow_CharacterName", "Unknown_3", DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown3.ToString());
             iniCreator.Write("MessageWindow_CharacterName", "ImageFile", DatScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile);
 
+
+            ////////////
+            // 3rd PART
+            ////////////
+
+            //Choice boxes: main parameters
+            iniCreator.Write("ChoiceBoxes", "TextAlignment", DatScheme.Part3.ChoiceBox_Text_Alignment.ToString());
+            iniCreator.Write("Fonts_ID", "ChoiceBoxes", DatScheme.Part3.ChoiceBox_Text_FontID.ToString());
+            iniCreator.Write("Fonts", "ChoiceBox_Text_RGB", $"#{DatScheme.Part3.ChoiceBox_Text_RGB[2]:X2}" +
+                    $"{DatScheme.Part3.ChoiceBox_Text_RGB[1]:X2}{DatScheme.Part3.ChoiceBox_Text_RGB[0]:X2}");
+            iniCreator.Write("ChoiceBoxes", "BackgroundFill_Enabled", DatScheme.Part3.ChoiceBox_BackgroundFill_Enable.ToString());
+
+            //Choice boxes: RECT positions
+            iniCreator.Write("ChoiceBoxes", "RECT_X", DatScheme.Part3.ChoiceBox_Text_RECT_X.ToString());
+            iniCreator.Write("ChoiceBoxes", "RECT_Y", DatScheme.Part3.ChoiceBox_Text_RECT_Y.ToString());
+            iniCreator.Write("ChoiceBoxes", "Text_RECT_Width", DatScheme.Part3.ChoiceBox_Text_RECT_Width.ToString());
+            iniCreator.Write("ChoiceBoxes", "Text_RECT_Height", DatScheme.Part3.ChoiceBox_Text_RECT_Height.ToString());
+            iniCreator.Write("ChoiceBoxes", "Unknown_1", DatScheme.Part3.ChoiceBox_Unknown1.ToString());
+            iniCreator.Write("ChoiceBoxes", "Unknown_2", DatScheme.Part3.ChoiceBox_Unknown2.ToString());
+            iniCreator.Write("ChoiceBoxes", "Unknown_3", DatScheme.Part3.ChoiceBox_Unknown3.ToString());
+            iniCreator.Write("ChoiceBoxes", "BackgroundFill_Height", DatScheme.Part3.ChoiceBox_BackgroundFill_Height.ToString());
+            iniCreator.Write("ChoiceBoxes", "BackgroundFill_Width", DatScheme.Part3.ChoiceBox_BackgroundFill_Width.ToString());
+            iniCreator.Write("ChoiceBoxes", "Unknown_4", DatScheme.Part3.ChoiceBox_Unknown4.ToString());
+            iniCreator.Write("ChoiceBoxes", "Image_YMargin", DatScheme.Part3.ChoiceBox_Image_YMargin.ToString());
+            iniCreator.Write("ChoiceBoxes", "Image_XMargin", DatScheme.Part3.ChoiceBox_Image_XMargin.ToString());
+            iniCreator.Write("ChoiceBoxes", "Unknown_5", DatScheme.Part3.ChoiceBox_Unknown5.ToString());
+            iniCreator.Write("ChoiceBoxes", "ImageFile_NotChosen", DatScheme.Part3.ChoiceBox_Image_NotChosen);
+            iniCreator.Write("ChoiceBoxes", "ImageFile_NotChosen_MouseHovered", DatScheme.Part3.ChoiceBox_Image_NotChosen_MouseHovered);
+            iniCreator.Write("ChoiceBoxes", "ImageFile_AlreadyChosen", DatScheme.Part3.ChoiceBox_Image_AlreadyChosen);
+            iniCreator.Write("ChoiceBoxes", "ImageFile_AlreadyChosen_MouseHovered", DatScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered);
+
             return iniCreator.Create();
         }
     }
