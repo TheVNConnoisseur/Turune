@@ -766,8 +766,8 @@ namespace Turune.Models.Formats.Initialization
 
         }
 
-        ///<summary>Gets the INI scheme from a normal INI file.</summary>
-        ///<param name="inputLines">INI file as an array of strings.</param>
+        ///<summary>Gets the DAT scheme from a normal INI file.</summary>
+        ///<param name="inputLines">DAT file as an array of strings.</param>
         public void WIPParseUnpacked(string[] inputLines)
         {
             var iniReader = new Utils.IniFile();
@@ -780,7 +780,7 @@ namespace Turune.Models.Formats.Initialization
 
         }
 
-        ///<summary>Exports the INI scheme to a string array.</summary>
+        ///<summary>Exports the DAT scheme to a string array.</summary>
         public string[] Export()
         {
             var iniCreator = new Utils.IniFile();
@@ -805,6 +805,105 @@ namespace Turune.Models.Formats.Initialization
             iniCreator.Write("Flags", "SI", DatScheme.Part1.DI_Flags.ToString());
             iniCreator.Write("Flags", "SG", DatScheme.Part1.DI_Flags.ToString());
             iniCreator.Write("Flags", "ST", DatScheme.Part1.DI_Flags.ToString());
+
+            //Slots
+            iniCreator.Write("Slots", "Objects", DatScheme.Part1.Obj_Slots.ToString());
+            iniCreator.Write("Slots", "Mask", DatScheme.Part1.MSK_Slots.ToString());
+            iniCreator.Write("Slots", "CGB", DatScheme.Part1.CGB_Slots.ToString());
+            iniCreator.Write("Slots", "SI", DatScheme.Part1.Button_Slots.ToString());
+            iniCreator.Write("Slots", "Button", DatScheme.Part1.Box_Slots.ToString());
+            iniCreator.Write("Slots", "MessageLog", DatScheme.Part1.MessageLog_Slots.ToString());
+
+            //obj IDs
+            iniCreator.Write("Object_ID", "MessageWindow", DatScheme.Part1.ObjID_MessageWindow.ToString());
+            iniCreator.Write("Object_ID", "MaxValueOnBoot", DatScheme.Part1.ObjID_MaxValueOnBoot.ToString());
+
+            //Folder names
+            iniCreator.Write("FolderNames", "SDT", DatScheme.Part1.SDT_FolderName);
+            iniCreator.Write("FolderNames", "MG2", DatScheme.Part1.MG2_FolderName);
+            iniCreator.Write("FolderNames", "MAL", DatScheme.Part1.MAL_FolderName);
+            iniCreator.Write("FolderNames", "BGM", DatScheme.Part1.BGM_FolderName);
+            iniCreator.Write("FolderNames", "Voice", DatScheme.Part1.Voice_FolderName);
+            iniCreator.Write("FolderNames", "SE", DatScheme.Part1.SE_FolderName);
+            iniCreator.Write("FolderNames", "AM2", DatScheme.Part1.AM2_FolderName);
+            iniCreator.Write("FolderNames", "Unused", DatScheme.Part1.Unused_FolderName);
+
+            //Save files
+            iniCreator.Write("SaveGames", "FolderName", DatScheme.Part1.SaveData_FolderName);
+            iniCreator.Write("SaveGames", "SaveName", DatScheme.Part1.SaveData_FileName);
+
+            //Close game process
+            iniCreator.Write("Process_CloseGame", "UseMessageBox", DatScheme.Part1.CloseGame_UseMessageBox.ToString());
+            iniCreator.Write("Process_CloseGame", "SeenNumber", DatScheme.Part1.CloseGame_SeenNumber.ToString());
+            iniCreator.Write("Process_CloseGame", "JumpLabel", DatScheme.Part1.CloseGame_JumpLabel);
+
+            //Screen mode process
+            iniCreator.Write("Process_ScreenMode", "FullScreen_SeenNumber", DatScheme.Part1.ScreenMode_ActivateFullScreen_SeenNumber.ToString());
+            iniCreator.Write("Process_ScreenMode", "FullScreen_JumpLabel", DatScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel);
+            iniCreator.Write("Process_ScreenMode", "Windowed_SeenNumber", DatScheme.Part1.ScreenMode_ActivateWindowed_SeenNumber.ToString());
+            iniCreator.Write("Process_ScreenMode", "Windowed_JumpLabel", DatScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel);
+
+            //Fonts
+            iniCreator.Write("Fonts", "Name", DatScheme.Part1.FontName);
+            for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
+            {
+                iniCreator.Write($"Fonts_{i}", "Height", DatScheme.Part1.Font[i].Height.ToString());
+                iniCreator.Write($"Fonts_{i}", "Width", DatScheme.Part1.Font[i].Width.ToString());
+                iniCreator.Write($"Fonts_{i}", "Weight", DatScheme.Part1.Font[i].Weight.ToString());
+                iniCreator.Write($"Fonts_{i}", "DropShadow_HorizontalOffset", DatScheme.Part1.Font[i].DropShadow_HorizontalOffset.ToString());
+                iniCreator.Write($"Fonts_{i}", "DropShadow_VerticalOffset", DatScheme.Part1.Font[i].DropShadow_VerticalOffset.ToString());
+                iniCreator.Write($"Fonts_{i}", "DropShadow_RGBA", $"#{DatScheme.Part1.Font[i].DropShadow_RGBA[3]:X2}" +
+                    $"{DatScheme.Part1.Font[i].DropShadow_RGBA[2]:X2}{DatScheme.Part1.Font[i].DropShadow_RGBA[1]:X2}" +
+                    $"{DatScheme.Part1.Font[i].DropShadow_RGBA[0]:X2}");
+            }
+
+            //Message window: color customization
+            iniCreator.Write("Fonts_CharacterNameCustomColor", "Enabled", DatScheme.Part1.MessageWindow_CustomColorCharName_Enable.ToString());
+            for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
+            {
+                iniCreator.Write($"Fonts_CharacterNameCustomColor_{i}", "CharacterName", DatScheme.Part1.MessageWindow_CustomColorCharName_CharName[i]);
+                iniCreator.Write($"Fonts_CharacterNameCustomColor_{i}", "Color", $"#{DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i][2]:X2}" +
+                    $"{DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i][1]:X2}{DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i][0]:X2}");
+            }
+            iniCreator.Write("Fonts", "Color_CharacterName", $"#{DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB[2]:X2}" +
+                    $"{DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB[1]:X2}{DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB[0]:X2}");
+            iniCreator.Write("Fonts", "Color_MessageText", $"#{DatScheme.Part1.MessageWindow_Message_DefaultRGB[2]:X2}" +
+                    $"{DatScheme.Part1.MessageWindow_Message_DefaultRGB[1]:X2}{DatScheme.Part1.MessageWindow_Message_DefaultRGB[0]:X2}");
+
+            //Background fill
+            iniCreator.Write("BackgroundFill", "Color", $"#{DatScheme.Part1.BackgroundFill_RGB[2]:X2}" +
+                    $"{DatScheme.Part1.BackgroundFill_RGB[1]:X2}{DatScheme.Part1.BackgroundFill_RGB[0]:X2}");
+            iniCreator.Write("BackgroundFill", "Opacity", DatScheme.Part1.BackgroundFill_Opacity.ToString());
+
+            //Message window: font used and order of the RECTS
+            iniCreator.Write("Fonts_ID", "MessageWindow_Message", DatScheme.Part1.MessageWindow_MessagePart_FontID.ToString());
+            iniCreator.Write("MessageWindow_LayerOrder", "SurfaceImage", DatScheme.Part1.MessageWindow_RECTOrder_SurfaceImage.ToString());
+            iniCreator.Write("MessageWindow_LayerOrder", "Image", DatScheme.Part1.MessageWindow_RECTOrder_Image.ToString());
+            iniCreator.Write("MessageWindow_LayerOrder", "SurfaceMessageText", DatScheme.Part1.MessageWindow_RECTOrder_SurfaceMessageText.ToString());
+            iniCreator.Write("MessageWindow_LayerOrder", "SurfaceCharacterNameText", DatScheme.Part1.MessageWindow_RECTOrder_SurfaceCharacterNameText.ToString());
+            iniCreator.Write("MessageWindow_LayerOrder", "MessageText", DatScheme.Part1.MessageWindow_RECTOrder_MessageText.ToString());
+            iniCreator.Write("MessageWindow_LayerOrder", "CharacterNameText", DatScheme.Part1.MessageWindow_RECTOrder_CharacterNameText.ToString());
+
+            //Choice boxes: obj IDs slots
+            iniCreator.Write("Slots_ChoiceBoxes", "FirstID", DatScheme.Part1.ChoiceBox_FirstID.ToString());
+            iniCreator.Write("Slots_ChoiceBoxes", "LastID", DatScheme.Part1.ChoiceBox_LastID.ToString());
+
+            //Audio instances
+            iniCreator.Write("Audio", "TotalChannels", DatScheme.Part1.AudioInstances_TotalAmount.ToString());
+            iniCreator.Write("Audio", "BGM_ID", DatScheme.Part1.AudioInstances_BGM.ToString());
+            iniCreator.Write("Audio", "Voice_ID", DatScheme.Part1.AudioInstances_Voice.ToString());
+            iniCreator.Write("Audio", "Unused_ID", DatScheme.Part1.AudioInstances_Unused.ToString());
+
+            //SDT key
+            iniCreator.Write("Security", "SDTKey_Shuffler", DatScheme.Part1.SDTKey_Shuffler.ToString());
+            int sdtKey_NullIndex = Array.IndexOf(DatScheme.Part1.SDTKey, (byte)0);
+            string sdtKey_Trimmed = Convert.ToHexString(DatScheme.Part1.SDTKey, 0, sdtKey_NullIndex >= 0 ? sdtKey_NullIndex : DatScheme.Part1.SDTKey.Length);
+            iniCreator.Write("Security", "SDTKey", "0x" + sdtKey_Trimmed);
+
+
+            ////////////
+            // 2nd PART
+            ////////////
 
             return iniCreator.Create();
         }
