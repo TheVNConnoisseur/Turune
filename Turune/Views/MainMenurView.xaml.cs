@@ -21,10 +21,10 @@ namespace Turune.Views
             _navigation = navigation;
             TitleMenu.Text = title;
             OptionList.ItemsSource = options;
-            BackButton.Visibility =
-            isRootMenu
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            BackButton.Visibility =                 //Hide or show the back button depending on the menu stack status
+                isRootMenu
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
 
             if (options.Count > 0)
                 OptionList.SelectedIndex = 0;
