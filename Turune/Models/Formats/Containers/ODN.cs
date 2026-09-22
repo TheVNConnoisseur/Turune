@@ -65,6 +65,29 @@ namespace Turune.Models.Formats.Containers
             }
             else
             {
+                while (currentOffset < inputFile.Length)
+                {
+                    //To know when the index ends, we need to find the entry with the offset "ffffffff" in ASCII
+                    string currentEntryOffset = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset + 8, 8).ToArray());
+                    if (currentEntryOffset == "ffffffff")
+                    {
+                        currentOffset += 16;    //Skip the bytes that conform the index delimiter entry
+                        break;
+                    }
+
+                    ODNScheme_Entry entry = new ODNScheme_Entry
+                    {
+                        Name = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 8).ToArray()),
+                        Offset = uint.Parse(currentEntryOffset, NumberStyles.HexNumber)
+                    };
+
+                    OdnScheme.Entries.Add(entry);
+                    currentOffset += 16;
+                }
+
+                //Copy the contents from all entries
+                OdnScheme.RawData = new byte[inputFile.Length - currentOffset];
+                Buffer.BlockCopy(inputFile, currentOffset, OdnScheme.RawData, 0, OdnScheme.RawData.Length);
             }
         }
     }
