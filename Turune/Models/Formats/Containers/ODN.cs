@@ -23,7 +23,7 @@ namespace Turune.Models.Formats.Containers
 
         public ODNScheme OdnScheme = new ODNScheme();
 
-        ///<summary>Gets the INI scheme from an original system.dat file.</summary>
+        ///<summary>Gets the ODN scheme from an original ODN file.</summary>
         ///<param name="inputFile">Original ODN file.</param>
         public void ParsePacked(byte[] inputFile)
         {
