@@ -27,22 +27,22 @@ namespace Turune.Services.MenuOptions
                 {
                     new MenuOption
                     {
-                        Key = "Compatibility Notes",
+                        Key = "INI",
                         Description =
                         {
-                            new TextPart { Text = "Some earlier titles may not load save files " +
-                                                   "from Version 1. Use a fresh install if you " +
-                                                   "run into issues." }
+                            new TextPart { Text = "The initialization file for the game doesn't really do " +
+                                "much besides changing the game's title, since we don't have access to any " +
+                                "debug feature." },
                         }
                     },
                     new MenuOption
                     {
-                        Key = "Known Issues",
+                        Key = "ODN",
                         Description =
                         {
-                            new TextPart { Text = "See the " },
-                            new LinkPart { Text = "issue tracker", Url = "https://example.com/issues" },
-                            new TextPart { Text = " for the current list." }
+                            new TextPart { Text = "The container files that store all of the game's " +
+                                "assets. Some of them are encrypted, and it is hardcoded by what kind of " +
+                                "asset they store." }
                         }
                     }
                 }

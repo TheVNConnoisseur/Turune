@@ -16,14 +16,16 @@ namespace Turune
             InitializeComponent();
             _navigation = new NavigationService();
             DataContext = _navigation;
-            _navigation.NavigateTo(new MainMenuView(_navigation, "Select an engine revision", MainMenuOptions.All)); //Setting up the initial view
+            _navigation.NavigateTo(new MainMenuView(_navigation, "Select an engine revision", MainMenuOptions.All, true)); //Setting up the initial view
 
-            var dat = new Turune.Models.Formats.Initialization.DAT();
-            dat.ParsePacked(System.IO.File.ReadAllBytes("Z:\\VN\\Valkyria\\Nihiki no Marionette ~Kouki Naru Shimai no Songen Houkai~\\system.dat"));
-            //ini.ParseUnpacked(System.IO.File.ReadAllLines("C:\\Users\\User\\Downloads\\system_export.ini"));
-            //System.IO.File.WriteAllBytes("C:\\Users\\User\\Downloads\\system_export.bin", ini.Generate());
+            var odn = new Turune.Models.Formats.Containers.ODN();
+            odn.ParsePacked(System.IO.File.ReadAllBytes("Z:\\VN\\Valkyria\\Masou no Kuni no Alice - Alice in Immoral-Land\\data07.odn"));
+            //System.IO.File.WriteAllLines("C:\\Users\\User\\Downloads\\system_export.ini", dat.Export());
 
-            //System.IO.File.WriteAllLines("C:\\Users\\User\\Downloads\\system_export.ini", ini.Export());
+            //dat.ParseUnpacked(System.IO.File.ReadAllLines("C:\\Users\\User\\Downloads\\system_export.ini"));
+            //System.IO.File.WriteAllBytes("C:\\Users\\User\\Downloads\\system_export.bin", dat.Generate());
+
+            
         }
     }
 }

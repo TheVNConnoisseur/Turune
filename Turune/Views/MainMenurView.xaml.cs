@@ -14,25 +14,43 @@ namespace Turune.Views
 
         public MainMenuView(NavigationService navigation,
             string title,
-            IReadOnlyList<MenuOption> options)
+            IReadOnlyList<MenuOption> options,
+            bool isRootMenu = false)
         {
             InitializeComponent();
             _navigation = navigation;
             TitleMenu.Text = title;
             OptionList.ItemsSource = options;
+            BackButton.Visibility =
+            isRootMenu
+                ? Visibility.Collapsed
+                : Visibility.Visible;
 
             if (options.Count > 0)
                 OptionList.SelectedIndex = 0;
         }
 
+        private void Back_Click(object sender, RoutedEventArgs e)
+            => _navigation.GoBack();
+
         private void Next_Click(object sender, RoutedEventArgs e)
         {
             if (OptionList.SelectedItem is not MenuOption selected) return;
-            if (!selected.HasChildren) return;
 
-            _navigation.NavigateTo(new OptionSelectorView(
-                _navigation,
-                options: selected.Children));
+            if (selected.Execute != null)
+            {
+                selected.Execute.Invoke();
+                return;
+            }
+
+            if (selected.HasChildren)
+            {
+                _navigation.NavigateTo(new MainMenuView(
+                    _navigation,
+                    "Select a file format",
+                    options: selected.Children,
+                    false));
+            }
         }
 
         private void OptionList_SelectionChanged(object sender, SelectionChangedEventArgs e)

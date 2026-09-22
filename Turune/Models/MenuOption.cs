@@ -16,6 +16,8 @@ namespace Turune.Models
         public List<MenuOption> Children { get; set; } = new(); //Sub-options, allowing for nested menus.
 
         public bool HasChildren => Children.Count > 0;
+
+        public Action? Execute { get; set; }
     }
 
     //Descriptions can be made up of multiple parts, including text, links, and line breaks.
