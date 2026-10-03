@@ -6,19 +6,23 @@
              x:Class="Turune.Views.MainMenuView"
              x:DataType="vm:MainMenuViewModel">
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="20">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="20" HorizontalAlignment="Center">
 
         <TextBlock Grid.Row="0"
                    Text="{Binding Title}"
-                   FontSize="20"
-                   Margin="0,0,0,12" />
+                   FontSize="40"
+                   Margin="0,40,0,50"
+                   HorizontalAlignment="Center" />
 
         <ListBox Grid.Row="1"
+                 SelectionMode="AlwaysSelected"
                  ItemsSource="{Binding Options}"
-                 SelectedItem="{Binding SelectedOption}">
+                 SelectedItem="{Binding SelectedOption}"
+                 HorizontalAlignment="Center">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="models:MenuOption">
-                    <TextBlock Text="{Binding Key}" />
+                    <TextBlock Text="{Binding Key}"
+                               HorizontalAlignment="Center" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
@@ -26,7 +30,7 @@
         <md:MarkdownScrollViewer Grid.Row="2"
                                  Markdown="{Binding SelectedOption.Description}"
                                  Margin="0,12"
-                                 MaxHeight="100" />
+                                 MaxWidth="650"/>
 
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"

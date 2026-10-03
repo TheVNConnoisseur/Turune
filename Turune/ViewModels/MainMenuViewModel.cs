@@ -5,28 +5,17 @@ using Turune.Models;
 
 namespace Turune.ViewModels;
 
-public partial class MainMenuViewModel : ObservableObject
+public partial class MainMenuViewModel(NavigationViewModel nav, string title, IReadOnlyList<MenuOption> options, bool isRootMenu = false) : ObservableObject
 {
-    private readonly NavigationViewModel _nav;
+    private readonly NavigationViewModel _nav = nav;
 
-    public string Title { get; }
-    public IReadOnlyList<MenuOption> Options { get; }
-    public bool IsRootMenu { get; }
-    public bool CanGoBack => !IsRootMenu;
+    public string Title { get; } = title;
+    public IReadOnlyList<MenuOption> Options { get; } = options;
+    public bool IsRootMenu { get; } = isRootMenu;
+    public bool CanGoBack => !IsRootMenu;   //Disable the back button if it's the actual main menu
 
     [ObservableProperty]
     private MenuOption? _selectedOption;
-
-    public MainMenuViewModel(NavigationViewModel nav, string title, IReadOnlyList<MenuOption> options, bool isRootMenu = false)
-    {
-        _nav = nav;
-        Title = title;
-        Options = options;
-        IsRootMenu = isRootMenu;
-
-        if (options.Count > 0)
-            SelectedOption = options[0];
-    }
 
     [RelayCommand(CanExecute = nameof(CanGoBack))]
     private void GoBack() => _nav.GoBack();

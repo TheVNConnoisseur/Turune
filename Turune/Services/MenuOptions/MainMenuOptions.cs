@@ -11,11 +11,15 @@ public static class MainMenuOptions
         {
             Key = "Version 1",
             Description = """
-                For the games released in between [Imouto Ninshin](https://vndb.org/v2354) and
-                [Netoraren'ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354) (both included).
-
-                Compatibility for the earlier games is not guaranteed, since the engine went under
-                a lot of changes during the initial days of Valkyria.
+                ## Supported games
+                From [Imouto Ninshin](https://vndb.org/v2354) to 
+                [Netoraren'ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
+                
+                ## Compatibility
+                * Before [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): probably supported, but the engine was still in
+                development, so a lot of stuff probably underwent a lot of changes.
+                * After [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): supported, but due to how the engine was developed,
+                which was probably done very poorly, some edge cases might not be fully supported.
                 """,
             Children = new List<MenuOption>
             {
