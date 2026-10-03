@@ -3,6 +3,15 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+
+    <!-- Read https://docs.avaloniaui.net/docs/deployment/embedded-linux/#publish-options-explained for more information -->
+    <!-- While not necessary, some extra information about the single-file deployment can be found here: 
+    https://github.com/dotnet/docs/blob/main/docs/core/deploying/single-file/overview.md -->
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed> <!-- Reduces size a lot if set to true, but might cause issues, so proceed with caution -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract> 
+    
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <UserSecretsId>975366fc-d560-4d3b-bba4-ad96ac389542</UserSecretsId>
   </PropertyGroup>
