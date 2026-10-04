@@ -8,37 +8,75 @@
 
     <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="20" HorizontalAlignment="Center">
 
+        <!-- Title of the screen -->
         <TextBlock Grid.Row="0"
                    Text="{Binding Title}"
                    FontSize="40"
                    Margin="0,40,0,50"
                    HorizontalAlignment="Center" />
 
-        <ListBox Grid.Row="1"
-                 SelectionMode="AlwaysSelected"
-                 ItemsSource="{Binding Options}"
-                 SelectedItem="{Binding SelectedOption}"
-                 HorizontalAlignment="Center">
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="models:MenuOption">
-                    <TextBlock Text="{Binding Name}"
-                               HorizontalAlignment="Center" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="0,0,0,12">
+            <ListBox Grid.Column="0"
+                     ItemsSource="{Binding Options}"
+                     SelectedItem="{Binding SelectedOption}"
+                     MinWidth="150"
+                     BorderThickness="0,0,1,0"
+                     BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="models:MenuOption">
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="8,6">
+                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" />
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
+            <ListBox Grid.Column="1"
+                     ItemsSource="{Binding CurrentChildren}"
+                     SelectedItem="{Binding SelectedChild}"
+                     MinWidth="150">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="models:MenuOption">
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="8,6">
+                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" />
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <ListBox Grid.Column="2"
+                     ItemsSource="{Binding CurrentGrandChildren}"
+                     SelectedItem="{Binding SelectedGrandChild}"
+                     MinWidth="150"
+                     BorderThickness="1,0,0,0"
+                     BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="models:MenuOption">
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="8,6">
+                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" />
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <!-- Description of the selected option -->
         <md:MarkdownScrollViewer Grid.Row="2"
                                  Markdown="{Binding SelectedOption.Description}"
                                  Margin="0,12"
                                  MaxWidth="650"/>
 
+        <!-- Navigation buttons -->
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Spacing="8">
-            <Button Content="Back"
-                    Command="{Binding GoBackCommand}"
-                    IsVisible="{Binding CanGoBack}" />
             <Button Content="Next"
                     Command="{Binding NextCommand}" />
         </StackPanel>
