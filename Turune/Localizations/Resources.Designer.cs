@@ -58,6 +58,51 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Version 1.
+        /// </summary>
+        public static string MainMenu_Version1 {
+            get {
+                return ResourceManager.GetString("MainMenu_Version1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ## Supported games
+        ///From [Imouto Ninshin](https://vndb.org/v2354) to [Netoraren&apos;ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
+        ///
+        ///## Compatibility
+        ///* Before [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): probably supported, but the engine was still in development, so a lot of stuff probably underwent a lot of changes.
+        ///* After [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): supported, but due to how the engine was developed, which was proba [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string MainMenu_Version1Description {
+            get {
+                return ResourceManager.GetString("MainMenu_Version1Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version 2.
+        /// </summary>
+        public static string MainMenu_Version2 {
+            get {
+                return ResourceManager.GetString("MainMenu_Version2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ## Supported games
+        ///Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
+        ///
+        ///## Compatibility
+        ///All of the features are supported, unless a new game has come out that offers a new encryption scheme yet to discover..
+        /// </summary>
+        public static string MainMenu_Version2Description {
+            get {
+                return ResourceManager.GetString("MainMenu_Version2Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select an engine revision.
         /// </summary>
         public static string SelectEngineRevision {

@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Turune.Localizations;
 using Turune.Services.MenuOptions;
 using Turune.ViewModels;
 using Turune.Views;

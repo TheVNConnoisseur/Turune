@@ -9,18 +9,8 @@ public static class MainMenuOptions
     {
         new MenuOption
         {
-            Key = "Version 1",
-            Description = """
-                ## Supported games
-                From [Imouto Ninshin](https://vndb.org/v2354) to 
-                [Netoraren'ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
-                
-                ## Compatibility
-                * Before [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): probably supported, but the engine was still in
-                development, so a lot of stuff probably underwent a lot of changes.
-                * After [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): supported, but due to how the engine was developed,
-                which was probably done very poorly, some edge cases might not be fully supported.
-                """,
+            Key = Localizations.Resources.MainMenu_Version1,
+            Description = Localizations.Resources.MainMenu_Version1Description,
             Children = new List<MenuOption>
             {
                 new MenuOption
@@ -43,12 +33,8 @@ public static class MainMenuOptions
         },
         new MenuOption
         {
-            Key = "Version 2",
-            Description = """
-                Starting from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364), this is
-                the latest main version of the MICo engine. It is important to understand that most
-                of the files themselves have gone under several iterations in this same version.
-                """,
+            Key = Localizations.Resources.MainMenu_Version2,
+            Description = Localizations.Resources.MainMenu_Version2Description,
             Children = new List<MenuOption>
             {
                 new MenuOption
