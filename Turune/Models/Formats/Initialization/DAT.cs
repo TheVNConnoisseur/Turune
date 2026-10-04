@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Turune.Models.Utils;
 
 internal class DAT
 {
@@ -771,7 +772,7 @@ internal class DAT
     ///<param name="inputLines">DAT file as an array of strings.</param>
     public void ParseUnpacked(string[] inputLines)
     {
-        var iniReader = new Utils.IniFile();
+        var iniReader = new IniFile();
         iniReader.Parse(inputLines);
 
         //Sanity check to ensure that the game has the fundamental sections
@@ -989,7 +990,7 @@ internal class DAT
     ///<summary>Exports the DAT scheme to a string array.</summary>
     public string[] Export()
     {
-        var iniCreator = new Utils.IniFile();
+        var iniCreator = new IniFile();
 
         ////////////
         // 1st PART
