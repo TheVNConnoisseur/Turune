@@ -6,7 +6,7 @@ namespace Turune.Services.MenuOptions;
 
 public static partial class MenuOptions
 {
-    public static IReadOnlyList<MenuOption> V1 { get; } = new List<MenuOption>
+    public static IReadOnlyList<MenuOption> V1 => new List<MenuOption>
     {
         // new MenuOption
         // {

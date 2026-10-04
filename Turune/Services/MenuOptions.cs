@@ -6,7 +6,7 @@ namespace Turune.Services.MenuOptions;
 
 public static partial class MenuOptions
 {
-    public static IReadOnlyList<MenuOption> MainMenu_V1 { get; } = new List<MenuOption>
+    public static IReadOnlyList<MenuOption> MainMenu_V1 => new List<MenuOption>
     {
         new MenuOption
         {
@@ -20,7 +20,7 @@ public static partial class MenuOptions
             Description = Localizations.Resources.MainMenu_V1_ODN_Description,
         }
     };
-    public static IReadOnlyList<MenuOption> MainMenu { get; } = new List<MenuOption>
+    public static IReadOnlyList<MenuOption> MainMenu => new List<MenuOption>
     {
         new MenuOption
         {
@@ -35,7 +35,7 @@ public static partial class MenuOptions
         }
     };
 
-    public static IReadOnlyList<MenuOption> Configuration { get; } = new List<MenuOption>
+    public static IReadOnlyList<MenuOption> Configuration => new List<MenuOption>
     {
         //WIP, to let the user make some small configurations to the program, like the language perhaps
     };
