@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Turune.Localizations;
 using Turune.Services.MenuOptions;
 using Turune.ViewModels;
 using Turune.Views;
@@ -19,7 +20,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var nav = new NavigationViewModel();
-            nav.NavigateTo(new MainMenuViewModel(nav, "Select an engine revision", MainMenuOptions.All, isRootMenu: true));
+            nav.NavigateTo(new MainMenuViewModel(nav, Localizations.Resources.SelectEngineRevision, MainMenuOptions.All, isRootMenu: true));
 
             desktop.MainWindow = new MainWindow
             {
