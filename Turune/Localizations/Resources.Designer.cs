@@ -58,6 +58,15 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select an option.
+        /// </summary>
+        public static string MainMenu_Title {
+            get {
+                return ResourceManager.GetString("MainMenu_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ## Supported games
         ///From [Imouto Ninshin](https://vndb.org/v2354) to [Netoraren&apos;ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
         ///
@@ -117,15 +126,6 @@ namespace Turune.Localizations {
         public static string MainMenu_V2_Name {
             get {
                 return ResourceManager.GetString("MainMenu_V2_Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select an engine revision.
-        /// </summary>
-        public static string SelectEngineRevision {
-            get {
-                return ResourceManager.GetString("SelectEngineRevision", resourceCulture);
             }
         }
     }

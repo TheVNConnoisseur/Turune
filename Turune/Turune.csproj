@@ -36,6 +36,16 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- To avoid CS2002 with all Resources.Designer.cs files, as they are auto-generated files dependent
+  on Resources.resx, so they won't include it twice. -->
+  <ItemGroup>
+    <Compile Update="Localizations\*.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Designer', '.resx'))</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.3" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.3" />

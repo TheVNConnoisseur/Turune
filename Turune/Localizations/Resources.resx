@@ -12,8 +12,8 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="SelectEngineRevision" xml:space="preserve">
-        <value>Select an engine revision</value>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Select an option</value>
         <comment>Ttitle for the main menu</comment>
     </data>
     <data name="MainMenu_V1_Name" xml:space="preserve">
