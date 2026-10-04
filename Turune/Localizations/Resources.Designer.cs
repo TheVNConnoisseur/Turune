@@ -58,15 +58,6 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Version 1.
-        /// </summary>
-        public static string MainMenu_Version1 {
-            get {
-                return ResourceManager.GetString("MainMenu_Version1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ## Supported games
         ///From [Imouto Ninshin](https://vndb.org/v2354) to [Netoraren&apos;ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
         ///
@@ -74,18 +65,36 @@ namespace Turune.Localizations {
         ///* Before [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): probably supported, but the engine was still in development, so a lot of stuff probably underwent a lot of changes.
         ///* After [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): supported, but due to how the engine was developed, which was proba [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string MainMenu_Version1Description {
+        public static string MainMenu_V1_Description {
             get {
-                return ResourceManager.GetString("MainMenu_Version1Description", resourceCulture);
+                return ResourceManager.GetString("MainMenu_V1_Description", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Version 2.
+        ///   Looks up a localized string similar to The initialization file for the game doesn&apos;t really do much besides changing the game&apos;s title, since we don&apos;t have access to any debug feature..
         /// </summary>
-        public static string MainMenu_Version2 {
+        public static string MainMenu_V1_INI_Description {
             get {
-                return ResourceManager.GetString("MainMenu_Version2", resourceCulture);
+                return ResourceManager.GetString("MainMenu_V1_INI_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version 1.
+        /// </summary>
+        public static string MainMenu_V1_Name {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The container files that store all of the game&apos;s assets. Some of them are encrypted, and it is hardcoded by what kind of asset they store..
+        /// </summary>
+        public static string MainMenu_V1_ODN_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_ODN_Description", resourceCulture);
             }
         }
         
@@ -96,9 +105,18 @@ namespace Turune.Localizations {
         ///## Compatibility
         ///All of the features are supported, unless a new game has come out that offers a new encryption scheme yet to discover..
         /// </summary>
-        public static string MainMenu_Version2Description {
+        public static string MainMenu_V2_Description {
             get {
-                return ResourceManager.GetString("MainMenu_Version2Description", resourceCulture);
+                return ResourceManager.GetString("MainMenu_V2_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version 2.
+        /// </summary>
+        public static string MainMenu_V2_Name {
+            get {
+                return ResourceManager.GetString("MainMenu_V2_Name", resourceCulture);
             }
         }
         

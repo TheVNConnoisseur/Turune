@@ -14,12 +14,12 @@
     </resheader>
     <data name="SelectEngineRevision" xml:space="preserve">
         <value>Select an engine revision</value>
-        <comment>Title for the main menu</comment>
+        <comment>Ttitle for the main menu</comment>
     </data>
-    <data name="MainMenu_Version1" xml:space="preserve">
+    <data name="MainMenu_V1_Name" xml:space="preserve">
         <value>Version 1</value>
     </data>
-    <data name="MainMenu_Version1Description" xml:space="preserve">
+    <data name="MainMenu_V1_Description" xml:space="preserve">
         <value>## Supported games
 From [Imouto Ninshin](https://vndb.org/v2354) to [Netoraren'ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
 
@@ -27,14 +27,23 @@ From [Imouto Ninshin](https://vndb.org/v2354) to [Netoraren'ai ~Ai Suru Kanojo g
 * Before [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): probably supported, but the engine was still in development, so a lot of stuff probably underwent a lot of changes.
 * After [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): supported, but due to how the engine was developed, which was probably done very poorly, some edge cases might not be fully supported.</value>
     </data>
-    <data name="MainMenu_Version2" xml:space="preserve">
+    <data name="MainMenu_V2_Name" xml:space="preserve">
         <value>Version 2</value>
     </data>
-    <data name="MainMenu_Version2Description" xml:space="preserve">
+    <data name="MainMenu_V2_Description" xml:space="preserve">
         <value>## Supported games
 Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
 
 ## Compatibility
 All of the features are supported, unless a new game has come out that offers a new encryption scheme yet to discover.</value>
+    </data>
+    <data name="MainMenu_V1_Description" xml:space="preserve">
+        <value/>
+    </data>
+    <data name="MainMenu_V1_INI_Description" xml:space="preserve">
+        <value>The initialization file for the game doesn't really do much besides changing the game's title, since we don't have access to any debug feature.</value>
+    </data>
+    <data name="MainMenu_V1_ODN_Description" xml:space="preserve">
+        <value>The container files that store all of the game's assets. Some of them are encrypted, and it is hardcoded by what kind of asset they store.</value>
     </data>
 </root>

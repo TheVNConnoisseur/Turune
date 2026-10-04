@@ -19,7 +19,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var nav = new NavigationViewModel();
-            nav.NavigateTo(new MainMenuViewModel(nav, Localizations.Resources.SelectEngineRevision, MainMenuOptions.All, isRootMenu: true));
+            nav.NavigateTo(new MainMenuViewModel(nav, Localizations.Resources.SelectEngineRevision, MenuOptions.MainMenu, isRootMenu: true));
 
             desktop.MainWindow = new MainWindow
             {

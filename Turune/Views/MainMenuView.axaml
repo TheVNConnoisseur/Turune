@@ -21,7 +21,7 @@
                  HorizontalAlignment="Center">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="models:MenuOption">
-                    <TextBlock Text="{Binding Key}"
+                    <TextBlock Text="{Binding Name}"
                                HorizontalAlignment="Center" />
                 </DataTemplate>
             </ListBox.ItemTemplate>

@@ -35,7 +35,7 @@ public partial class MainMenuViewModel(NavigationViewModel nav, string title, IR
         {
             _nav.NavigateTo(new MainMenuViewModel(
                 _nav,
-                SelectedOption.Key,
+                SelectedOption.Name,
                 SelectedOption.Children,
                 isRootMenu: false));
         }
