@@ -15,9 +15,6 @@ public partial class MainMenuViewModel(NavigationViewModel nav, string title, IR
     [ObservableProperty]
     private MenuOption? _selectedOption;
 
-    [RelayCommand(CanExecute = nameof(CanGoBack))]
-    private void GoBack() => _nav.GoBack();
-
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private void Next()
     {
