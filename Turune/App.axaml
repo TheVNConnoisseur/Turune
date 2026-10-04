@@ -8,11 +8,15 @@
         <local:ViewLocator />
     </Application.DataTemplates>
 
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
-
     <Application.Resources>
         <x:String x:Key="AppName">Turune</x:String>
+        <FontFamily x:Key="OutfitFont">avares://Turune/Assets/Fonts#Outfit</FontFamily>
     </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <Style Selector="Window">
+            <Setter Property="FontFamily" Value="{StaticResource OutfitFont}" />
+        </Style>
+    </Application.Styles>
 </Application>

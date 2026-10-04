@@ -30,7 +30,7 @@
       <LastGenOutput>%(FileName).Designer.cs</LastGenOutput>
       <StronglyTypedFileName>Localizations\%(FileName).Designer.cs</StronglyTypedFileName>  <!-- $(IntermediateOutputPath) causes problems with IntelliSense -->
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>Turune.Localizations</StronglyTypedNamespace>
+      <StronglyTypedNamespace>$(RootNamespace).Localizations</StronglyTypedNamespace>
       <StronglyTypedClassName>%(FileName)</StronglyTypedClassName>
       <PublicClass>true</PublicClass>
     </EmbeddedResource>
