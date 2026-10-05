@@ -36,14 +36,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <!-- To avoid CS2002 with all Resources.Designer.cs files, as they are auto-generated files dependent
-  on Resources.resx, so they won't include it twice. -->
+  <!-- The resource task adds this Resources.Designer.cs file to Compile, so exclude the checked-in copy from the SDK glob to avoid warning CS2002. -->
   <ItemGroup>
-    <Compile Update="Localizations\*.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Designer', '.resx'))</DependentUpon>
-    </Compile>
+    <Compile Remove="Localizations\Resources.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
