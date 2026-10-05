@@ -8,22 +8,33 @@ namespace Turune.ViewModels;
 public partial class MainMenuViewModel(NavigationViewModel nav, string title, IReadOnlyList<MenuOption> options) : ObservableObject
 {
     private readonly NavigationViewModel _nav = nav;
-
     public string Title { get; } = title;
     public IReadOnlyList<MenuOption> Options { get; } = options;
 
-    [ObservableProperty] private MenuOption? _selectedOption1;
-    [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions1;
-    [ObservableProperty] private MenuOption? _selectedOption2;
-    [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions2;
-    [ObservableProperty] private MenuOption? _selectedOption3;
+    //Each level of the menu has its own selected option and sub-options
+    [ObservableProperty] private MenuOption? _selectedOption1;  //Selected option at the first column
+    [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions1; //Sub-options for the first column
+    [ObservableProperty] private MenuOption? _selectedOption2;  //Selected option at the second column
+    [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions2; //Sub-options for the second column
+    [ObservableProperty] private MenuOption? _selectedOption3;  //Selected option at the third column
 
+    //CurrentDescription returns the description of the currently selected option, prioritizing the deepest selection
     public string? CurrentDescription =>
         SelectedOption3?.Description ??
         SelectedOption2?.Description ??
         SelectedOption1?.Description;
 
+    //To know when the user can go to the next step, we check if any of the selected options has an Execute action
+    private bool HasSelection => 
+        SelectedOption3?.Execute is not null ||
+        SelectedOption2?.Execute is not null ||
+        SelectedOption1?.Execute is not null;
+
     [RelayCommand(CanExecute = nameof(HasSelection))]
+
+    /// <summary>
+    /// Executes the action of the currently selected option, prioritizing the deepest selection,
+    /// </summary>
     private void Next()
     {
         var target = SelectedOption3 ?? SelectedOption2 ?? SelectedOption1;
@@ -34,12 +45,7 @@ public partial class MainMenuViewModel(NavigationViewModel nav, string title, IR
             target.Execute.Invoke();
             return;
         }
-
-        if (target.HasChildren)
-            _nav.NavigateTo(new MainMenuViewModel(_nav, target.Name, target.Children));
     }
-
-    private bool HasSelection => SelectedOption1 is not null;
 
     partial void OnSelectedOption1Changed(MenuOption? value)
     {
