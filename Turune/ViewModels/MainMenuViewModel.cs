@@ -18,7 +18,7 @@ public partial class MainMenuViewModel(NavigationViewModel nav, string title, IR
     [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions2; //Sub-options for the second column
     [ObservableProperty] private MenuOption? _selectedOption3;  //Selected option at the third column
 
-    //CurrentDescription returns the description of the currently selected option, prioritizing the deepest selection
+    //Returns the description of the currently selected option, prioritizing the deepest selection
     public string? CurrentDescription =>
         SelectedOption3?.Description ??
         SelectedOption2?.Description ??
