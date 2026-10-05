@@ -16,6 +16,15 @@
         <value>Select an option</value>
         <comment>Ttitle for the main menu</comment>
     </data>
+    <data name="MainMenu_Column1" xml:space="preserve">
+        <value>Version</value>
+    </data>
+    <data name="MainMenu_Column2" xml:space="preserve">
+        <value>File type</value>
+    </data>
+    <data name="MainMenu_Column3" xml:space="preserve">
+        <value>Operation</value>
+    </data>
     <data name="MainMenu_V1_Name" xml:space="preserve">
         <value>Version 1</value>
     </data>
@@ -36,9 +45,6 @@ Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
 
 ## Compatibility
 All of the features are supported, unless a new game has come out that offers a new encryption scheme yet to discover.</value>
-    </data>
-    <data name="MainMenu_V1_Description" xml:space="preserve">
-        <value/>
     </data>
     <data name="MainMenu_V1_INI_Description" xml:space="preserve">
         <value>The initialization file for the game doesn't really do much besides changing the game's title, since we don't have access to any debug feature.</value>

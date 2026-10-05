@@ -58,6 +58,33 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Version.
+        /// </summary>
+        public static string MainMenu_Column1 {
+            get {
+                return ResourceManager.GetString("MainMenu_Column1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File type.
+        /// </summary>
+        public static string MainMenu_Column2 {
+            get {
+                return ResourceManager.GetString("MainMenu_Column2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation.
+        /// </summary>
+        public static string MainMenu_Column3 {
+            get {
+                return ResourceManager.GetString("MainMenu_Column3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select an option.
         /// </summary>
         public static string MainMenu_Title {
