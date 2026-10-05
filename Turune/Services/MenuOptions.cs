@@ -6,52 +6,50 @@ namespace Turune.Services;
 
 public static class MenuOptions
 {
-    public static IReadOnlyList<MenuOption> MainMenu_V1 (NavigationViewModel nav) => new List<MenuOption>
-    {
-        new MenuOption
-        {
-            Name = "INI",
-            Description = Localizations.Resources.MainMenu_V1_INI_Description,
-            Children = V1_INI(nav),
-        },
-        new MenuOption
-        {
-            Name = "ODN",
-            Description = Localizations.Resources.MainMenu_V1_ODN_Description,
-            Children = V1_ODN(nav),
-        }
-    };
-    public static IReadOnlyList<MenuOption> MainMenu_V2 (NavigationViewModel nav) => new List<MenuOption>
-    {
-        new MenuOption
-        {
-            Name = "DAT",
-            Description = "WIP",
-        },
-        new MenuOption
-        {
-            Name = "Yikes not done yet",
-            Description = "WIP",
-        },
-        new MenuOption
-        {
-            Name = "Testttt",
-            Description = "my lord",
-        }
-    };
     public static IReadOnlyList<MenuOption> MainMenu (NavigationViewModel nav) => new List<MenuOption>
     {
         new MenuOption
         {
             Name = Localizations.Resources.MainMenu_V1_Name,
             Description = Localizations.Resources.MainMenu_V1_Description,
-            Children = MainMenu_V1(nav),
+            Children = new List<MenuOption>
+            {
+                new MenuOption
+                {
+                    Name = "INI",
+                    Description = Localizations.Resources.MainMenu_V1_INI_Description,
+                    Children = V1_INI(nav),
+                },
+                new MenuOption
+                {
+                    Name = "ODN",
+                    Description = Localizations.Resources.MainMenu_V1_ODN_Description,
+                    Children = V1_ODN(nav),
+                }
+            },
         },
         new MenuOption
         {
             Name = Localizations.Resources.MainMenu_V2_Name,
             Description = Localizations.Resources.MainMenu_V2_Description,
-            Children = MainMenu_V2(nav),
+            Children = new List<MenuOption>
+            {
+                new MenuOption
+                {
+                    Name = "DAT",
+                    Description = "WIP",
+                },
+                new MenuOption
+                {
+                    Name = "MG2",
+                    Description = "WIP",
+                },
+                new MenuOption
+                {
+                    Name = "Testttt",
+                    Description = "my lord",
+                }
+            }
         }
     };
 
