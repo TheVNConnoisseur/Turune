@@ -18,8 +18,14 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var storageService = new StorageService(() => desktop.MainWindow?.StorageProvider);
             var nav = new NavigationViewModel();
-            nav.NavigateTo(new MainMenuViewModel(nav, Localizations.Resources.MainMenu_Title, MenuOptions.MainMenu(nav)));
+            
+            nav.NavigateTo(new MainMenuViewModel(
+                nav,
+                Localizations.Resources.MainMenu_Title,
+                MenuOptions.MainMenu(nav),
+                storageService));
 
             desktop.MainWindow = new MainWindow
             {

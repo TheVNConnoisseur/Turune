@@ -1,13 +1,18 @@
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Diagnostics;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Turune.Models;
+using Turune.Services;
 
 namespace Turune.ViewModels;
 
-public partial class MainMenuViewModel(NavigationViewModel nav, string title, IReadOnlyList<MenuOption> options) : ObservableObject
+public partial class MainMenuViewModel(NavigationViewModel nav, string title, IReadOnlyList<MenuOption> options, IStorageService storageService) : ObservableObject
 {
     private readonly NavigationViewModel _nav = nav;
+    private readonly IStorageService _storageService = storageService;
     public string Title { get; } = title;
     public IReadOnlyList<MenuOption> Options { get; } = options;
 
@@ -46,6 +51,20 @@ public partial class MainMenuViewModel(NavigationViewModel nav, string title, IR
             return;
         }
     }
+
+    // Sample code to demonstrate how to use the StorageService
+    
+    // private async Task Next()
+    // {
+    //     var files = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+    //     {
+    //         Title = "Open Text File",
+    //         AllowMultiple = false
+    //     });
+
+    //     if (files.Count > 0)
+    //         Debug.WriteLine($"Selected file: {files[0].Name}");
+    // }
 
     partial void OnSelectedOption1Changed(MenuOption? value)
     {
