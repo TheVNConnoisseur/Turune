@@ -9,9 +9,8 @@ using Turune.Services;
 
 namespace Turune.ViewModels;
 
-public partial class MainMenuViewModel(NavigationViewModel nav, string title, IReadOnlyList<MenuOption> options, IStorageService storageService) : ObservableObject
+public partial class MainMenuViewModel(string title, IReadOnlyList<MenuOption> options, IStorageService storageService) : ObservableObject
 {
-    private readonly NavigationViewModel _nav = nav;
     private readonly IStorageService _storageService = storageService;
     public string Title { get; } = title;
     public IReadOnlyList<MenuOption> Options { get; } = options;
@@ -53,7 +52,7 @@ public partial class MainMenuViewModel(NavigationViewModel nav, string title, IR
     }
 
     // Sample code to demonstrate how to use the StorageService
-    
+
     // private async Task Next()
     // {
     //     var files = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions

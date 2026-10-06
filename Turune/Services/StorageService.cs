@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Turune.Services;
 
+// Methods from https://docs.avaloniaui.net/docs/services/storage/storage-provider#methods
 public interface IStorageService
 {
     Task<IReadOnlyList<IStorageFile>> OpenFilePickerAsync(FilePickerOpenOptions options);
