@@ -2,6 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -163,5 +164,59 @@ internal class ODN
         //For audio files, the last entry has no data associated with it
         if (OdnScheme.Properties.ContainsAudio)
             OdnScheme.Entries.Remove(OdnScheme.Entries[^1]);
+    }
+
+    ///<summary>Generates the ODNScheme from an arbitrary amount of input files.</summary>
+    ///<param name="inputNames">Names of the files to compress.</param>
+    ///<param name="inputData">Byte arrays of the files to compress.</param>
+    public void ParseUnpacked(string[] inputNames, byte[][] inputData)
+    {
+        //Check their names to see if they are named correctly
+        int numberAudioFiles = 0;
+        foreach (var entryName in inputNames)
+        {
+            //Ensure that they have the appropiate file name length.
+            if (Path.GetFileNameWithoutExtension(entryName).Length != 8)
+                throw new InvalidDataException("File " + entryName + " is not 8 characters long.");
+            
+            //Check if all or none of the files are audio ones, and throw an
+            //error if only some of them are.
+            if (Path.GetExtension(entryName) == ".ogg")
+                numberAudioFiles++;
+        }
+
+        //Determine if the ODN file will contain audio or not based on the input entries
+        if (numberAudioFiles == 0)
+            OdnScheme.Properties.ContainsAudio = false;
+        else if (numberAudioFiles == inputNames.Length)
+            OdnScheme.Properties.ContainsAudio = true;
+        else
+            throw new InvalidDataException("Some files contain audio, and ODN files can either have only OGG files or none at all.");
+
+        //Ensure that no file (neither the sum of them) exceeds the file size limit imposed by the length of an entry's offset
+        uint totalEntriesSize = 0;
+        foreach (var entryData in inputData)
+        {
+            //Ensure that no file exceeds the maximum size the offset has
+            if ((uint)entryData.Length >= UInt32.MaxValue)
+                throw new InvalidDataException("No file cannot have a size equal or greater than 4294967295 (or 0xFFFFFFFF) bytes, and one of " +
+                 "the files exceeds this limit.");
+            
+            totalEntriesSize += (uint)entryData.Length;
+            if (totalEntriesSize >= UInt32.MaxValue)
+                throw new InvalidDataException("All of the selected files have a size equal or greater than 4294967295 (or 0xFFFFFFFF) bytes, please " +
+                "ensure that the selected files do not exceed this limit.");
+        }
+
+        //Create all of the ODNScheme_Entry required to host all of the input files
+        for (int i = 0; i < inputNames.Length; i++)
+        {
+            var entry = new ODNScheme_Entry
+            {
+                Name = inputNames[0],
+                Data = inputData[0]
+            };
+            OdnScheme.Entries.Add(entry);
+        }
     }
 }
