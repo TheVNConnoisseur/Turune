@@ -133,12 +133,25 @@ internal class ODN
                     nextEntryOffset = inputFile.Length;
             }
             
-            ODNScheme_Entry entry = new ODNScheme_Entry
+            //Since audio files are always OGG Vorbis files, we can put their respective extension to it
+            if (OdnScheme.Properties.ContainsAudio)
             {
-                Name = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 8).ToArray()),
-                Data = inputFile.AsSpan(currentEntryOffset, nextEntryOffset - currentEntryOffset).ToArray()
-            };
-            OdnScheme.Entries.Add(entry);
+                ODNScheme_Entry entry = new ODNScheme_Entry
+                {
+                    Name = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 8).ToArray()) + ".ogg",
+                    Data = inputFile.AsSpan(currentEntryOffset, nextEntryOffset - currentEntryOffset).ToArray()
+                };
+                OdnScheme.Entries.Add(entry);
+            }
+            else
+            {
+                ODNScheme_Entry entry = new ODNScheme_Entry
+                {
+                    Name = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 8).ToArray()),
+                    Data = inputFile.AsSpan(currentEntryOffset, nextEntryOffset - currentEntryOffset).ToArray()
+                };
+                OdnScheme.Entries.Add(entry);
+            }
 
             //Move the offset to the next entry
             if (OdnScheme.Properties.ContainsAudio)
@@ -150,17 +163,5 @@ internal class ODN
         //For audio files, the last entry has no data associated with it
         if (OdnScheme.Properties.ContainsAudio)
             OdnScheme.Entries.Remove(OdnScheme.Entries[^1]);
-    }
-
-    ///<summary>Exports to a byte array each of the entries inside the ODNScheme.
-    /// Each entry gets its own respective byte array</summary>
-    public byte[][] Export()
-    {
-        byte[][] entryData = new byte[OdnScheme.Entries.Count][];
-        foreach (var entry in OdnScheme.Entries)
-        {
-            
-        }
-        return null;
     }
 }
