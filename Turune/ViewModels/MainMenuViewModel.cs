@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Turune.Models;
 using Turune.Services;
-using System.Collections.ObjectModel;
 using System;
 using Turune.Models.Formats.Containers;
 using System.IO;
@@ -88,7 +87,6 @@ public partial class MainMenuViewModel(string title, IReadOnlyList<MenuOption> o
 
             var odn = new ODN();
             odn.ParsePacked(bytes);
-            ExportedODN = odn.Export();
             var saveFile = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title = "Save Exported Files",
@@ -96,11 +94,11 @@ public partial class MainMenuViewModel(string title, IReadOnlyList<MenuOption> o
             });
             if (saveFile is not null)
             {
-                // foreach (var file in ExportedODN)
-                // {
-                    
-                // }
-                // await _fileLoader.WriteLinesAsync(saveFile.Path.LocalPath, ExportedODN);
+                foreach (var entry in odn.OdnScheme.Entries)
+                {
+                    var savePath = Path.Combine(saveFile[0].Path.LocalPath, entry.Name);
+                    await _fileLoader.WriteBytesAsync(savePath, entry.Data);
+                }
             }
         }
     }
