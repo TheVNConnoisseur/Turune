@@ -98,9 +98,9 @@ internal class ODN
             
             int currentEntryOffset;
             if (OdnScheme.Properties.EntriesOffsetsAreNotRelativeToRawData)
-                currentEntryOffset = int.Parse(currentEntryOffsetASCII, NumberStyles.HexNumber) - rawDataOffset;
-            else
                 currentEntryOffset = int.Parse(currentEntryOffsetASCII, NumberStyles.HexNumber);
+            else
+                currentEntryOffset = int.Parse(currentEntryOffsetASCII, NumberStyles.HexNumber) + rawDataOffset;
             
             //Calculate the next entry's offset in order to get the current entry's size
             string nextEntryOffsetASCII;
@@ -116,7 +116,7 @@ internal class ODN
                 //will always throw a FormatException because it's reading the bytes from the first entry.
                 try
                 {
-                    nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber) - rawDataOffset;
+                    nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber);
                 }
                 catch (FormatException)
                 {
@@ -128,7 +128,7 @@ internal class ODN
                 //The last entry does not have any other entry to check its size, but since the index
                 //ends with a hardcoded offset, a simple check facilitates the job.
                 if (nextEntryOffsetASCII != OdnScheme.Properties.LastEntryOffset)
-                    nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber);
+                    nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber) + rawDataOffset;
                 else
                     nextEntryOffset = inputFile.Length;
             }
