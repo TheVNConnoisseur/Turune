@@ -1,11 +1,14 @@
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Turune.Models;
 using Turune.Services;
+using System.Collections.ObjectModel;
+using System;
+using Turune.Models.Formats.Containers;
+using System.IO;
 
 namespace Turune.ViewModels;
 
@@ -16,11 +19,20 @@ public partial class MainMenuViewModel(string title, IReadOnlyList<MenuOption> o
     public IReadOnlyList<MenuOption> Options { get; } = options;
 
     //Each level of the menu has its own selected option and sub-options
-    [ObservableProperty] private MenuOption? _selectedOption1;  //Selected option at the first column
-    [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions1; //Sub-options for the first column
-    [ObservableProperty] private MenuOption? _selectedOption2;  //Selected option at the second column
-    [ObservableProperty] private IReadOnlyList<MenuOption>? _subOptions2; //Sub-options for the second column
-    [ObservableProperty] private MenuOption? _selectedOption3;  //Selected option at the third column
+    [ObservableProperty]
+    public partial MenuOption? SelectedOption1 { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<MenuOption>? SubOptions1 { get; set; }
+
+    [ObservableProperty]
+    public partial MenuOption? SelectedOption2 { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<MenuOption>? SubOptions2 { get; set; }
+
+    [ObservableProperty]
+    public partial MenuOption? SelectedOption3 { get; set; }
 
     //Returns the description of the currently selected option, prioritizing the deepest selection
     public string? CurrentDescription =>
@@ -33,12 +45,12 @@ public partial class MainMenuViewModel(string title, IReadOnlyList<MenuOption> o
         SelectedOption3?.Execute is not null ||
         SelectedOption2?.Execute is not null ||
         SelectedOption1?.Execute is not null;
-
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-
+    
+    
     /// <summary>
-    /// Executes the action of the currently selected option, prioritizing the deepest selection,
+    /// Executes the action of the currently selected option, prioritizing the deepest selection.
     /// </summary>
+    [RelayCommand(CanExecute = nameof(HasSelection))]
     private void Next()
     {
         var target = SelectedOption3 ?? SelectedOption2 ?? SelectedOption1;
@@ -51,19 +63,47 @@ public partial class MainMenuViewModel(string title, IReadOnlyList<MenuOption> o
         }
     }
 
+    // private ObservableCollection<IniFile> _loadedInis = new();
+
+    [ObservableProperty]
+    public partial byte[][] ExportedODN { get; set; } = Array.Empty<byte[]>();
+    private readonly IFileLoader _fileLoader = new FileLoader();
+
     // Sample code to demonstrate how to use the StorageService
+    [RelayCommand]
+    private async Task Test()
+    {
+        var files = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open File",
+            AllowMultiple = true
+        });
 
-    // private async Task Next()
-    // {
-    //     var files = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
-    //     {
-    //         Title = "Open Text File",
-    //         AllowMultiple = false
-    //     });
+        if (files.Count < 1) return;
 
-    //     if (files.Count > 0)
-    //         Debug.WriteLine($"Selected file: {files[0].Name}");
-    // }
+        foreach (var file in files)
+        {
+            var path = file.Path.LocalPath;
+            var bytes = await _fileLoader.ReadBytesAsync(path);
+
+            var odn = new ODN();
+            odn.ParsePacked(bytes);
+            ExportedODN = odn.Export();
+            var saveFile = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Save Exported Files",
+                AllowMultiple = false,
+            });
+            if (saveFile is not null)
+            {
+                // foreach (var file in ExportedODN)
+                // {
+                    
+                // }
+                // await _fileLoader.WriteLinesAsync(saveFile.Path.LocalPath, ExportedODN);
+            }
+        }
+    }
 
     partial void OnSelectedOption1Changed(MenuOption? value)
     {

@@ -85,6 +85,42 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create.
+        /// </summary>
+        public static string MainMenu_Operations_Create {
+            get {
+                return ResourceManager.GetString("MainMenu_Operations_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string MainMenu_Operations_Export {
+            get {
+                return ResourceManager.GetString("MainMenu_Operations_Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extract.
+        /// </summary>
+        public static string MainMenu_Operations_Extract {
+            get {
+                return ResourceManager.GetString("MainMenu_Operations_Extract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string MainMenu_Operations_Import {
+            get {
+                return ResourceManager.GetString("MainMenu_Operations_Import", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select an option.
         /// </summary>
         public static string MainMenu_Title {
@@ -117,6 +153,38 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Generate a text-based .ini file in order to be able to make any changes to it.
+        ///
+        ///### Input
+        ///A game-ready system.ini file.
+        ///
+        ///### Output
+        ///A text-based [INI file](https://en.wikipedia.org/wiki/INI_file). It is important to not modify anything but the values for each respective key..
+        /// </summary>
+        public static string MainMenu_V1_INI_Export_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_INI_Export_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Create a system.ini file that can be read by the engine.
+        ///
+        ///### Input
+        ///A text-based [INI file](https://en.wikipedia.org/wiki/INI_file), generated from the *Export* operation.
+        ///
+        ///### Output
+        ///A game-ready system.ini file..
+        /// </summary>
+        public static string MainMenu_V1_INI_Import_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_INI_Import_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version 1.
         /// </summary>
         public static string MainMenu_V1_Name {
@@ -126,11 +194,43 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Create an ODN file with the given file(s).
+        ///
+        ///### Input
+        ///The files to compress, and the characteristics of the ODN file (obtained from the *Extract* operation).
+        ///
+        ///### Output
+        ///A game-ready ODN file..
+        /// </summary>
+        public static string MainMenu_V1_ODN_Create_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_ODN_Create_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The container files that store all of the game&apos;s assets. Some of them are encrypted, and it is hardcoded by what kind of asset they store..
         /// </summary>
         public static string MainMenu_V1_ODN_Description {
             get {
                 return ResourceManager.GetString("MainMenu_V1_ODN_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Obtain all of the files contained within an ODN container. When extracting them, make sure to take note of the characteristics of said ODN file if you are interested in reconstructing it back.
+        ///
+        ///### Input
+        ///A game-ready ODN file.
+        ///
+        ///### Output
+        ///Files included inside said ODN file..
+        /// </summary>
+        public static string MainMenu_V1_ODN_Extract_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_ODN_Extract_Description", resourceCulture);
             }
         }
         

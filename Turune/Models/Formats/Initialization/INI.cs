@@ -120,7 +120,7 @@ internal class INI
         return iniCreator.Create();
     }
 
-    ///<summary>Create an original system.ini file from the INI scheme.</summary>
+    ///<summary>Create an original system.ini file from the INIScheme.</summary>
     public byte[] Generate()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
