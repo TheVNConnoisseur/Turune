@@ -7,23 +7,23 @@ namespace Turune.Services;
 
 public static class MenuOptions
 {
-    public static IReadOnlyList<MenuOption> MainMenu (NavigationViewModel nav) => new List<MenuOption>
+    public static IReadOnlyList<MenuOption> MainMenu () => new List<MenuOption>
     {
         new MenuOption
         {
             Name = Localizations.Resources.MainMenu_V1_Name,
             Description = Localizations.Resources.MainMenu_V1_Description,
-            Children = MainMenu_V1(nav)
+            Children = MainMenu_V1()
         },
         new MenuOption
         {
             Name = Localizations.Resources.MainMenu_V2_Name,
             Description = Localizations.Resources.MainMenu_V2_Description,
-            Children = MainMenu_V2(nav)
+            Children = MainMenu_V2()
         }
     };
 
-    public static IReadOnlyList<MenuOption> MainMenu_V1 (NavigationViewModel nav) => new List<MenuOption>
+    public static IReadOnlyList<MenuOption> MainMenu_V1 () => new List<MenuOption>
     {
         new MenuOption
         {
@@ -75,19 +75,19 @@ public static class MenuOptions
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Extract,
                     Description = Localizations.Resources.MainMenu_V1_ODN_Extract_Description,
-                    // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
+                    ToolKey = "ODN_Extract"
                 },
                 new MenuOption
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Create,
                     Description = Localizations.Resources.MainMenu_V1_ODN_Create_Description,
-                    // Execute = () => nav.NavigateTo(new ExportIniViewModel(nav)),
+                    ToolKey = "ODN_Create"
                 }
             }
         }
     };
     
-    public static IReadOnlyList<MenuOption> MainMenu_V2 (NavigationViewModel nav) => new List<MenuOption>
+    public static IReadOnlyList<MenuOption> MainMenu_V2 () => new List<MenuOption>
     {
         new MenuOption
         {

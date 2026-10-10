@@ -10,8 +10,7 @@ public partial class NavigationViewModel : ObservableObject
     private readonly Stack<ObservableObject> _backStack = new();
     private readonly Stack<ObservableObject> _forwardStack = new();
 
-    [ObservableProperty]
-    private ObservableObject? _currentPage;
+    [ObservableProperty] private ObservableObject? _currentPage;
 
     public bool CanGoBack => _backStack.Count > 0;
     public bool CanGoForward => _forwardStack.Count > 0;

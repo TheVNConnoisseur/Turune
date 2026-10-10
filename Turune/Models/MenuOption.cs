@@ -25,6 +25,12 @@ public class MenuOption
     public IReadOnlyList<MenuOption> Children { get; set; } = new List<MenuOption>();
 
     /// <summary>
+    /// For the options that will have the user go to a ViewModel specific to a tool,
+    /// this value indicates to the ToolViewModelFactory where to jump next.
+    /// </summary>
+    public string? ToolKey { get; set; } = string.Empty;
+
+    /// <summary>
     /// The action to be executed when the option is selected. This can be a method, a delegate, or any other callable entity.
     /// </summary>
     public Action? Execute { get; set; }

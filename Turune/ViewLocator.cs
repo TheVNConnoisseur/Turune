@@ -5,6 +5,7 @@ using System;
 
 namespace Turune;
 
+//Taken from: https://docs.avaloniaui.net/docs/how-to/navigation-how-to#view-locator-pattern
 public class ViewLocator : IDataTemplate
 {
     public Control Build(object? data)
