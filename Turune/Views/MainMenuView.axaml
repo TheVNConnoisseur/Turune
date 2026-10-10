@@ -83,8 +83,6 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Spacing="8">
-            <Button Content="Test"
-                    Command="{Binding TestCommand}" />
             <Button Content="Next"
                     Command="{Binding NextCommand}" />
         </StackPanel>

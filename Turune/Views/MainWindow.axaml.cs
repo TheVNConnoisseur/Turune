@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Turune.ViewModels;
 
 namespace Turune.Views;
 
