@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Turune.Services;
 
-public interface IFileLoader
+public interface IFileIO
 {
     Task<byte[]> ReadBytesAsync(string path, CancellationToken ct = default);
     Task<string[]> ReadLinesAsync(string path, CancellationToken ct = default);
@@ -13,7 +13,7 @@ public interface IFileLoader
     Task WriteLinesAsync(string path, string[] lines, CancellationToken ct = default);
     Task<IReadOnlyList<byte[]>> ReadBytesManyAsync(IReadOnlyList<string> paths, CancellationToken ct = default);
 }
-public sealed class FileLoader : IFileLoader
+public sealed class FileIO : IFileIO
 {
     public Task<byte[]> ReadBytesAsync(string path, CancellationToken ct = default)
         => File.ReadAllBytesAsync(path, ct);

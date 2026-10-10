@@ -9,11 +9,11 @@ using Turune.Services;
 namespace Turune.ViewModels.Tools.Containers;
 public partial class ODNExtractViewModel(
     IStorageService storageService,
-    IFileLoader fileLoader,
+    IFileIO fileIO,
     NavigationViewModel navigation) : ObservableObject
 {
     private readonly IStorageService _storageService = storageService;
-    private readonly IFileLoader _fileLoader = fileLoader;
+    private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
 
     [RelayCommand]
@@ -37,14 +37,14 @@ public partial class ODNExtractViewModel(
 
         foreach (var file in files)
         {
-            var bytes = await _fileLoader.ReadBytesAsync(file.Path.LocalPath);
+            var bytes = await _fileIO.ReadBytesAsync(file.Path.LocalPath);
             var odn = new ODN();
             odn.ParsePacked(bytes);
 
             foreach (var entry in odn.OdnScheme.Entries)
             {
                 var path = Path.Combine(saveFolder[0].Path.LocalPath, entry.Name);
-                await _fileLoader.WriteBytesAsync(path, entry.Data);
+                await _fileIO.WriteBytesAsync(path, entry.Data);
             }
         }
     }

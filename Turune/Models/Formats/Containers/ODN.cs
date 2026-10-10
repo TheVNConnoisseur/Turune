@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NVorbis;
 
 namespace Turune.Models.Formats.Containers;
 internal class ODN
@@ -18,8 +19,7 @@ internal class ODN
     {
         public string Name = "";
         public byte[] Data = [];
-
-        //The PCM byte length gets ignored since that can be calculated on the fly
+        public int? PCMByteLength;
     }
     internal class ODNScheme_Properties
     {
@@ -53,11 +53,13 @@ internal class ODN
             OdnScheme.Properties.EntriesOffsetsAreNotRelativeToRawData = true;
 
         //To know if the container contains audio, we need to check if what follows is the
-        //PCM byte length of the first entry. Sadly, since the game does not care about
-        //file names, a good way to confirm if it contains audio files is by checking
-        //if it contains the Vorbis encoder string, which is long enough to not be present
-        //as a file name and unique enough to not be present in a non-audio file.
-        OdnScheme.Properties.ContainsAudio = inputFile.AsSpan().IndexOf("aoTuV b5d [20090301] (based on Xiph.Org's libVorbis)"u8) >= 0;
+        //PCM byte length of the first entry. Sadly, since the game does not store file
+        //extensions, a good way to confirm if it contains audio files is by checking
+        //if it contains certain strings typically found in OGG Vorbis files.
+        OdnScheme.Properties.ContainsAudio = 
+            (inputFile.AsSpan().IndexOf("libVorbis"u8) >= 0 ||
+            inputFile.AsSpan().IndexOf("libvorbis"u8) >= 0) &&
+            inputFile.AsSpan().IndexOf("OggS"u8) >= 0;
 
         //Obtain the offset where the raw data for all entries actually start
         int rawDataOffset = 0;
@@ -85,7 +87,7 @@ internal class ODN
                     rawDataOffset += 16;
             }
         }
-        
+
         int currentOffset = 0;
         //Obtain the data and names of all entries
         while (currentOffset < rawDataOffset)
@@ -198,12 +200,12 @@ internal class ODN
         foreach (var entryData in inputData)
         {
             //Ensure that no file exceeds the maximum size the offset has
-            if ((uint)entryData.Length >= UInt32.MaxValue)
+            if ((uint)entryData.Length >= uint.MaxValue)
                 throw new InvalidDataException("No file cannot have a size equal or greater than 4294967295 (or 0xFFFFFFFF) bytes, and one of " +
                  "the files exceeds this limit.");
             
             totalEntriesSize += (uint)entryData.Length;
-            if (totalEntriesSize >= UInt32.MaxValue)
+            if (totalEntriesSize >= uint.MaxValue)
                 throw new InvalidDataException("All of the selected files have a size equal or greater than 4294967295 (or 0xFFFFFFFF) bytes, please " +
                 "ensure that the selected files do not exceed this limit.");
         }
@@ -211,12 +213,32 @@ internal class ODN
         //Create all of the ODNScheme_Entry required to host all of the input files
         for (int i = 0; i < inputNames.Length; i++)
         {
-            var entry = new ODNScheme_Entry
+            if (OdnScheme.Properties.ContainsAudio)
             {
-                Name = inputNames[0],
-                Data = inputData[0]
-            };
-            OdnScheme.Entries.Add(entry);
+                using var vorbisStream = new MemoryStream(inputData[i]);
+                using var vorbis = new VorbisReader(vorbisStream);
+                
+                //The decoder only accepts mono and 44.1KHz audio files
+                if (vorbis.Channels != 1 && vorbis.SampleRate != 44100)
+                    throw new InvalidDataException("The file " + inputNames[i] + "is either not mono or does not have a sample rate of 44.1KHz.");
+
+                var entry = new ODNScheme_Entry
+                {
+                    Name = Path.GetFileNameWithoutExtension(inputNames[i]),
+                    Data = inputData[i],
+                    PCMByteLength = (int)(vorbis.TotalSamples * vorbis.Channels * 2) //8-bit * 2 because the audio files are 16-bit
+                };
+                OdnScheme.Entries.Add(entry);
+            }
+            else
+            {
+                var entry = new ODNScheme_Entry
+                {
+                    Name = Path.GetFileNameWithoutExtension(inputNames[i]),
+                    Data = inputData[i]
+                };
+                OdnScheme.Entries.Add(entry);
+            }
         }
     }
 }

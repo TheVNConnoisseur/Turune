@@ -26,12 +26,13 @@ public partial class App : Application
             //The core services will singletons, to ensure that
             services.AddSingleton<IStorageService>(_ =>
                 new StorageService(() => desktop.MainWindow?.StorageProvider));
-            services.AddSingleton<IFileLoader, FileLoader>();
+            services.AddSingleton<IFileIO, FileIO>();
             services.AddSingleton<NavigationViewModel>();
             services.AddSingleton<IToolViewModelFactory, ToolViewModelFactory>();
 
             //Transient ViewModels, no need to keep their state
             services.AddTransient<ODNExtractViewModel>();
+            services.AddTransient<ODNCreateViewModel>();
 
             var provider = services.BuildServiceProvider();
 

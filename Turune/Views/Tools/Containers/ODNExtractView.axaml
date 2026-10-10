@@ -7,6 +7,7 @@
     <StackPanel Margin="20" Spacing="10">
         <TextBlock Text="Simple view for navigation" FontSize="20" FontWeight="Bold" />
         <Button Content="Go Back" Command="{Binding GoBackCommand}" />
+        <Button Content="Test" Command="{Binding ExtractCommand}" />
     </StackPanel>
 
 </UserControl>
