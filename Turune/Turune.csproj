@@ -1,11 +1,57 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <UserSecretsId>975366fc-d560-4d3b-bba4-ad96ac389542</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Read https://docs.avaloniaui.net/docs/deployment/embedded-linux/#publish-options-explained for more information -->
+  <!-- While not necessary, some extra information about the single-file deployment can be found here: 
+  https://github.com/dotnet/docs/blob/main/docs/core/deploying/single-file/overview.md -->
+  <PropertyGroup Condition="'$(PublishProtocol)' != ''">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>  <!-- Reduces size a lot if set to true, but might cause issues, so proceed with caution -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  
+  <!-- Taken from: https://docs.avaloniaui.net/docs/app-development/localizing#other-tools-rider-vs-code-cli -->
+  <!-- Some fixes provided thanks to: https://github.com/AvaloniaUI/Avalonia/discussions/12770#discussioncomment-6916064 -->
+  <ItemGroup>
+    <EmbeddedResource Update="Localizations\Resources.resx">
+      <Generator>MSBuild:Compile</Generator>
+      <LastGenOutput>%(FileName).Designer.cs</LastGenOutput>
+      <StronglyTypedFileName>Localizations\%(FileName).Designer.cs</StronglyTypedFileName>  <!-- $(IntermediateOutputPath) causes problems with IntelliSense -->
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>$(RootNamespace).Localizations</StronglyTypedNamespace>
+      <StronglyTypedClassName>%(FileName)</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- The resource task adds this Resources.Designer.cs file to Compile, so exclude the checked-in copy from the SDK glob to avoid warning CS2002. -->
+  <ItemGroup>
+    <Compile Remove="Localizations\Resources.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.3" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Markdown.Avalonia.Tight" Version="12.0.0-a3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
+  </ItemGroup>
 </Project>

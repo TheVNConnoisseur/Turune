@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Select an option</value>
+        <comment>Ttitle for the main menu</comment>
+    </data>
+    <data name="MainMenu_Column1" xml:space="preserve">
+        <value>Version</value>
+        <comment>Title for the 1st column in the main menu</comment>
+    </data>
+    <data name="MainMenu_Column2" xml:space="preserve">
+        <value>File type</value>
+        <comment>Title for the 2nd column in the main menu</comment>
+    </data>
+    <data name="MainMenu_Column3" xml:space="preserve">
+        <value>Operation</value>
+        <comment>Title for the 3rd column in the main menu</comment>
+    </data>
+    <data name="MainMenu_V1_Name" xml:space="preserve">
+        <value>Version 1</value>
+        <comment>Options 1st column in the main menu</comment>
+    </data>
+    <data name="MainMenu_V2_Name" xml:space="preserve">
+        <value>Version 2</value>
+    </data>
+    <data name="MainMenu_V1_Description" xml:space="preserve">
+        <value>## Supported games
+From [Imouto Ninshin](https://vndb.org/v2354) to [Netoraren'ai ~Ai Suru Kanojo ga Musunda Midara na Keiyaku~](https://vndb.org/v2354).
+
+## Compatibility
+* Before [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): probably supported, but the engine was still in development, so a lot of stuff probably underwent a lot of changes.
+* After [Princess Knight☆Catue ~Ochita Ryuuki Hime~](https://vndb.org/v5067): supported, but due to how the engine was developed, which was probably done very poorly, some edge cases might not be fully supported.</value>
+    </data>
+    <data name="MainMenu_V2_Description" xml:space="preserve">
+        <value>## Supported games
+Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
+
+## Compatibility
+All of the features are supported, unless a new game has come out that offers a new encryption scheme yet to discover.</value>
+    </data>
+    <data name="MainMenu_V1_INI_Description" xml:space="preserve">
+        <value>The initialization file for the game doesn't really do much besides changing the game's title, since we don't have access to any debug feature.</value>
+        <comment>Options 2nd column in the main menu</comment>
+    </data>
+    <data name="MainMenu_V1_ODN_Description" xml:space="preserve">
+        <value>The container files that store all of the game's assets. Some of them are encrypted, and it is hardcoded by what kind of asset they store.</value>
+    </data>
+    <data name="MainMenu_Operations_Export" xml:space="preserve">
+        <value>Export</value>
+        <comment>Options 3rd column in the main menu</comment>
+    </data>
+    <data name="MainMenu_Operations_Import" xml:space="preserve">
+        <value>Import</value>
+    </data>
+    <data name="MainMenu_Operations_Extract" xml:space="preserve">
+        <value>Extract</value>
+    </data>
+    <data name="MainMenu_Operations_Create" xml:space="preserve">
+        <value>Create</value>
+    </data>
+    <data name="MainMenu_V1_INI_Export_Description" xml:space="preserve">
+        <value>### Description
+Generate a text-based .ini file in order to be able to make any changes to it.
+
+### Input
+A game-ready system.ini file.
+
+### Output
+A text-based [INI file](https://en.wikipedia.org/wiki/INI_file). It is important to not modify anything but the values for each respective key.</value>
+    </data>
+    <data name="MainMenu_V1_INI_Import_Description" xml:space="preserve">
+        <value>### Description
+Create a system.ini file that can be read by the engine.
+
+### Input
+A text-based [INI file](https://en.wikipedia.org/wiki/INI_file), generated from the *Export* operation.
+
+### Output
+A game-ready system.ini file.</value>
+    </data>
+    <data name="MainMenu_V1_ODN_Extract_Description" xml:space="preserve">
+        <value>### Description
+Obtain all of the files contained within an ODN container. When extracting them, make sure to take note of the characteristics of said ODN file if you are interested in reconstructing it back.
+
+### Input
+A game-ready ODN file.
+
+### Output
+Files included inside said ODN file.</value>
+    </data>
+    <data name="MainMenu_V1_ODN_Create_Description" xml:space="preserve">
+        <value>### Description
+Create an ODN file with the given file(s).
+
+### Input
+The files to compress, and the characteristics of the ODN file (obtained from the *Extract* operation).
+
+### Output
+A game-ready ODN file.</value>
+    </data>
+</root>

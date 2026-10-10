@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Turune.ViewModels"
+             xmlns:models="using:Turune.Models"
+             xmlns:md="https://github.com/whistyun/Markdown.Avalonia.Tight"
+             xmlns:lang="using:Turune.Localizations"
+             x:Class="Turune.Views.MainMenuView"
+             x:DataType="vm:MainMenuViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="20" HorizontalAlignment="Center">
+
+        <!-- Title of the screen -->
+        <TextBlock Grid.Row="0"
+                   Text="{Binding Title}"
+                   FontSize="40"
+                   Margin="0,40,0,50"
+                   HorizontalAlignment="Center" />
+
+        <!-- List of options for the user to select from -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="0,0,0,12">
+
+            <DockPanel Grid.Column="0">
+                <TextBlock DockPanel.Dock="Top"
+                        Text="{x:Static lang:Resources.MainMenu_Column1}"
+                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                        Margin="0,0,0,6" />
+                <ListBox ItemsSource="{Binding Options}"
+                        SelectedItem="{Binding SelectedOption1}"
+                        MinWidth="150"
+                        BorderThickness="0,0,1,0"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="models:MenuOption">
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <DockPanel Grid.Column="1">
+                <TextBlock DockPanel.Dock="Top"
+                        Text="{x:Static lang:Resources.MainMenu_Column2}"
+                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                        Margin="0,0,0,6" />
+                <ListBox ItemsSource="{Binding SubOptions1}"
+                        SelectedItem="{Binding SelectedOption2}"
+                        MinWidth="150">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="models:MenuOption">
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <DockPanel Grid.Column="2">
+                <TextBlock DockPanel.Dock="Top"
+                        Text="{x:Static lang:Resources.MainMenu_Column3}"
+                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                        Margin="0,0,0,6" />
+                <ListBox ItemsSource="{Binding SubOptions2}"
+                        SelectedItem="{Binding SelectedOption3}"
+                        MinWidth="150"
+                        BorderThickness="1,0,0,0"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="models:MenuOption">
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+        </Grid>
+        <!-- Description of the selected option -->
+        <md:MarkdownScrollViewer Grid.Row="2"
+                                 Markdown="{Binding CurrentDescription}"
+                                 Margin="0,12"
+                                 MaxWidth="650"/>
+
+        <!-- Navigation buttons -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8">
+            <Button Content="Next"
+                    Command="{Binding NextCommand}" />
+        </StackPanel>
+
+    </Grid>
+</UserControl>
