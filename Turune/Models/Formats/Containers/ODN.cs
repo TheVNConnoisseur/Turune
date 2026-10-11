@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NVorbis;
+using Tmds.DBus.Protocol;
 
 namespace Turune.Models.Formats.Containers;
 internal class ODN
@@ -24,9 +25,9 @@ internal class ODN
     internal class ODNScheme_Properties
     {
         public bool IsEncrypted { get; set; } = false;
-        public bool EntriesOffsetsAreNotRelativeToRawData { get; set; } = false;
+        public bool EntriesOffsetsAreRelativeToRawData { get; set; } = true;
         public bool ContainsAudio { get; set; } = false;
-        public string LastEntryOffset { get; set; } = "";
+        public string DelimiterEntryOffset { get; set; } = "";
     }
 
     public ODNScheme OdnScheme = new ODNScheme();
@@ -50,7 +51,7 @@ internal class ODN
 
         //Check if the entries offsets are relative to the raw data or not.
         if (firstEntryOffset != "00000000")
-            OdnScheme.Properties.EntriesOffsetsAreNotRelativeToRawData = true;
+            OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData = false;
 
         //To know if the container contains audio, we need to check if what follows is the
         //PCM byte length of the first entry. Sadly, since the game does not store file
@@ -63,9 +64,7 @@ internal class ODN
 
         //Obtain the offset where the raw data for all entries actually start
         int rawDataOffset = 0;
-        if (OdnScheme.Properties.EntriesOffsetsAreNotRelativeToRawData)
-            rawDataOffset = int.Parse(firstEntryOffset, NumberStyles.HexNumber);
-        else
+        if (OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData)
         {
             while (rawDataOffset < inputFile.Length)
             {
@@ -73,7 +72,7 @@ internal class ODN
                 string currentEntryOffset = Encoding.ASCII.GetString(inputFile.AsSpan(rawDataOffset + 8, 8).ToArray());
                 if (currentEntryOffset == "ffffffff")
                 {
-                    OdnScheme.Properties.LastEntryOffset = currentEntryOffset;
+                    OdnScheme.Properties.DelimiterEntryOffset = currentEntryOffset;
                     if (OdnScheme.Properties.ContainsAudio)
                         rawDataOffset += 24;
                     else
@@ -87,6 +86,8 @@ internal class ODN
                     rawDataOffset += 16;
             }
         }
+        else
+            rawDataOffset = int.Parse(firstEntryOffset, NumberStyles.HexNumber);
 
         int currentOffset = 0;
         //Obtain the data and names of all entries
@@ -96,14 +97,14 @@ internal class ODN
 
             //If the current entry has an index delimiter, it means that
             //we have reached the end of the index
-            if (currentEntryOffsetASCII == OdnScheme.Properties.LastEntryOffset)
+            if (currentEntryOffsetASCII == OdnScheme.Properties.DelimiterEntryOffset)
                 break;
             
             int currentEntryOffset;
-            if (OdnScheme.Properties.EntriesOffsetsAreNotRelativeToRawData)
-                currentEntryOffset = int.Parse(currentEntryOffsetASCII, NumberStyles.HexNumber);
-            else
+            if (OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData)
                 currentEntryOffset = int.Parse(currentEntryOffsetASCII, NumberStyles.HexNumber) + rawDataOffset;
+            else
+                currentEntryOffset = int.Parse(currentEntryOffsetASCII, NumberStyles.HexNumber);
             
             //Calculate the next entry's offset in order to get the current entry's size
             string nextEntryOffsetASCII;
@@ -113,7 +114,16 @@ internal class ODN
             else
                 nextEntryOffsetASCII = Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset + 8 + 16, 8).ToArray());
             
-            if (OdnScheme.Properties.EntriesOffsetsAreNotRelativeToRawData)
+            if (OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData)
+            {
+                //The last entry does not have any other entry to check its size, but since the index
+                //ends with a hardcoded offset, a simple check facilitates the job.
+                if (nextEntryOffsetASCII != OdnScheme.Properties.DelimiterEntryOffset)
+                    nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber) + rawDataOffset;
+                else
+                    nextEntryOffset = inputFile.Length;
+            }
+            else
             {
                 //The last entry does not have any other entry to check its size, and when parsing its value
                 //will always throw a FormatException because it's reading the bytes from the first entry.
@@ -125,15 +135,6 @@ internal class ODN
                 {
                     nextEntryOffset = inputFile.Length;
                 }
-            }
-            else
-            {
-                //The last entry does not have any other entry to check its size, but since the index
-                //ends with a hardcoded offset, a simple check facilitates the job.
-                if (nextEntryOffsetASCII != OdnScheme.Properties.LastEntryOffset)
-                    nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber) + rawDataOffset;
-                else
-                    nextEntryOffset = inputFile.Length;
             }
             
             //Since audio files are always OGG Vorbis files, we can put their respective extension to it
@@ -240,5 +241,100 @@ internal class ODN
                 OdnScheme.Entries.Add(entry);
             }
         }
+    }
+
+    /// <summary>
+    /// Create an ODN file with all of the selected ODNScheme_Entry with the given properties.
+    /// </summary>
+    /// <param name="isEncrypted">If the ODN file is going to be encrypted or not.</param>
+    /// <param name="entriesOffsetsAreRelativeToRawData">If the offsets listed in the index are absolute or relative to the raw data.</param>
+    /// <param name="delimiterEntryOffset">If the entry must contain an index delimiter, this indicates in ASCII how it should be.</param>
+    /// <returns>Byte array with the game-ready ODN file.</returns>
+    public byte[] Create(bool isEncrypted, bool entriesOffsetsAreRelativeToRawData, string delimiterEntryOffset)
+    {
+        //First set the properties for the ODN file (the ContainsAudio is already set when parsing all of the files)
+        OdnScheme.Properties.IsEncrypted = isEncrypted;
+        OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData = entriesOffsetsAreRelativeToRawData;
+        OdnScheme.Properties.DelimiterEntryOffset = delimiterEntryOffset;
+
+        List<byte> outputFile = [];
+        
+        //Calculate the offset of the first entry based on how the offsets are done
+        int entryOffset = 0;
+        if (!entriesOffsetsAreRelativeToRawData)
+        {
+            foreach(var entry in OdnScheme.Entries)
+            {
+                if (OdnScheme.Properties.ContainsAudio)
+                    entryOffset += 24;
+                else
+                    entryOffset += 16;
+            }
+        }
+
+        //For some reason, all ODN files with audio contain an entry that has no data
+        //associated with it (it always goes in last position)
+        if (OdnScheme.Properties.ContainsAudio)
+            entryOffset += 24;
+
+        //If there is an index delimiter, add that as an entry too since it occupies the same space
+        if (OdnScheme.Properties.DelimiterEntryOffset != "")
+        {
+            if (OdnScheme.Properties.ContainsAudio)
+                entryOffset += 24;
+            else
+                entryOffset += 16;
+        }
+
+        //Write the data for all of the entries inside the index
+        foreach (var entry in OdnScheme.Entries)
+        {
+            outputFile.AddRange(Encoding.ASCII.GetBytes(entry.Name));
+            
+            //Ensure that the offset occupies 8 characters
+            outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+            entryOffset += entry.Data.Length; //Prepare the offset for the next entry
+
+            if (OdnScheme.Properties.ContainsAudio)
+                outputFile.AddRange(Encoding.ASCII.GetBytes((entry.PCMByteLength ?? 0).ToString("x8")));
+        }
+
+        //Add an empty entry to the index if the ODN is going to hold audio
+        if (OdnScheme.Properties.ContainsAudio)
+        {
+            //No ODN made by Valkyria has ever 9999 or more entries ever, so it's safe
+            //to use the naming scheme the game uses for the entries officially.
+            string lastEntryName = "data" + OdnScheme.Entries.Count.ToString("D4");
+            outputFile.AddRange(Encoding.ASCII.GetBytes(lastEntryName));
+
+            outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+
+            //This entry always reuses the PCM byte length of the last actual entry
+            int? lastEntryPCMByteLength = OdnScheme.Entries[OdnScheme.Entries.Count - 1].PCMByteLength;
+            outputFile.AddRange(Encoding.ASCII.GetBytes((lastEntryPCMByteLength ?? 0).ToString("x8")));
+        }
+
+        //If there is a delimiter entry for the ODN, create it after the index has been completed
+        if (OdnScheme.Properties.DelimiterEntryOffset != "")
+        {
+            //Add the offset as the name for the entry (in theory it should not matter)
+            outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+
+            outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+            
+            if (OdnScheme.Properties.ContainsAudio)
+                outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+        }
+
+        //Copy the data of all entries onto the ODN
+        foreach (var entry in OdnScheme.Entries)
+            outputFile.AddRange(entry.Data);
+
+        //As the last step, ensure that the file gets encrypted if it's necessary
+        if (isEncrypted)
+            for (int i = 0; i < outputFile.Count; i++)
+                outputFile[i] = (byte)((0xFF - i) ^ outputFile[i]);
+        
+        return outputFile.ToArray();
     }
 }
