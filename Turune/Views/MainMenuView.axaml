@@ -7,7 +7,7 @@
              x:Class="Turune.Views.MainMenuView"
              x:DataType="vm:MainMenuViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="20" HorizontalAlignment="Center">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
 
         <!-- Title of the screen -->
         <TextBlock Grid.Row="0"
@@ -17,7 +17,7 @@
                    HorizontalAlignment="Center" />
 
         <!-- List of options for the user to select from -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="0,0,0,12">
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="0,0,0,12" Height="220" Width="450">
 
             <DockPanel Grid.Column="0">
                 <TextBlock DockPanel.Dock="Top"
@@ -74,18 +74,20 @@
         </Grid>
         <!-- Description of the selected option -->
         <md:MarkdownScrollViewer Grid.Row="2"
-                                 Markdown="{Binding CurrentDescription}"
-                                 Margin="0,12"
-                                 MaxWidth="650"/>
+            HorizontalAlignment="Center"
+            Markdown="{Binding CurrentDescription}"
+            Margin="0,12"
+            MinHeight="210"
+            Width="650"/>
 
         <!-- Navigation buttons -->
-        <StackPanel Grid.Row="3"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Spacing="8">
-            <Button Content="Next"
-                    Command="{Binding NextCommand}" />
-        </StackPanel>
-
+        <Grid Grid.Row="3" ColumnDefinitions="*" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="8">
+                <Button Content="Next"
+                        Command="{Binding NextCommand}" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

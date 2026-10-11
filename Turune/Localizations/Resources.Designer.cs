@@ -255,5 +255,50 @@ namespace Turune.Localizations {
                 return ResourceManager.GetString("MainMenu_V2_Name", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Entries offsets:.
+        /// </summary>
+        public static string ODN_EntriesOffsets {
+            get {
+                return ResourceManager.GetString("ODN_EntriesOffsets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Absolute.
+        /// </summary>
+        public static string ODN_EntriesOffsets_Absolute {
+            get {
+                return ResourceManager.GetString("ODN_EntriesOffsets_Absolute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Relative to the raw data.
+        /// </summary>
+        public static string ODN_EntriesOffsets_Relative {
+            get {
+                return ResourceManager.GetString("ODN_EntriesOffsets_Relative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Encrypted:.
+        /// </summary>
+        public static string ODN_IsEncrypted {
+            get {
+                return ResourceManager.GetString("ODN_IsEncrypted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ODN properties.
+        /// </summary>
+        public static string ODN_Properties {
+            get {
+                return ResourceManager.GetString("ODN_Properties", resourceCulture);
+            }
+        }
     }
 }

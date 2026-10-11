@@ -110,4 +110,24 @@ The files to compress, and the characteristics of the ODN file (obtained from th
 ### Output
 A game-ready ODN file.</value>
     </data>
+    <data name="ODN_Properties" xml:space="preserve">
+        <value>ODN properties</value>
+    </data>
+    <data name="ODN_EntriesOffsets" xml:space="preserve">
+        <value>Entries offsets:</value>
+        <comment>Ask if the ODN entries offsets are absolute or relative</comment>
+    </data>
+    <data name="ODN_IsEncrypted" xml:space="preserve">
+        <value>Encrypted:</value>
+        <comment>Ask if the ODN to create is encrypted or not</comment>
+    </data>
+    <data name="ODN_EntriesOffsets" xml:space="preserve">
+        <value>Entries offsets:</value>
+    </data>
+    <data name="ODN_EntriesOffsets_Relative" xml:space="preserve">
+        <value>Relative to the raw data</value>
+    </data>
+    <data name="ODN_EntriesOffsets_Absolute" xml:space="preserve">
+        <value>Absolute</value>
+    </data>
 </root>

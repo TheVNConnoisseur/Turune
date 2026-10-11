@@ -8,9 +8,11 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Icon="/Assets/avalonia-logo.ico"
         Title="{DynamicResource AppName}"
-        SizeToContent="WidthAndHeight"
         MinWidth="800"
         MinHeight="600"
-        CanResize="False">
-    <TransitioningContentControl Content="{Binding CurrentPage}" />
+        CanResize="True">
+    <Viewbox Stretch="Uniform" StretchDirection="Both">
+        <TransitioningContentControl
+            Content="{Binding CurrentPage}"/>
+    </Viewbox>
 </Window>

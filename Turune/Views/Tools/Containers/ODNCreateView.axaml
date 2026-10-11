@@ -1,13 +1,50 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:vm="using:Turune.ViewModels.Tools.Containers"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Turune.ViewModels.Tools.Containers"
+             xmlns:md="https://github.com/whistyun/Markdown.Avalonia.Tight"
+             xmlns:lang="using:Turune.Localizations"
              x:Class="Turune.Views.Tools.Containers.ODNCreateView"
              x:DataType="vm:ODNCreateViewModel">
 
-    <StackPanel Margin="20" Spacing="10">
-        <TextBlock Text="Simple view for navigation" FontSize="20" FontWeight="Bold" />
-        <Button Content="Go Back" Command="{Binding GoBackCommand}" />
-        <Button Content="Test" Command="{Binding CreateCommand}" />
-    </StackPanel>
+    <Grid RowDefinitions="Auto,Auto,Auto" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
 
+        <TextBox Text="text" Grid.Row="0"></TextBox>
+         <!-- ODN properties toggles -->
+        <GroupBox Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="1">
+            <Grid RowDefinitions="Auto,Auto" Margin="20" HorizontalAlignment="Center">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                    <md:MarkdownScrollViewer Grid.Column="0"
+                                            Markdown="{x:Static lang:Resources.ODN_IsEncrypted}"
+                                            Margin="0,0,15,0"
+                                            VerticalAlignment="Center"/>
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEncrypted}" OnContent="Yes" OffContent="No" Width="140" HorizontalAlignment="Right"/>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                    <md:MarkdownScrollViewer Grid.Column="0"
+                                            Markdown="{x:Static lang:Resources.ODN_EntriesOffsets}"
+                                            Margin="0,0,15,0"
+                                            VerticalAlignment="Center" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding EntriesOffsetsAreRelativeToRawData}" 
+                                OnContent="{x:Static lang:Resources.ODN_EntriesOffsets_Relative}"
+                                OffContent="{x:Static lang:Resources.ODN_EntriesOffsets_Absolute}"
+                                Width="140"
+                                HorizontalAlignment="Right"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+       
+        
+
+        <!-- Navigation buttons -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="8">
+            <Button Content="←  Back"
+                    Command="{Binding GoBackCommand}" />
+            <Button Content="Create ODN file"
+                    Command="{Binding CreateCommand}" />
+        </StackPanel>
+    </Grid>
 </UserControl>

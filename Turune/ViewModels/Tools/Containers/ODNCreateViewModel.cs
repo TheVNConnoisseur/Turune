@@ -17,9 +17,10 @@ public partial class ODNCreateViewModel(
     private readonly IStorageService _storageService = storageService;
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
+    [ObservableProperty] private bool _isEncrypted;
+    [ObservableProperty] private bool _entriesOffsetsAreRelativeToRawData;
 
-    [RelayCommand]
-    private void GoBack() => _navigation.GoBack();
+    [RelayCommand] private void GoBack() => _navigation.GoBack();
 
     [RelayCommand]
     private async Task Create()
@@ -50,13 +51,9 @@ public partial class ODNCreateViewModel(
         {
             Title = "Save ODN file"
         });
-        if (saveFile is null)
-            return;
+        if (saveFile is null) return;
 
-        // byte[] createdODN = odn.Export();
-        // await _fileLoader.WriteBytesAsync(saveFile.Path.LocalPath, createdODN);
+        byte[] createdODN = odn.Create(IsEncrypted, false, "");
+        await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, createdODN);
     }
-
-    [RelayCommand]
-    private void Back() => _navigation.GoBack();
 }
