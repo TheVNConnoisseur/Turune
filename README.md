@@ -2,6 +2,8 @@
 
 ## Licenses
 
+[Bootstrap Icons](https://github.com/twbs/icons) - MIT License
+
 [Markdown.Avalonia.Tight](https://www.nuget.org/packages/Markdown.Avalonia.Tight) - MIT License
 
 [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection/) - MIT License
