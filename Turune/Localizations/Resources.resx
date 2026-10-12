@@ -122,12 +122,15 @@ A game-ready ODN file.</value>
         <comment>Ask if the ODN to create is encrypted or not</comment>
     </data>
     <data name="ODN_EntriesOffsets" xml:space="preserve">
-        <value>Entries offsets:</value>
+        <value>Entries offsets are relative to raw data:</value>
     </data>
-    <data name="ODN_EntriesOffsets_Relative" xml:space="preserve">
-        <value>Relative to the raw data</value>
+    <data name="ODN_HasIndexDelimiter" xml:space="preserve">
+        <value>Has index delimiter:</value>
     </data>
-    <data name="ODN_EntriesOffsets_Absolute" xml:space="preserve">
-        <value>Absolute</value>
+    <data name="CommonTerms_Yes" xml:space="preserve">
+        <value>Yes</value>
+    </data>
+    <data name="CommonTerms_No" xml:space="preserve">
+        <value>No</value>
     </data>
 </root>

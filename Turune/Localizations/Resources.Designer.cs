@@ -58,6 +58,24 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        public static string CommonTerms_No {
+            get {
+                return ResourceManager.GetString("CommonTerms_No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        public static string CommonTerms_Yes {
+            get {
+                return ResourceManager.GetString("CommonTerms_Yes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version.
         /// </summary>
         public static string MainMenu_Column1 {
@@ -266,20 +284,11 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Absolute.
+        ///   Looks up a localized string similar to Has index delimiter:.
         /// </summary>
-        public static string ODN_EntriesOffsets_Absolute {
+        public static string ODN_HasIndexDelimiter {
             get {
-                return ResourceManager.GetString("ODN_EntriesOffsets_Absolute", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Relative to the raw data.
-        /// </summary>
-        public static string ODN_EntriesOffsets_Relative {
-            get {
-                return ResourceManager.GetString("ODN_EntriesOffsets_Relative", resourceCulture);
+                return ResourceManager.GetString("ODN_HasIndexDelimiter", resourceCulture);
             }
         }
         

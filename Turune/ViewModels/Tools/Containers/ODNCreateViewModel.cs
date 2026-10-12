@@ -19,6 +19,7 @@ public partial class ODNCreateViewModel(
     private readonly NavigationViewModel _navigation = navigation;
     [ObservableProperty] private bool _isEncrypted;
     [ObservableProperty] private bool _entriesOffsetsAreRelativeToRawData;
+    [ObservableProperty] private bool _hasDelimiterEntryOffset;
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
@@ -53,7 +54,7 @@ public partial class ODNCreateViewModel(
         });
         if (saveFile is null) return;
 
-        byte[] createdODN = odn.Create(IsEncrypted, false, "");
+        byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntryOffset);
         await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, createdODN);
     }
 }

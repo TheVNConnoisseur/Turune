@@ -27,7 +27,7 @@ internal class ODN
         public bool IsEncrypted { get; set; } = false;
         public bool EntriesOffsetsAreRelativeToRawData { get; set; } = true;
         public bool ContainsAudio { get; set; } = false;
-        public string DelimiterEntryOffset { get; set; } = "";
+        public bool HasDelimiterEntry { get; set; } = false;
     }
 
     public ODNScheme OdnScheme = new ODNScheme();
@@ -72,7 +72,7 @@ internal class ODN
                 string currentEntryOffset = Encoding.ASCII.GetString(inputFile.AsSpan(rawDataOffset + 8, 8).ToArray());
                 if (currentEntryOffset == "ffffffff")
                 {
-                    OdnScheme.Properties.DelimiterEntryOffset = currentEntryOffset;
+                    OdnScheme.Properties.HasDelimiterEntry = true;
                     if (OdnScheme.Properties.ContainsAudio)
                         rawDataOffset += 24;
                     else
@@ -97,7 +97,7 @@ internal class ODN
 
             //If the current entry has an index delimiter, it means that
             //we have reached the end of the index
-            if (currentEntryOffsetASCII == OdnScheme.Properties.DelimiterEntryOffset)
+            if (currentEntryOffsetASCII == "ffffffff")
                 break;
             
             int currentEntryOffset;
@@ -118,7 +118,7 @@ internal class ODN
             {
                 //The last entry does not have any other entry to check its size, but since the index
                 //ends with a hardcoded offset, a simple check facilitates the job.
-                if (nextEntryOffsetASCII != OdnScheme.Properties.DelimiterEntryOffset)
+                if (nextEntryOffsetASCII != "ffffffff")
                     nextEntryOffset = int.Parse(nextEntryOffsetASCII, NumberStyles.HexNumber) + rawDataOffset;
                 else
                     nextEntryOffset = inputFile.Length;
@@ -248,14 +248,14 @@ internal class ODN
     /// </summary>
     /// <param name="isEncrypted">If the ODN file is going to be encrypted or not.</param>
     /// <param name="entriesOffsetsAreRelativeToRawData">If the offsets listed in the index are absolute or relative to the raw data.</param>
-    /// <param name="delimiterEntryOffset">If the entry must contain an index delimiter, this indicates in ASCII how it should be.</param>
+    /// <param name="hasDelimiterEntryOffset">If the entry must contain an index delimiter or not.</param>
     /// <returns>Byte array with the game-ready ODN file.</returns>
-    public byte[] Create(bool isEncrypted, bool entriesOffsetsAreRelativeToRawData, string delimiterEntryOffset)
+    public byte[] Create(bool isEncrypted, bool entriesOffsetsAreRelativeToRawData, bool hasDelimiterEntryOffset)
     {
         //First set the properties for the ODN file (the ContainsAudio is already set when parsing all of the files)
         OdnScheme.Properties.IsEncrypted = isEncrypted;
         OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData = entriesOffsetsAreRelativeToRawData;
-        OdnScheme.Properties.DelimiterEntryOffset = delimiterEntryOffset;
+        OdnScheme.Properties.HasDelimiterEntry = hasDelimiterEntryOffset;
 
         List<byte> outputFile = [];
         
@@ -278,7 +278,7 @@ internal class ODN
             entryOffset += 24;
 
         //If there is an index delimiter, add that as an entry too since it occupies the same space
-        if (OdnScheme.Properties.DelimiterEntryOffset != "")
+        if (OdnScheme.Properties.HasDelimiterEntry)
         {
             if (OdnScheme.Properties.ContainsAudio)
                 entryOffset += 24;
@@ -315,7 +315,7 @@ internal class ODN
         }
 
         //If there is a delimiter entry for the ODN, create it after the index has been completed
-        if (OdnScheme.Properties.DelimiterEntryOffset != "")
+        if (OdnScheme.Properties.HasDelimiterEntry)
         {
             //Add the offset as the name for the entry (in theory it should not matter)
             outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));

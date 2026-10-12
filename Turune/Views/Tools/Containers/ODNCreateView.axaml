@@ -6,35 +6,47 @@
              x:Class="Turune.Views.Tools.Containers.ODNCreateView"
              x:DataType="vm:ODNCreateViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,Auto" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,Auto" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-        <TextBox Text="text" Grid.Row="0"></TextBox>
-         <!-- ODN properties toggles -->
-        <GroupBox Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="1">
-            <Grid RowDefinitions="Auto,Auto" Margin="20" HorizontalAlignment="Center">
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
-                    <md:MarkdownScrollViewer Grid.Column="0"
-                                            Markdown="{x:Static lang:Resources.ODN_IsEncrypted}"
-                                            Margin="0,0,15,0"
-                                            VerticalAlignment="Center"/>
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEncrypted}" OnContent="Yes" OffContent="No" Width="140" HorizontalAlignment="Right"/>
-                </Grid>
+         <!-- ODN properties -->
+        <GroupBox Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0">
+            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" Margin="20">
 
-                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
-                    <md:MarkdownScrollViewer Grid.Column="0"
-                                            Markdown="{x:Static lang:Resources.ODN_EntriesOffsets}"
-                                            Margin="0,0,15,0"
-                                            VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding EntriesOffsetsAreRelativeToRawData}" 
-                                OnContent="{x:Static lang:Resources.ODN_EntriesOffsets_Relative}"
-                                OffContent="{x:Static lang:Resources.ODN_EntriesOffsets_Absolute}"
-                                Width="140"
-                                HorizontalAlignment="Right"/>
-                </Grid>
+                <md:MarkdownScrollViewer Grid.Row="0" Grid.Column="0"
+                    Markdown="{x:Static lang:Resources.ODN_IsEncrypted}"
+                    Margin="0,0,30,12"
+                    VerticalAlignment="Center"/>
+                <ToggleSwitch Grid.Row="0" Grid.Column="1"
+                    IsChecked="{Binding IsEncrypted}"
+                    OnContent="{x:Static lang:Resources.CommonTerms_Yes}" OffContent="{x:Static lang:Resources.CommonTerms_No}"
+                    Margin="0,0,0,12"
+                    HorizontalAlignment="Right"/>
+
+                <md:MarkdownScrollViewer Grid.Row="1" Grid.Column="0"
+                    Markdown="{x:Static lang:Resources.ODN_EntriesOffsets}"
+                    Margin="0,0,30,12"
+                    VerticalAlignment="Center"/>
+                <ToggleSwitch Grid.Row="1" Grid.Column="1"
+                    IsChecked="{Binding EntriesOffsetsAreRelativeToRawData}"
+                    OnContent="{x:Static lang:Resources.CommonTerms_Yes}"
+                    OffContent="{x:Static lang:Resources.CommonTerms_No}"
+                    Margin="0,0,0,12"
+                    HorizontalAlignment="Right"/>
+
+                <md:MarkdownScrollViewer Grid.Row="2" Grid.Column="0"
+                    Markdown="{x:Static lang:Resources.ODN_HasIndexDelimiter}"
+                    Margin="0,0,30,12"
+                    VerticalAlignment="Center"/>
+                 <ToggleSwitch Grid.Row="2" Grid.Column="1"
+                    IsChecked="{Binding HasDelimiterEntryOffset}"
+                    OnContent="{x:Static lang:Resources.CommonTerms_Yes}"
+                    OffContent="{x:Static lang:Resources.CommonTerms_No}"
+                    Margin="0,0,0,12"
+                    HorizontalAlignment="Right"/>
             </Grid>
         </GroupBox>
-       
         
+        <TextBox Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Text="TEST for something else"/>
 
         <!-- Navigation buttons -->
         <StackPanel Grid.Row="2"
