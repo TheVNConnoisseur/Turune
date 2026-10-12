@@ -114,15 +114,12 @@ A game-ready ODN file.</value>
         <value>ODN properties</value>
     </data>
     <data name="ODN_EntriesOffsets" xml:space="preserve">
-        <value>Entries offsets:</value>
+        <value>Entries offsets are relative to raw data:</value>
         <comment>Ask if the ODN entries offsets are absolute or relative</comment>
     </data>
     <data name="ODN_IsEncrypted" xml:space="preserve">
         <value>Encrypted:</value>
         <comment>Ask if the ODN to create is encrypted or not</comment>
-    </data>
-    <data name="ODN_EntriesOffsets" xml:space="preserve">
-        <value>Entries offsets are relative to raw data:</value>
     </data>
     <data name="ODN_HasIndexDelimiter" xml:space="preserve">
         <value>Has index delimiter:</value>

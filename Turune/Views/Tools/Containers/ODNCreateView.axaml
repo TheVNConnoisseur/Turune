@@ -36,20 +36,26 @@
         <GroupBox VerticalAlignment="Center" Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsODNCreationReady}">
             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" Margin="20">
 
-                <md:MarkdownScrollViewer Grid.Row="0" Grid.Column="0"
-                    Markdown="{x:Static lang:Resources.ODN_IsEncrypted}"
-                    Margin="0,0,30,12"
-                    VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,30,12" VerticalAlignment="Center"
+                    Text="{x:Static lang:Resources.ODN_IsEncrypted}">
+                    <ToolTip.Tip>
+                        <md:MarkdownScrollViewer Markdown="Indicates if the file should be encrypted or not."/>
+                    </ToolTip.Tip>
+                </TextBlock>
                 <ToggleSwitch Grid.Row="0" Grid.Column="1"
                     IsChecked="{Binding IsEncrypted}"
                     OnContent="{x:Static lang:Resources.CommonTerms_Yes}" OffContent="{x:Static lang:Resources.CommonTerms_No}"
                     Margin="0,0,0,12"
                     HorizontalAlignment="Right"/>
 
-                <md:MarkdownScrollViewer Grid.Row="1" Grid.Column="0"
-                    Markdown="{x:Static lang:Resources.ODN_EntriesOffsets}"
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                    Text="{x:Static lang:Resources.ODN_EntriesOffsets}"
                     Margin="0,0,30,12"
-                    VerticalAlignment="Center"/>
+                    VerticalAlignment="Center">
+                    <ToolTip.Tip>
+                        <md:MarkdownScrollViewer Markdown="If set to *Yes*, the offsets all entries will be relative to the offset of the raw data section, meaning that the first entry will be at offset 0."/>
+                    </ToolTip.Tip>
+                </TextBlock>
                 <ToggleSwitch Grid.Row="1" Grid.Column="1"
                     IsChecked="{Binding EntriesOffsetsAreRelativeToRawData}"
                     OnContent="{x:Static lang:Resources.CommonTerms_Yes}"
@@ -57,10 +63,14 @@
                     Margin="0,0,0,12"
                     HorizontalAlignment="Right"/>
 
-                <md:MarkdownScrollViewer Grid.Row="2" Grid.Column="0"
-                    Markdown="{x:Static lang:Resources.ODN_HasIndexDelimiter}"
+                <TextBlock Grid.Row="2" Grid.Column="0"
+                    Text="{x:Static lang:Resources.ODN_HasIndexDelimiter}"
                     Margin="0,0,30,12"
-                    VerticalAlignment="Center"/>
+                    VerticalAlignment="Center">
+                    <ToolTip.Tip>
+                        <md:MarkdownScrollViewer Markdown="If set to *Yes*, a delimiter entry will be created at the end of the index, which will let the game know that the index has ended."/>
+                    </ToolTip.Tip>
+                </TextBlock>
                  <ToggleSwitch Grid.Row="2" Grid.Column="1"
                     IsChecked="{Binding HasDelimiterEntryOffset}"
                     OnContent="{x:Static lang:Resources.CommonTerms_Yes}"

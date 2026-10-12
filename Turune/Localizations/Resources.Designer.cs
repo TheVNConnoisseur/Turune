@@ -275,7 +275,7 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entries offsets:.
+        ///   Looks up a localized string similar to Entries offsets are relative to raw data:.
         /// </summary>
         public static string ODN_EntriesOffsets {
             get {

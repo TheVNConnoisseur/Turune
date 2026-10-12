@@ -93,8 +93,6 @@ public partial class ODNCreateViewModel(
         }
     }
 
-    // private bool ODNCreationIsReady => 
-
     [RelayCommand]
     private async Task Create()
     {   

@@ -23,5 +23,9 @@
         <Style Selector="Window">
             <Setter Property="FontFamily" Value="{StaticResource OutfitFont}" />
         </Style>
+        <!-- Ensure that the disabled textblock looks disabled -->
+        <Style Selector="TextBlock:disabled">
+            <Setter Property="Foreground" Value="Gray" />
+        </Style>
     </Application.Styles>
 </Application>
