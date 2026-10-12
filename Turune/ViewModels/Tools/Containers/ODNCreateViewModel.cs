@@ -24,6 +24,16 @@ public partial class ODNCreateViewModel(
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
     [RelayCommand]
+    private async Task SelectInputFolder()
+    {
+        var uncompressedFilesFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Select folder with the files to compress"
+        });
+        if (uncompressedFilesFolder is null) return;
+    }
+
+    [RelayCommand]
     private async Task Create()
     {
         var uncompressedFilesFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions

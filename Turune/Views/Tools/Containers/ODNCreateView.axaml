@@ -7,9 +7,14 @@
              x:DataType="vm:ODNCreateViewModel">
 
     <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,Auto" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+        
+        <!-- Input folder selection -->
+        <GroupBox Header="Select a folder:" Margin="20" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="1">
+            <Button Command="{Binding SelectInputFolderCommand}"><PathIcon Data="{StaticResource Folder2-open}" /></Button>
+        </GroupBox>
 
-         <!-- ODN properties -->
-        <GroupBox Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0">
+        <!-- ODN properties -->
+        <GroupBox Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0" Grid.Column="1">
             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" Margin="20">
 
                 <md:MarkdownScrollViewer Grid.Row="0" Grid.Column="0"
@@ -45,14 +50,13 @@
                     HorizontalAlignment="Right"/>
             </Grid>
         </GroupBox>
-        
-        <TextBox Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Text="TEST for something else"/>
 
         <!-- Navigation buttons -->
         <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Spacing="8">
+            Grid.ColumnSpan="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Spacing="8">
             <Button Content="←  Back"
                     Command="{Binding GoBackCommand}" />
             <Button Content="Create ODN file"
