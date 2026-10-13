@@ -95,14 +95,46 @@ public partial class ODNCreateViewModel(
 
     [RelayCommand]
     private async Task Create()
-    {   
-        var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
+    {
+        var odnFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save ODN file"
+            Title = "Save ODN file",
+            DefaultExtension = "odn",
+            FileTypeChoices = [Models.FileType.Container_ODN]
         });
-        if (saveFile is null) return;
+        if (odnFile is null) return;
 
-        byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntryOffset);
-        await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, createdODN);
+        //Pass the entire process onto an external VM
+        var processingVM = new ProcessingViewModel(_navigation)
+        {
+            Title = "Creating ODN file...",
+            IsIndeterminate = true
+        };
+
+        _navigation.NavigateTo(processingVM);
+
+        try
+        {
+            processingVM.StatusText = "Building file structure...";
+            processingVM.CancellationToken.ThrowIfCancellationRequested();
+            byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntryOffset);ç
+
+            processingVM.StatusText = "Writing to disk...";
+            await _fileIO.WriteBytesAsync(odnFile.Path.LocalPath, createdODN, processingVM.CancellationToken);
+            
+            processingVM.Progress = 100;
+            processingVM.IsIndeterminate = false;
+            processingVM.StatusText = "Done.";
+            processingVM.State = ProcessingState.Succeeded;
+        }
+        catch (OperationCanceledException)
+        {
+            //Cancelling process handled by ProcessingViewModel.Cancel()
+        }
+        catch (Exception ex)
+        {
+            processingVM.StatusText = ex.Message;
+            processingVM.State = ProcessingState.Failed;
+        }
     }
 }

@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Turune.ViewModels"
+             x:Class="Turune.Views.ProcessingView"
+             x:DataType="vm:ProcessingViewModel">
+    <StackPanel Spacing="16" Margin="120" HorizontalAlignment="Center" VerticalAlignment="Center" Width="360">
+        <TextBlock Text="{Binding Title}" FontSize="18" HorizontalAlignment="Center" />
+
+        <ProgressBar Minimum="0" Maximum="100"
+                     Value="{Binding Progress}"
+                     IsIndeterminate="{Binding IsIndeterminate}" />
+
+        <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center" Opacity="0.8" TextWrapping="Wrap" />
+
+        <Button Command="{Binding CancelCommand}" IsVisible="{Binding IsRunning}" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Data="{StaticResource Bootstrap.Circle Slash}" Width="16" />
+                    <TextBlock Text="Cancel" VerticalAlignment="Center" TextWrapping="Wrap" />
+                </StackPanel>
+        </Button>
+
+        <!-- Navigation buttons -->
+         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                <Button Content="←  Back" Command="{Binding BackCommand}" IsVisible="{Binding IsFinished}" HorizontalAlignment="Center"/>
+                <Button IsVisible="{Binding IsFinished}" Command="{Binding GoHomeCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource Bootstrap.House}" />
+                                <TextBlock Text="Go to the main menu" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        </StackPanel>
+                </Button>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

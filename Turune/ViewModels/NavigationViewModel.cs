@@ -38,20 +38,47 @@ public partial class NavigationViewModel : ObservableObject
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(CanGoForward));
         GoBackCommand.NotifyCanExecuteChanged();
-        GoForwardCommand.NotifyCanExecuteChanged();
+        // GoForwardCommand.NotifyCanExecuteChanged();
+        GoHomeCommand.NotifyCanExecuteChanged();
     }
 
-    [RelayCommand(CanExecute = nameof(CanGoForward))]
-    private void GoForward()    //Not used, but could be useful in the future
+    /// <summary>
+    /// Function that lets the user go back to the main menu.
+    /// </summary>
+    /// <remarks>
+    /// It is basically like the GoBack function, just with some minor differences.
+    /// </remarks>
+    [RelayCommand(CanExecute = nameof(CanGoBack))]
+    internal void GoHome()
     {
-        if (CurrentPage is not null)
-            _backStack.Push(CurrentPage);
+        if (!CanGoBack) return;
 
-        CurrentPage = _forwardStack.Pop();
+        //Go back to the previous page
+        _forwardStack.Push(CurrentPage!);
+
+        while (_backStack.Count > 1)
+            _forwardStack.Push(_backStack.Pop());
+
+        CurrentPage = _backStack.Pop();
 
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(CanGoForward));
         GoBackCommand.NotifyCanExecuteChanged();
-        GoForwardCommand.NotifyCanExecuteChanged();
+        // GoForwardCommand.NotifyCanExecuteChanged();
+        GoHomeCommand.NotifyCanExecuteChanged();
     }
+
+    // [RelayCommand(CanExecute = nameof(CanGoForward))]
+    // private void GoForward()
+    // {
+    //     if (CurrentPage is not null)
+    //         _backStack.Push(CurrentPage);
+
+    //     CurrentPage = _forwardStack.Pop();
+
+    //     OnPropertyChanged(nameof(CanGoBack));
+    //     OnPropertyChanged(nameof(CanGoForward));
+    //     GoBackCommand.NotifyCanExecuteChanged();
+    //     GoForwardCommand.NotifyCanExecuteChanged();
+    // }
 }

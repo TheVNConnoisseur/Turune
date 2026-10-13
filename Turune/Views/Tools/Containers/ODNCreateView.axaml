@@ -14,7 +14,7 @@
                 <!-- Button to select folder with files to compress -->
                 <Button Grid.Row="0" Margin="0,10,0,20" Command="{Binding SelectInputFolderCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <PathIcon Data="{StaticResource Bootstrap.Folder2-open}" Width="16" />
+                        <PathIcon Data="{StaticResource Bootstrap.Folder2 open}" Width="16" />
                         <TextBlock Text="Select" VerticalAlignment="Center" TextWrapping="Wrap" />
                     </StackPanel>
                 </Button>
@@ -86,11 +86,13 @@
             Orientation="Horizontal"
             HorizontalAlignment="Center"
             Spacing="8">
-            <Button Content="←  Back"
-                    IsEnabled="{Binding !IsBusy}"
-                    Command="{Binding GoBackCommand}" />
-            <Button Content="Create ODN file" IsEnabled="{Binding IsODNCreationReady}"
-                    Command="{Binding CreateCommand}" />
+            <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
+            <Button IsEnabled="{Binding IsODNCreationReady}" Command="{Binding CreateCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
+                    <TextBlock Text="Save ODN file" VerticalAlignment="Center" TextWrapping="Wrap" />
+                </StackPanel>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

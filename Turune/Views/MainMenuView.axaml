@@ -85,7 +85,7 @@
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right"
                         Spacing="8">
-                <Button Content="Next"
+                <Button Content="Next  →"
                         Command="{Binding NextCommand}" />
             </StackPanel>
         </Grid>
