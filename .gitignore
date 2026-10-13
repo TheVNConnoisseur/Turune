@@ -13,3 +13,11 @@
 # Compiled source
 **/bin/
 **/obj/
+Deploy/OUT/Turune-1.0.0-1.win-x64.zip
+Deploy/OUT/Turune-1.0.0-1.win-x64.zip.sha256.txt
+Deploy/OUT/Turune-1.0.0-1.x86_64.AppImage
+Deploy/OUT/Turune-1.0.0-1.x86_64.AppImage.sha256.txt
+Deploy/OUT/Artifacts.AppImage.x86_64/com.thevnc.public.asc
+Deploy/OUT/Artifacts.AppImage.x86_64/com.thevnc.public.id
+Deploy/OUT/Artifacts.AppImage.x86_64/com.thevnc.turune.appdata.xml
+Deploy/OUT/Artifacts.AppImage.x86_64/com.thevnc.turune.desktop
