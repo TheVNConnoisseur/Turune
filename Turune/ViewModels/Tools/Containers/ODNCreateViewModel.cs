@@ -117,7 +117,7 @@ public partial class ODNCreateViewModel(
         {
             processingVM.StatusText = "Building file structure...";
             processingVM.CancellationToken.ThrowIfCancellationRequested();
-            byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntryOffset);ç
+            byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntryOffset);
 
             processingVM.StatusText = "Writing to disk...";
             await _fileIO.WriteBytesAsync(odnFile.Path.LocalPath, createdODN, processingVM.CancellationToken);
