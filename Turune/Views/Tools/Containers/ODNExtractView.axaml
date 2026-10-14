@@ -56,7 +56,7 @@
             <Button IsEnabled="{Binding IsODNExtractionReady}" Command="{Binding ExtractCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
-                    <TextBlock Text="Save ODN file" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock Text="Export files" VerticalAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
         </StackPanel>

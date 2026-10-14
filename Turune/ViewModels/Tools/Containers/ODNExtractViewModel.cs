@@ -99,33 +99,46 @@ public partial class ODNExtractViewModel(
     [RelayCommand]
     private async Task Extract()
     {
-        var files = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Open ODN",
-            AllowMultiple = true
-        });
-        if (files.Count == 0) return;
-
         var saveFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Save Exported Files"
+            Title = "Select the folder to export the files to"
         });
         if (saveFolder.Count == 0) return;
 
-        foreach (var file in files)
+        //Pass the entire process onto an external VM
+        var processingVM = new ProcessingViewModel(_navigation)
         {
-            var bytes = await _fileIO.ReadBytesAsync(file.Path.LocalPath);
-            var odn = new ODN();
-            odn.ParsePacked(bytes);
+            Title = "Exporting files from ODN...",
+            IsIndeterminate = false
+        };
 
-            foreach (var entry in odn.OdnScheme.Entries)
+        _navigation.NavigateTo(processingVM);
+
+        try
+        {
+            processingVM.CancellationToken.ThrowIfCancellationRequested();
+            
+            //Write all of the files inside the selected ODN to the selected path
+            for (int i = 0; i < odn.OdnScheme.Entries.Count; i++)
             {
-                var path = Path.Combine(saveFolder[0].Path.LocalPath, entry.Name);
-                await _fileIO.WriteBytesAsync(path, entry.Data);
+                processingVM.StatusText = "Writing file " + i + " of " + odn.OdnScheme.Entries.Count + " to disk...";
+                string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, odn.OdnScheme.Entries[i].Name);
+                await _fileIO.WriteBytesAsync(saveFilePath, odn.OdnScheme.Entries[i].Data, processingVM.CancellationToken);
+
+                processingVM.Progress = (i + 1) / (double)odn.OdnScheme.Entries.Count * 100;
             }
+            
+            processingVM.StatusText = "Done.";
+            processingVM.State = ProcessingState.Succeeded;
+        }
+        catch (OperationCanceledException)
+        {
+            //Cancelling process handled by ProcessingViewModel.Cancel()
+        }
+        catch (Exception ex)
+        {
+            processingVM.StatusText = ex.Message;
+            processingVM.State = ProcessingState.Failed;
         }
     }
-
-    [RelayCommand]
-    private void Back() => _navigation.GoBack();
 }
