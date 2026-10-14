@@ -14,3 +14,4 @@
 **/bin/
 **/obj/
 **/Deployment/Output/
+**appimagetool-*.AppImage*
