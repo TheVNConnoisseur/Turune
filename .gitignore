@@ -13,4 +13,4 @@
 # Compiled source
 **/bin/
 **/obj/
-**/Deploy/OUT/
+**/Deployment/Output/
