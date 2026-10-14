@@ -4,33 +4,32 @@
 
 ## Roadmap
 
--  [x] Container files
-   -  [x] .ODN
-      -  [x] Creation
-      -  [x] Extraction
-   -  [ ] DAT files
-      -  [ ] Extraction
-- [ ] Image files
-  - [ ] .AM2
-    - [ ] Creation
-    - [ ] Extraction
-  - [ ] .MAL
+- Version 1
+  - [ ] Images
     - [ ] Import
-    - [ ] Export to a common format
-  - [ ] .MG2
-    - [ ] Import
-    - [ ] Export
-- [ ] Initialization files
-  - [ ] .INI
+    - [ ] Extract
+  - [ ] INI
     - [ ] Export
     - [ ] Import
-  - [ ] .DAT
+  - [ ] ODN
+    -  [x] Extract
+    -  [x] Create
+
+- Version 2
+  - [ ] AM2
+    - [ ] Create
+    - [ ] Extract
+  -  [ ] DAT
+    -  [ ] Extract
+  - [ ] MAL
+    - [ ] Create
     - [ ] Export
-    - [ ] Import
-- [ ] Script files
-  - [ ] .SDT
+  - [ ] MG2
+    - [ ] Create
     - [ ] Export
-    - [ ] Import
+  - [ ] SDT
+    - [ ] Compile
+    - [ ] Decompile
 
 :information_source: If there is something not listed here, it means that it will be ***NOT*** supported, because either is pointless or doesn't make sense in the context of the tool.
 
