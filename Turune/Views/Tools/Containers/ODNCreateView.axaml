@@ -72,7 +72,7 @@
                     </ToolTip.Tip>
                 </TextBlock>
                  <ToggleSwitch Grid.Row="2" Grid.Column="1"
-                    IsChecked="{Binding HasDelimiterEntryOffset}"
+                    IsChecked="{Binding HasDelimiterEntry}"
                     OnContent="{x:Static lang:Resources.CommonTerms_Yes}"
                     OffContent="{x:Static lang:Resources.CommonTerms_No}"
                     Margin="0,0,0,12"

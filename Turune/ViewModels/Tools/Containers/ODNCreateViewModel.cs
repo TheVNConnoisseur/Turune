@@ -21,10 +21,8 @@ public partial class ODNCreateViewModel(
 
     //ODN properties
     [ObservableProperty] public partial bool IsEncrypted { get; set; }
-
     [ObservableProperty] public partial bool EntriesOffsetsAreRelativeToRawData { get; set; }
-
-    [ObservableProperty] public partial bool HasDelimiterEntryOffset { get; set; }
+    [ObservableProperty] public partial bool HasDelimiterEntry { get; set; }
 
     //ODN elements
     private ODN odn = new();
@@ -117,7 +115,7 @@ public partial class ODNCreateViewModel(
         {
             processingVM.StatusText = "Building file structure...";
             processingVM.CancellationToken.ThrowIfCancellationRequested();
-            byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntryOffset);
+            byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntry);
 
             processingVM.StatusText = "Writing to disk...";
             await _fileIO.WriteBytesAsync(odnFile.Path.LocalPath, createdODN, processingVM.CancellationToken);
