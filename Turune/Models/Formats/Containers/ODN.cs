@@ -55,9 +55,9 @@ internal class ODN
         //extensions, a good way to confirm if it contains audio files is by checking
         //if it contains certain strings typically found in OGG Vorbis files.
         OdnScheme.Properties.ContainsAudio = 
-            (inputFile.AsSpan().IndexOf("libVorbis"u8) >= 0 ||
-            inputFile.AsSpan().IndexOf("libvorbis"u8) >= 0) &&
-            inputFile.AsSpan().IndexOf("OggS"u8) >= 0;
+            (inputFile.AsSpan().IndexOf("libVorbis"u8) > 0 ||
+            inputFile.AsSpan().IndexOf("libvorbis"u8) > 0) &&
+            inputFile.AsSpan().IndexOf("OggS"u8) > 0;
 
         //Obtain the offset where the raw data for all entries actually start
         int rawDataOffset = 0;
@@ -267,20 +267,20 @@ internal class ODN
                 else
                     entryOffset += 16;
             }
-        }
 
-        //For some reason, all ODN files with audio contain an entry that has no data
-        //associated with it (it always goes in last position)
-        if (OdnScheme.Properties.ContainsAudio)
-            entryOffset += 24;
-
-        //If there is an index delimiter, add that as an entry too since it occupies the same space
-        if (OdnScheme.Properties.HasDelimiterEntry)
-        {
+            //For some reason, all ODN files with audio contain an entry that has no data
+            //associated with it (it always goes in last position)
             if (OdnScheme.Properties.ContainsAudio)
                 entryOffset += 24;
-            else
-                entryOffset += 16;
+
+            //If there is an index delimiter, add that as an entry too since it occupies the same space
+            if (OdnScheme.Properties.HasDelimiterEntry)
+            {
+                if (OdnScheme.Properties.ContainsAudio)
+                    entryOffset += 24;
+                else
+                    entryOffset += 16;
+            }
         }
 
         //Write the data for all of the entries inside the index
@@ -315,12 +315,13 @@ internal class ODN
         if (OdnScheme.Properties.HasDelimiterEntry)
         {
             //Add the offset as the name for the entry (in theory it should not matter)
-            outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+            outputFile.AddRange(Encoding.ASCII.GetBytes("END_ffff"));
 
-            outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+            outputFile.AddRange(Encoding.ASCII.GetBytes("ffffffff"));
             
+            //Audio files in theory do not have delimiter entries, but maybe there is a game that does have one
             if (OdnScheme.Properties.ContainsAudio)
-                outputFile.AddRange(Encoding.ASCII.GetBytes(entryOffset.ToString("x8")));
+                outputFile.AddRange(Encoding.ASCII.GetBytes("ffffffff"));
         }
 
         //Copy the data of all entries onto the ODN
