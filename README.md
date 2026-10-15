@@ -21,8 +21,11 @@
   - [ ] AM2
     - [ ] Create
     - [ ] Extract
-  -  [ ] DAT
+  -  [ ] DAT (Containers)
     -  [ ] Extract
+  -  [ ] DAT (Initialitzation)
+    - [ ] Export
+    - [ ] Import
   - [ ] MAL
     - [ ] Create
     - [ ] Export
@@ -73,7 +76,7 @@ In order to make the deployment of any new version easy, [PupNet Deploy](https:/
 
 For that reason alone, it's important to read the instructions in their README file to ensure everything works.
 
-If everything is set up as expected, these are the commands used to build all of the *tested* versions of the applications:
+If everything is set up correctly, these are the commands used to build all of the *tested* versions of the application:
 
 ```
 pupnet --runtime linux-x64 --kind appimage
