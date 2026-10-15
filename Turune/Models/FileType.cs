@@ -11,10 +11,23 @@ namespace Turune.Models;
 /// </summary>
 public class FileType()
 {
-    public static FilePickerFileType Container_ODN { get; } = new("ODN container")
+    public class Container()
     {
-        Patterns = ["*.odn"],
-        AppleUniformTypeIdentifiers = ["public.archive"],
-        MimeTypes = ["application/octet-stream"]
-    };
+        public static FilePickerFileType ODN { get; } = new("ODN container")
+        {
+            Patterns = ["*.odn"],
+            AppleUniformTypeIdentifiers = ["public.text"],
+            MimeTypes = ["application/octet-stream"]
+        };
+    }
+
+    public class Initialization()
+    {
+        public static FilePickerFileType INI { get; } = new("Initialization file")
+        {
+            Patterns = ["*.ini"],
+            AppleUniformTypeIdentifiers = ["public.archive"],
+            MimeTypes = ["text/plain"]
+        };
+    }
 }

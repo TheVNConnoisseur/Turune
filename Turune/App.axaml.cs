@@ -4,7 +4,6 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Turune.Services;
 using Turune.ViewModels;
-using Turune.ViewModels.Tools.Containers;
 using Turune.Views;
 
 namespace Turune;
@@ -31,8 +30,9 @@ public partial class App : Application
             services.AddSingleton<IToolViewModelFactory, ToolViewModelFactory>();
 
             //Transient ViewModels, no need to keep their state
-            services.AddTransient<ODNExtractViewModel>();
-            services.AddTransient<ODNCreateViewModel>();
+            services.AddTransient<ViewModels.Tools.Initialization.INIExportViewModel>();
+            services.AddTransient<ViewModels.Tools.Containers.ODNExtractViewModel>();
+            services.AddTransient<ViewModels.Tools.Containers.ODNCreateViewModel>();
 
             var provider = services.BuildServiceProvider();
 

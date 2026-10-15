@@ -98,7 +98,7 @@ public partial class ODNCreateViewModel(
         {
             Title = "Save ODN file",
             DefaultExtension = "odn",
-            FileTypeChoices = [Models.FileType.Container_ODN]
+            FileTypeChoices = [Models.FileType.Container.ODN]
         });
         if (odnFile is null) return;
 

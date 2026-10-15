@@ -42,8 +42,8 @@ public partial class ODNExtractViewModel(
             var compressedFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select ODN file to open",
-                FileTypeFilter = [Models.FileType.Container_ODN],
-                SuggestedFileType = Models.FileType.Container_ODN
+                FileTypeFilter = [Models.FileType.Container.ODN],
+                SuggestedFileType = Models.FileType.Container.ODN
             });
             if (compressedFile.Count == 0)
             {

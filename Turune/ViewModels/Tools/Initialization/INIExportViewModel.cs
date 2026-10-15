@@ -23,7 +23,7 @@ public partial class INIExportViewModel(
     public byte[] fileData = [];
 
     //Properties screen
-    [ObservableProperty] public partial string? ParsingStatus { get; set; } = "Please select a file.";
+    [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
 
@@ -32,63 +32,42 @@ public partial class INIExportViewModel(
     [RelayCommand]
     private async Task SelectInputFile()
     {
-        // try
-        // {
-        //     var compressedFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
-        //     {
-        //         Title = "Select ODN file to open",
-        //         FileTypeFilter = [Models.FileType.Container_ODN],
-        //         SuggestedFileType = Models.FileType.Container_ODN
-        //     });
-        //     if (compressedFile.Count == 0)
-        //     {
-        //         //Only set the sentence of no file selected in case the user already selected previously an accepted file.
-        //         if (IsReady == false)
-        //         {
-        //             ParsingStatus = "No file was selected.";
-        //             IsEncrypted = "-";
-        //             EntriesOffsetsAreRelativeToRawData = "-";
-        //             HasDelimiterEntry = "-";
-        //         }
-        //         return;
-        //     }
+        try
+        {
+            var inputFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Select file to open",
+                FileTypeFilter = [Models.FileType.Initialization.INI],
+                SuggestedFileType = Models.FileType.Initialization.INI
+            });
+            if (inputFile.Count == 0)
+            {
+                //Only set the sentence of no file selected in case the user already selected previously an accepted file.
+                if (IsReady == false)
+                    FileIOStatus = "No file was selected.";
+                return;
+            }
             
-        //     IsBusy = true;
-        //     IsReady = false;
+            IsBusy = true;
+            IsReady = false;
             
-        //     ini = new INI();
-        //     fileData = await _fileIO.ReadBytesAsync(compressedFile[0].Path.LocalPath);
-        //     ini.ParsePacked(fileData);
-            
-        //     //Parse all of the information from the ODN file
-        //     if (ini.OdnScheme.Properties.IsEncrypted)
-        //         IsEncrypted = Localizations.Resources.CommonTerms_Yes;
-        //     else
-        //         IsEncrypted = Localizations.Resources.CommonTerms_No;
-            
-        //     if (ini.OdnScheme.Properties.EntriesOffsetsAreRelativeToRawData)
-        //         EntriesOffsetsAreRelativeToRawData = Localizations.Resources.CommonTerms_Yes;
-        //     else
-        //         EntriesOffsetsAreRelativeToRawData = Localizations.Resources.CommonTerms_No;
-            
-        //     if (ini.OdnScheme.Properties.HasDelimiterEntry)
-        //         HasDelimiterEntry = Localizations.Resources.CommonTerms_Yes;
-        //     else
-        //         HasDelimiterEntry = Localizations.Resources.CommonTerms_No;
+            ini = new INI();
+            fileData = await _fileIO.ReadBytesAsync(inputFile[0].Path.LocalPath);
+            ini.ParsePacked(fileData);
 
-        //     ParsingStatus = compressedFile[0].Name + " parsed correctly.";
-        //     IsReady = true;
-        // }
-        // catch (Exception ex)
-        // {
-        //     ParsingStatus = ex.Message;
-        //     IsReady = false;
-        //     IsBusy = false;
-        // }
-        // finally
-        // {
-        //     IsBusy = false;
-        // }
+            FileIOStatus = inputFile[0].Name + " parsed correctly.";
+            IsReady = true;
+        }
+        catch (Exception ex)
+        {
+            FileIOStatus = ex.Message;
+            IsReady = false;
+            IsBusy = false;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
