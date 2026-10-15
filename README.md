@@ -1,4 +1,6 @@
-# Turune
+<p align="center">
+  <img src="Turune/Assets/Icon.png" width="200" />
+</p>
 
 **Turune** is a toolset enabling modders to modify files used in the propietary engine called **MICo**, used in visual novels produced by [VALKYRIA](https://vndb.org/p765).
 
@@ -11,7 +13,7 @@
   - [ ] INI
     - [ ] Export
     - [ ] Import
-  - [ ] ODN
+  - [x] ODN
     -  [x] Extract
     -  [x] Create
 
@@ -37,7 +39,7 @@ To check out how's the progress in understanding each of file formats available 
 
 ## Building
 
-:warning: Make sure to read which platforms are supported in the [supported platforms](#Supported-platforms) subsection.
+:warning: **Make sure to read which platforms are supported in the [supported platforms](#Supported-platforms) subsection.**
 
 ### Requirements
 
@@ -52,7 +54,7 @@ To check out how's the progress in understanding each of file formats available 
 #### Optional
 
 - Avalonia Extension for [VS Code](https://avaloniaui.net/vscode) or [Visual Studio](https://marketplace.visualstudio.com/items?itemName=AvaloniaTeam.AvaloniaVS) *(only if you plan on developing/debugging any feature)*
-- [PupNet Deploy](https://github.com/kuiperzone/PupNet-Deploy) (uses to build the application ready to be distributed)
+- [PupNet Deploy](https://github.com/kuiperzone/PupNet-Deploy) (used to build the application ready to be distributed)
 
 
 ### Supported platforms
@@ -70,6 +72,14 @@ To check out how's the progress in understanding each of file formats available 
 In order to make the deployment of any new version easy, [PupNet Deploy](https://github.com/kuiperzone/PupNet-Deploy) was chosen as the framework for making the process of creating new releases less tedious.
 
 For that reason alone, it's important to read the instructions in their README file to ensure everything works.
+
+If everything is set up as expected, these are the commands used to build all of the *tested* versions of the applications:
+
+```
+pupnet --runtime linux-x64 --kind appimage
+pupnet --runtime linux-x64 --kind deb
+pupnet --runtime win-x64 --kind zip
+```
 
 
 ## Licenses

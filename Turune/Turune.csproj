@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <UserSecretsId>975366fc-d560-4d3b-bba4-ad96ac389542</UserSecretsId>
+    <ApplicationIcon>Assets/Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!-- Read https://docs.avaloniaui.net/docs/deployment/embedded-linux/#publish-options-explained for more information -->
