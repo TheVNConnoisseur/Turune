@@ -28,8 +28,8 @@ public partial class ODNExtractViewModel(
     public byte[] fileData = [];
 
     //Properties screen
-    [ObservableProperty] public partial string? ODNParsingStatus { get; set; } = "Please select a file.";
-    [ObservableProperty] public partial bool IsODNExtractionReady { get; set; } = false;
+    [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
+    [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
@@ -48,9 +48,9 @@ public partial class ODNExtractViewModel(
             if (compressedFile.Count == 0)
             {
                 //Only set the sentence of no file selected in case the user already selected previously an accepted file.
-                if (IsODNExtractionReady == false)
+                if (IsReady == false)
                 {
-                    ODNParsingStatus = "No file was selected.";
+                    FileIOStatus = "No file was selected.";
                     IsEncrypted = "-";
                     EntriesOffsetsAreRelativeToRawData = "-";
                     HasDelimiterEntry = "-";
@@ -59,7 +59,7 @@ public partial class ODNExtractViewModel(
             }
             
             IsBusy = true;
-            IsODNExtractionReady = false;
+            IsReady = false;
             
             odn = new ODN();
             fileData = await _fileIO.ReadBytesAsync(compressedFile[0].Path.LocalPath);
@@ -81,13 +81,13 @@ public partial class ODNExtractViewModel(
             else
                 HasDelimiterEntry = Localizations.Resources.CommonTerms_No;
 
-            ODNParsingStatus = compressedFile[0].Name + " parsed correctly.";
-            IsODNExtractionReady = true;
+            FileIOStatus = compressedFile[0].Name + " parsed correctly.";
+            IsReady = true;
         }
         catch (Exception ex)
         {
-            ODNParsingStatus = ex.Message;
-            IsODNExtractionReady = false;
+            FileIOStatus = ex.Message;
+            IsReady = false;
             IsBusy = false;
         }
         finally

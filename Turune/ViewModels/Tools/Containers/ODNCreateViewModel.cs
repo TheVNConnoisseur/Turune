@@ -30,8 +30,8 @@ public partial class ODNCreateViewModel(
     public string[] filesNames = [];
 
     //Properties screen
-    [ObservableProperty] public partial string? ODNParsingStatus { get; set; } = "Please select a folder.";
-    [ObservableProperty] public partial bool IsODNCreationReady { get; set; } = false;
+    [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a folder.";
+    [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
     [ObservableProperty] public partial double Progress { get; set; } = 0;
 
@@ -49,14 +49,14 @@ public partial class ODNCreateViewModel(
             if (uncompressedFilesFolder.Count == 0)
             {
                 //Only set the sentence of no folder selected in case the user already selected previously accepted files.
-                if (IsODNCreationReady == false)
-                    ODNParsingStatus = "No folder was selected.";
+                if (IsReady == false)
+                    FileIOStatus = "No folder was selected.";
                 return;
             }
             
             IsBusy = true;
             Progress = 0;
-            IsODNCreationReady = false;
+            IsReady = false;
             
             odn = new ODN();
 
@@ -76,13 +76,13 @@ public partial class ODNCreateViewModel(
             }
 
             odn.ParseUnpacked(filesNames, filesData);
-            ODNParsingStatus = filesNames.Length + " files parsed correctly.";
-            IsODNCreationReady = true;
+            FileIOStatus = filesNames.Length + " files parsed correctly.";
+            IsReady = true;
         }
         catch (Exception ex)
         {
-            ODNParsingStatus = ex.Message;
-            IsODNCreationReady = false;
+            FileIOStatus = ex.Message;
+            IsReady = false;
             IsBusy = false;
         }
         finally

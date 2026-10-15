@@ -26,14 +26,14 @@
                         <TextBlock Text="{Binding Progress, StringFormat='{}{0:0}%'}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                     </StackPanel>
 
-                    <TextBlock Text="{Binding ODNParsingStatus}" IsVisible="{Binding !IsBusy}" FontSize="13" TextWrapping="Wrap"
+                    <TextBlock Text="{Binding FileIOStatus}" IsVisible="{Binding !IsBusy}" FontSize="13" TextWrapping="Wrap"
                             HorizontalAlignment="Center" TextAlignment="Center" Margin="10,0,10,10"/>
                 </Panel>
             </Grid>
         </GroupBox>
 
         <!-- ODN properties -->
-        <GroupBox VerticalAlignment="Center" Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsODNCreationReady}">
+        <GroupBox VerticalAlignment="Center" Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsReady}">
             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" Margin="20">
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,30,12" VerticalAlignment="Center"
@@ -87,7 +87,7 @@
             HorizontalAlignment="Center"
             Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
-            <Button IsEnabled="{Binding IsODNCreationReady}" Command="{Binding CreateCommand}">
+            <Button IsEnabled="{Binding IsReady}" Command="{Binding CreateCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
                     <TextBlock Text="Save ODN file" VerticalAlignment="Center" TextWrapping="Wrap" />

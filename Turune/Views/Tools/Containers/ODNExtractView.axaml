@@ -22,14 +22,14 @@
                 <!-- Panel that reports the file parsing process -->
                 <Panel Width="250" Grid.Row="1">
                     <ProgressBar IsVisible="{Binding IsBusy}" Minimum="0" Maximum="100" IsIndeterminate="True" Margin="10,0,10,10" />
-                    <TextBlock Text="{Binding ODNParsingStatus}" IsVisible="{Binding !IsBusy}" FontSize="13" TextWrapping="Wrap"
+                    <TextBlock Text="{Binding FileIOStatus}" IsVisible="{Binding !IsBusy}" FontSize="13" TextWrapping="Wrap"
                             HorizontalAlignment="Center" TextAlignment="Center" Margin="10,0,10,10"/>
                 </Panel>
             </Grid>
         </GroupBox>
 
         <!-- ODN properties -->
-        <GroupBox VerticalAlignment="Center" Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsODNExtractionReady}">
+        <GroupBox VerticalAlignment="Center" Header="{x:Static lang:Resources.ODN_Properties}" Margin="20" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsReady}">
             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" Margin="20">
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,30,12" VerticalAlignment="Center"
@@ -53,7 +53,7 @@
             HorizontalAlignment="Center"
             Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
-            <Button IsEnabled="{Binding IsODNExtractionReady}" Command="{Binding ExtractCommand}">
+            <Button IsEnabled="{Binding IsReady}" Command="{Binding ExtractCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
                     <TextBlock Text="Export files" VerticalAlignment="Center" TextWrapping="Wrap" />
