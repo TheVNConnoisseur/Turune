@@ -94,13 +94,13 @@ public partial class ODNCreateViewModel(
     [RelayCommand]
     private async Task Create()
     {
-        var odnFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
+        var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save ODN file",
+            Title = "Save file",
             DefaultExtension = "odn",
             FileTypeChoices = [Models.FileType.Container.ODN]
         });
-        if (odnFile is null) return;
+        if (saveFile is null) return;
 
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
@@ -115,10 +115,10 @@ public partial class ODNCreateViewModel(
         {
             processingVM.StatusText = "Building file structure...";
             processingVM.CancellationToken.ThrowIfCancellationRequested();
-            byte[] createdODN = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntry);
+            byte[] exportedFile = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntry);
 
             processingVM.StatusText = "Writing to disk...";
-            await _fileIO.WriteBytesAsync(odnFile.Path.LocalPath, createdODN, processingVM.CancellationToken);
+            await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, exportedFile, processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;

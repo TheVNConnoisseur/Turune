@@ -73,46 +73,45 @@ public partial class INIExportViewModel(
     [RelayCommand]
     private async Task Extract()
     {
-        // var saveFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
-        // {
-        //     Title = "Select the folder to export the files to"
-        // });
-        // if (saveFolder.Count == 0) return;
+        var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save file",
+            DefaultExtension = "ini",
+            FileTypeChoices = [Models.FileType.Initialization.INI]
+        });
+        if (saveFile is null) return;
 
-        // //Pass the entire process onto an external VM
-        // var processingVM = new ProcessingViewModel(_navigation)
-        // {
-        //     Title = "Exporting files from ODN...",
-        //     IsIndeterminate = false
-        // };
+        //Pass the entire process onto an external VM
+        var processingVM = new ProcessingViewModel(_navigation)
+        {
+            Title = "Exporting INI file...",
+            IsIndeterminate = true
+        };
 
-        // _navigation.NavigateTo(processingVM);
+        _navigation.NavigateTo(processingVM);
 
-        // try
-        // {
-        //     processingVM.CancellationToken.ThrowIfCancellationRequested();
+        try
+        {
+            processingVM.StatusText = "Building file structure...";
+            processingVM.CancellationToken.ThrowIfCancellationRequested();
+            string[] exportedFile = ini.Export();
+
+            processingVM.StatusText = "Writing to disk...";
+            await _fileIO.WriteLinesAsync(saveFile.Path.LocalPath, exportedFile, processingVM.CancellationToken);
             
-        //     //Write all of the files inside the selected ODN to the selected path
-        //     for (int i = 0; i < ini.OdnScheme.Entries.Count; i++)
-        //     {
-        //         processingVM.StatusText = "Writing file " + i + " of " + ini.OdnScheme.Entries.Count + " to disk...";
-        //         string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, ini.OdnScheme.Entries[i].Name);
-        //         await _fileIO.WriteBytesAsync(saveFilePath, ini.OdnScheme.Entries[i].Data, processingVM.CancellationToken);
-
-        //         processingVM.Progress = (i + 1) / (double)ini.OdnScheme.Entries.Count * 100;
-        //     }
-            
-        //     processingVM.StatusText = "Done.";
-        //     processingVM.State = ProcessingState.Succeeded;
-        // }
-        // catch (OperationCanceledException)
-        // {
-        //     //Cancelling process handled by ProcessingViewModel.Cancel()
-        // }
-        // catch (Exception ex)
-        // {
-        //     processingVM.StatusText = ex.Message;
-        //     processingVM.State = ProcessingState.Failed;
-        // }
+            processingVM.Progress = 100;
+            processingVM.IsIndeterminate = false;
+            processingVM.StatusText = "Done.";
+            processingVM.State = ProcessingState.Succeeded;
+        }
+        catch (OperationCanceledException)
+        {
+            //Cancelling process handled by ProcessingViewModel.Cancel()
+        }
+        catch (Exception ex)
+        {
+            processingVM.StatusText = ex.Message;
+            processingVM.State = ProcessingState.Failed;
+        }
     }
 }
