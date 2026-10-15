@@ -32,14 +32,14 @@ public static class MenuOptions
             {
                 new MenuOption
                 {
-                    Name = "Import",
-                    Description = "Convert images in common formats to game-ready images.",
+                    Name = "Export",
+                    Description = "Convert game-ready images to a common format.",
                     // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
                 },
                 new MenuOption
                 {
-                    Name = "Export",
-                    Description = "Convert game-ready images to a common format.",
+                    Name = "Import",
+                    Description = "Convert images in common formats to game-ready images.",
                     // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
                 }
             }
@@ -54,13 +54,13 @@ public static class MenuOptions
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Export,
                     Description = Localizations.Resources.MainMenu_V1_INI_Export_Description,
-                    // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
+                    ToolKey = "INI_Export"
                 },
                 new MenuOption
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Import,
                     Description = Localizations.Resources.MainMenu_V1_INI_Import_Description,
-                    // Execute = () => nav.NavigateTo(new ExportIniViewModel(nav)),
+                    ToolKey = "INI_Import"
                 }
             }
         },
@@ -118,6 +118,24 @@ public static class MenuOptions
                     Description = "extract the files from the dat files.",
                     // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
                 },
+            }
+        },
+        new MenuOption
+        {
+            Name = "DAT",
+            Description = "The initialization file.",
+            Children = new List<MenuOption>
+            {
+                new MenuOption
+                {
+                    Name = "Export",
+                    Description = "Parse a game-ready system.dat file in order to make it readable.",
+                },
+                new MenuOption
+                {
+                    Name = "Import",
+                    Description = "With a previously export system.dat file, generate a game-ready initialization file.",
+                }
             }
         },
         new MenuOption
