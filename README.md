@@ -21,9 +21,9 @@
   - [ ] AM2
     - [ ] Create
     - [ ] Extract
-  -  [ ] DAT (Containers)
-    -  [ ] Extract
-  -  [ ] DAT (Initialitzation)
+  - [ ] DAT (Containers)
+    - [ ] Extract
+  - [ ] DAT (Initialitzation)
     - [ ] Export
     - [ ] Import
   - [ ] MAL
