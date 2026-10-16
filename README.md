@@ -23,9 +23,9 @@
     - [ ] Extract
   - [ ] DAT (Containers)
     - [ ] Extract
-  - [ ] DAT (Initialitzation)
-    - [ ] Export
-    - [ ] Import
+  - [x] DAT (Initialitzation)
+    - [x] Export
+    - [x] Import
   - [ ] MAL
     - [ ] Export
     - [ ] Import
