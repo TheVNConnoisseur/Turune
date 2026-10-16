@@ -16,18 +16,30 @@ public class FileType()
         public static FilePickerFileType ODN { get; } = new("ODN container")
         {
             Patterns = ["*.odn"],
-            AppleUniformTypeIdentifiers = ["public.text"],
+            AppleUniformTypeIdentifiers = ["public.archive"],
             MimeTypes = ["application/octet-stream"]
         };
     }
 
     public class Initialization()
     {
+        public static FilePickerFileType DAT { get; } = new("Compiled initialization file")
+        {
+            Patterns = ["*.dat"],
+            AppleUniformTypeIdentifiers = ["public.archive"],
+            MimeTypes = ["application/octet-stream"]
+        };
         public static FilePickerFileType INI { get; } = new("Initialization file")
         {
             Patterns = ["*.ini"],
-            AppleUniformTypeIdentifiers = ["public.archive"],
+            AppleUniformTypeIdentifiers = ["public.text"],
             MimeTypes = ["text/plain"]
+        };
+        public static FilePickerFileType INI_Compiled { get; } = new("Compiled initialization file")
+        {
+            Patterns = ["*.ini"],
+            AppleUniformTypeIdentifiers = ["public.archive"],
+            MimeTypes = ["application/octet-stream"]
         };
     }
 }

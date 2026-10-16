@@ -54,13 +54,13 @@ public static class MenuOptions
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Export,
                     Description = Localizations.Resources.MainMenu_V1_INI_Export_Description,
-                    ToolKey = "INI_Export"
+                    ToolKey = "Initialization_INI_Export"
                 },
                 new MenuOption
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Import,
                     Description = Localizations.Resources.MainMenu_V1_INI_Import_Description,
-                    ToolKey = "INI_Import"
+                    ToolKey = "Initialization_INI_Import"
                 }
             }
         },
@@ -74,13 +74,13 @@ public static class MenuOptions
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Extract,
                     Description = Localizations.Resources.MainMenu_V1_ODN_Extract_Description,
-                    ToolKey = "ODN_Extract"
+                    ToolKey = "Containers_ODN_Extract"
                 },
                 new MenuOption
                 {
                     Name = Localizations.Resources.MainMenu_Operations_Create,
                     Description = Localizations.Resources.MainMenu_V1_ODN_Create_Description,
-                    ToolKey = "ODN_Create"
+                    ToolKey = "Containers_ODN_Create"
                 }
             }
         }
@@ -108,33 +108,34 @@ public static class MenuOptions
         },
         new MenuOption
         {
-            Name = "DAT",
+            Name = "DAT (Containers)",
             Description = "The containers of the files.",
             Children = new List<MenuOption>
             {
                 new MenuOption
                 {
                     Name = "Extract",
-                    Description = "extract the files from the dat files.",
-                    // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
+                    Description = "Extract the files from the dat files.",
                 },
             }
         },
         new MenuOption
         {
-            Name = "DAT",
-            Description = "The initialization file.",
+            Name = "DAT (Initialization)",
+            Description = Localizations.Resources.MainMenu_V2_DATInitialization_Description,
             Children = new List<MenuOption>
             {
                 new MenuOption
                 {
                     Name = "Export",
                     Description = "Parse a game-ready system.dat file in order to make it readable.",
+                    ToolKey = "Initialization_DAT_Export"
                 },
                 new MenuOption
                 {
                     Name = "Import",
                     Description = "With a previously export system.dat file, generate a game-ready initialization file. It is very important to have the file in Shift-JIS.",
+                    ToolKey = "Initialization_DAT_Import"
                 }
             }
         },

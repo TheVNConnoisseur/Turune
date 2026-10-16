@@ -57,19 +57,6 @@ All of the features are supported, unless a new game has come out that offers a 
     <data name="MainMenu_V1_ODN_Description" xml:space="preserve">
         <value>The container files that store all of the game's assets. Some of them are encrypted, and it is hardcoded by what kind of asset they store.</value>
     </data>
-    <data name="MainMenu_Operations_Export" xml:space="preserve">
-        <value>Export</value>
-        <comment>Options 3rd column in the main menu</comment>
-    </data>
-    <data name="MainMenu_Operations_Import" xml:space="preserve">
-        <value>Import</value>
-    </data>
-    <data name="MainMenu_Operations_Extract" xml:space="preserve">
-        <value>Extract</value>
-    </data>
-    <data name="MainMenu_Operations_Create" xml:space="preserve">
-        <value>Create</value>
-    </data>
     <data name="MainMenu_V1_INI_Export_Description" xml:space="preserve">
         <value>### Description
 Generate a text-based .ini file in order to be able to make any changes to it.
@@ -110,6 +97,19 @@ The files to compress, and the characteristics of the ODN file (obtained from th
 ### Output
 A game-ready ODN file.</value>
     </data>
+    <data name="MainMenu_Operations_Export" xml:space="preserve">
+        <value>Export</value>
+        <comment>Options 3rd column in the main menu</comment>
+    </data>
+    <data name="MainMenu_Operations_Import" xml:space="preserve">
+        <value>Import</value>
+    </data>
+    <data name="MainMenu_Operations_Extract" xml:space="preserve">
+        <value>Extract</value>
+    </data>
+    <data name="MainMenu_Operations_Create" xml:space="preserve">
+        <value>Create</value>
+    </data>
     <data name="ODN_Properties" xml:space="preserve">
         <value>ODN properties</value>
     </data>
@@ -129,5 +129,8 @@ A game-ready ODN file.</value>
     </data>
     <data name="CommonTerms_No" xml:space="preserve">
         <value>No</value>
+    </data>
+    <data name="MainMenu_V2_DATInitialization_Description" xml:space="preserve">
+        <value>The initialization file.</value>
     </data>
 </root>

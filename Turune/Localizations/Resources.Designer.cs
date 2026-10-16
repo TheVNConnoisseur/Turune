@@ -253,6 +253,15 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The initialization file..
+        /// </summary>
+        public static string MainMenu_V2_DATInitialization_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V2_DATInitialization_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ## Supported games
         ///Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
         ///
