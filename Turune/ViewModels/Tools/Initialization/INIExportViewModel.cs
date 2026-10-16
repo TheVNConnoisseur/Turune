@@ -18,7 +18,7 @@ public partial class INIExportViewModel(
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
 
-    //ODN elements
+    //INI elements
     private INI ini = new();
     public byte[] fileData = [];
 
@@ -37,8 +37,8 @@ public partial class INIExportViewModel(
             var inputFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select file to open",
-                FileTypeFilter = [Models.FileType.Initialization.INI],
-                SuggestedFileType = Models.FileType.Initialization.INI
+                FileTypeFilter = [Models.FileType.Initialization.INI_Compiled],
+                SuggestedFileType = Models.FileType.Initialization.INI_Compiled
             });
             if (inputFile.Count == 0)
             {
@@ -71,7 +71,7 @@ public partial class INIExportViewModel(
     }
 
     [RelayCommand]
-    private async Task Extract()
+    private async Task Export()
     {
         var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
         {
@@ -84,7 +84,7 @@ public partial class INIExportViewModel(
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Exporting INI file...",
+            Title = "Exporting file...",
             IsIndeterminate = true
         };
 

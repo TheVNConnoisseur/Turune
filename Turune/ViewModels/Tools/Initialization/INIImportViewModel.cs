@@ -18,7 +18,7 @@ public partial class INIImportViewModel(
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
 
-    //ODN elements
+    //INI elements
     private INI ini = new();
     public string[] fileData = [];
 
@@ -77,14 +77,14 @@ public partial class INIImportViewModel(
         {
             Title = "Save file",
             DefaultExtension = "ini",
-            FileTypeChoices = [Models.FileType.Initialization.INI]
+            FileTypeChoices = [Models.FileType.Initialization.INI_Compiled]
         });
         if (saveFile is null) return;
 
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Exporting INI file...",
+            Title = "Exporting file...",
             IsIndeterminate = true
         };
 

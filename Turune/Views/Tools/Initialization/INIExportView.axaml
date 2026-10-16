@@ -35,7 +35,7 @@
             HorizontalAlignment="Center"
             Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
-            <Button IsEnabled="{Binding IsReady}" Command="{Binding ExtractCommand}">
+            <Button IsEnabled="{Binding IsReady}" Command="{Binding ExportCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
                     <TextBlock Text="Export file" VerticalAlignment="Center" TextWrapping="Wrap" />
