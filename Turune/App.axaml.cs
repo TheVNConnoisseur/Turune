@@ -31,6 +31,7 @@ public partial class App : Application
 
             //Transient ViewModels, no need to keep their state
             services.AddTransient<ViewModels.Tools.Initialization.INIExportViewModel>();
+            services.AddTransient<ViewModels.Tools.Initialization.INIImportViewModel>();
             services.AddTransient<ViewModels.Tools.Containers.ODNExtractViewModel>();
             services.AddTransient<ViewModels.Tools.Containers.ODNCreateViewModel>();
 

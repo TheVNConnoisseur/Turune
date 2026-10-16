@@ -9,13 +9,13 @@
 - Version 1
   - [ ] Images
     - [ ] Import
-    - [ ] Extract
-  - [ ] INI
+    - [ ] Export
+  - [x] INI
     - [x] Export
-    - [ ] Import
+    - [x] Import
   - [x] ODN
-    -  [x] Extract
     -  [x] Create
+    -  [x] Extract
 
 - Version 2
   - [ ] AM2
@@ -27,8 +27,8 @@
     - [ ] Export
     - [ ] Import
   - [ ] MAL
-    - [ ] Create
     - [ ] Export
+    - [ ] Import
   - [ ] MG2
     - [ ] Create
     - [ ] Export

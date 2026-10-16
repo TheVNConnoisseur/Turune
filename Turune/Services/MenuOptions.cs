@@ -134,7 +134,7 @@ public static class MenuOptions
                 new MenuOption
                 {
                     Name = "Import",
-                    Description = "With a previously export system.dat file, generate a game-ready initialization file.",
+                    Description = "With a previously export system.dat file, generate a game-ready initialization file. It is very important to have the file in Shift-JIS.",
                 }
             }
         },
