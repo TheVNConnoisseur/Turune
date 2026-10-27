@@ -34,13 +34,13 @@ public static class MenuOptions
                 {
                     Name = "Export",
                     Description = "Convert game-ready images to a common format.",
-                    // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
+                    ToolKey = "Images_RAW_Export"
                 },
                 new MenuOption
                 {
                     Name = "Import",
                     Description = "Convert images in common formats to game-ready images.",
-                    // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
+                    // ToolKey = "Images_RAW_Import"
                 }
             }
         },

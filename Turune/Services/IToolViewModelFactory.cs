@@ -13,6 +13,8 @@ public sealed class ToolViewModelFactory(IServiceProvider services) : IToolViewM
 {
     public ObservableObject Create(string toolKey) => toolKey switch
     {
+        "Images_RAW_Export" => services.GetRequiredService<ViewModels.Tools.Images.RAWExportViewModel>(),
+        // "Images_RAW_Import" => services.GetRequiredService<ViewModels.Tools.Images.RAWImportViewModel>(),
         "Initialization_DAT_Export" => services.GetRequiredService<ViewModels.Tools.Initialization.DATExportViewModel>(),
         "Initialization_DAT_Import" => services.GetRequiredService<ViewModels.Tools.Initialization.DATImportViewModel>(),
         "Initialization_INI_Export" => services.GetRequiredService<ViewModels.Tools.Initialization.INIExportViewModel>(),
