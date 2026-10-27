@@ -89,7 +89,7 @@ internal class RAW
             if (expectedFileSize == RawScheme.Data.Count)
             {
                 RawScheme.Properties.Resolution = resolution;
-                RawScheme.Properties.HasAlphaLayer = false;
+                RawScheme.Properties.HasAlphaLayer = true;
                 return;
             }
         }
