@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 
 namespace Turune.Models.Formats.Images;
@@ -37,6 +36,7 @@ internal class RAW
         public static readonly Resolution CharacterName = new(400, 200);
 
         public static IEnumerable<Resolution> FullScreen { get; } = [FullScreen_Small, FullScreen_Medium, FullScreen_High];
+        public static IEnumerable<Resolution> NonFullScreen { get; } = [CharacterName];
     }
 
     public void ParsePacked(byte[] inputFile)
@@ -45,32 +45,93 @@ internal class RAW
         foreach (var resolution in Resolution.FullScreen)
         {   
             int currentOffset = 0;  //Reset the pointer to 0 to check every possible resolution
-            while(currentOffset < inputFile.Length)
+            RawScheme.Data.Clear();
+            int expectedFileSize = 3 * resolution.Width * resolution.Height;
+            while (currentOffset < inputFile.Length)
             {
                 try
                 {
-                    byte rle_Control = inputFile[currentOffset++]; //This byte determines for the next 8 pixels if they get repeated or not
-                    for (int bit_index = 0; bit_index < 8; bit_index++)
-                    {
-                        byte pixel_B = inputFile[currentOffset++];
-                        byte pixel_G = inputFile[currentOffset++];
-                        byte pixel_R = inputFile[currentOffset++];
-                        
-                        //Get the bit that corresponding to the current pixel, and if it's a 1, it means that the pixel gets repeated
-                        bool rle_HasRun = ((rle_Control >> bit_index) & 1) != 0;
-                        int rle_Length = 0;
-                        if (rle_HasRun)
-                            rle_Length = (inputFile[currentOffset++] << 8) + inputFile[currentOffset++]; //The RLE length is in big-endian 16-bit
-                        
-                        //Write the pixel to the output as many times as the rle_Length variable specifies. Note that the pixel will be drawn at least 1 time no matter what.
-                        for (int i = 0; i <= rle_Length; i++)
-                            RawScheme.Data.AddRange(pixel_B, pixel_G, pixel_R);
-                    }
+                    RLE_Decode(ref inputFile, ref currentOffset, false, expectedFileSize);
                 }
                 catch(IndexOutOfRangeException)
                 {
-                    //Jump to the next possible resolution
+                    break;
                 }
+            }
+
+            //To know if the selected resolution is the correct one, the file size of the image should coincide with the one calculated previously (or at least, slightly bigger)
+            if (expectedFileSize == RawScheme.Data.Count)
+            {
+                RawScheme.Properties.Resolution = resolution;
+                RawScheme.Properties.HasAlphaLayer = false;
+                return;
+            }
+        }
+
+        foreach (var resolution in Resolution.NonFullScreen)
+        {
+            int currentOffset = 0;  //Reset the pointer to 0 to check every possible resolution
+            RawScheme.Data.Clear();
+            int expectedFileSize = 4 * resolution.Width * resolution.Height;
+            while (currentOffset < inputFile.Length)
+            {
+                try
+                {
+                    RLE_Decode(ref inputFile, ref currentOffset, true, expectedFileSize);
+                }
+                catch(IndexOutOfRangeException)
+                {
+                    break;
+                }
+            }
+
+            //To know if the selected resolution is the correct one, the file size of the image should coincide with the one calculated previously (or at least, slightly bigger)
+            if (expectedFileSize == RawScheme.Data.Count)
+            {
+                RawScheme.Properties.Resolution = resolution;
+                RawScheme.Properties.HasAlphaLayer = false;
+                return;
+            }
+        }
+    
+        throw new InvalidDataException("The loaded image does not have a valid resolution.");
+    }
+
+    /// <summary>
+    /// Function that is in charge of decoding the image encoded using the run-length encoding.
+    /// </summary>
+    /// <param name="encodedArray">The array of the encoded image.</param>
+    /// <param name="currentOffset">The offset of the currently analyzed byte.</param>
+    /// <param name="hasAlphaLayer">If the analyzed image supposedly has an alpha layer or not.</param>
+    /// <param name="maxSizeFile">The maximum size in bytes that the file can occupy.</param>
+    public void RLE_Decode(ref byte[] encodedArray, ref int currentOffset, bool hasAlphaLayer, int maxSizeFile)
+    {
+        byte rle_Control = encodedArray[currentOffset++]; //This byte determines for the next 8 pixels if they get repeated or not
+        for (int bit_index = 0; bit_index < 8; bit_index++)
+        {
+            byte pixel_B = encodedArray[currentOffset++];
+            byte pixel_G = encodedArray[currentOffset++];
+            byte pixel_R = encodedArray[currentOffset++];
+            byte pixel_A = 0;
+            if (hasAlphaLayer)
+                pixel_A = encodedArray[currentOffset++];
+
+            //Get the bit that corresponding to the current pixel, and if it's a 1, it means that the pixel gets repeated
+            bool rle_HasRun = ((rle_Control >> bit_index) & 1) != 0;
+            int rle_Length = 0;
+            if (rle_HasRun)
+                rle_Length = (encodedArray[currentOffset++] << 8) + encodedArray[currentOffset++]; //The RLE length is in big-endian 16-bit
+            
+            //Write the pixel to the output as many times as the rle_Length variable specifies. Note that the pixel will be drawn at least 1 time no matter what.
+            for (int i = 0; i <= rle_Length; i++)
+            {
+                if (hasAlphaLayer)
+                    RawScheme.Data.AddRange(pixel_B, pixel_G, pixel_R, pixel_A);
+                else
+                    RawScheme.Data.AddRange(pixel_B, pixel_G, pixel_R);
+
+                if (RawScheme.Data.Count >= maxSizeFile) //Ensure that the image does not exceed the expected file size bounds
+                    return;
             }
         }
     }
