@@ -47,7 +47,7 @@ internal class RAW
             int currentOffset = 0;  //Reset the pointer to 0 to check every possible resolution
             RawScheme.Data.Clear();
             int expectedFileSize = 3 * resolution.Width * resolution.Height;
-            while (currentOffset < inputFile.Length)
+            while (RawScheme.Data.Count < expectedFileSize)
             {
                 try
                 {
@@ -73,7 +73,7 @@ internal class RAW
             int currentOffset = 0;  //Reset the pointer to 0 to check every possible resolution
             RawScheme.Data.Clear();
             int expectedFileSize = 4 * resolution.Width * resolution.Height;
-            while (currentOffset < inputFile.Length)
+            while (RawScheme.Data.Count < expectedFileSize)
             {
                 try
                 {

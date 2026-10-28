@@ -1,5 +1,7 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -18,19 +20,20 @@ public partial class RAWExportViewModel(
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
 
-    // //RAW properties
-    // [ObservableProperty] public partial string IsEncrypted { get; set; } = "-";
-    // [ObservableProperty] public partial string EntriesOffsetsAreRelativeToRawData { get; set; } = "-";
-    // [ObservableProperty] public partial string HasDelimiterEntry { get; set; } = "-";
-
     //RAW elements
     private RAW raw = new();
-    public byte[] fileData = [];
+    public ObservableCollection<FileItem> FileItems { get; } = [];
+    public class FileItem
+    {
+        public required string Name { get; set; } = string.Empty;
+        public required string Path { get; set; } = string.Empty;
+    }
 
     //Properties screen
     [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
+    [ObservableProperty] public partial double Progress { get; set; } = 0;
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
@@ -39,27 +42,55 @@ public partial class RAWExportViewModel(
     {
         try
         {
-            var compressedFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+            var compressedFiles = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title = "Select a compressed file to open",
+                Title = "Select a compressed image to open",
                 AllowMultiple = true
             });
-            if (compressedFile.Count == 0)
+            if (compressedFiles.Count == 0)
             {
-                //Only set the sentence of no file selected in case the user already selected previously an accepted file.
+                //Only set the sentence of no file selected in case the user already selected previously accepted files.
                 if (IsReady == false)
                     FileIOStatus = "No file was selected.";
                 return;
             }
             
+            Progress = 0;
             IsBusy = true;
             IsReady = false;
-            
-            raw = new RAW();
-            fileData = await _fileIO.ReadBytesAsync(compressedFile[0].Path.LocalPath);
-            raw.ParsePacked(fileData);
 
-            FileIOStatus = compressedFile[0].Name + " parsed correctly.";
+            FileItems.Clear();
+            for (int i = 0; i < compressedFiles.Count; i++)
+            {
+                try
+                {
+                    byte[] fileData = await _fileIO.ReadBytesAsync(compressedFiles[i].Path.LocalPath);
+                    raw.ParsePacked(fileData);
+                    FileItems.Add(new FileItem
+                    {
+                        Name = Path.GetFileName(compressedFiles[i].Path.LocalPath),
+                        Path = compressedFiles[i].Path.LocalPath
+                    });
+                }
+                catch (InvalidDataException)
+                {
+                    continue;
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    continue;
+                }
+                
+                Progress = (i + 1) / (double)compressedFiles.Count * 100; //Showcase the progress of reading all of the files in memory
+            }
+
+            if (FileItems.Count == 1)
+                FileIOStatus = compressedFiles.Count + " file loaded.";
+            else if (FileItems.Count == 0)
+                FileIOStatus = "No valid file was selected.";
+            else
+                FileIOStatus = compressedFiles.Count + " files loaded.";
+
             IsReady = true;
         }
         catch (Exception ex)
@@ -72,6 +103,12 @@ public partial class RAWExportViewModel(
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task PreviewImage(string FilePath)
+    {
+        System.Diagnostics.Debug.WriteLine($"Clicked: {FilePath}");
     }
 
     // [RelayCommand]
