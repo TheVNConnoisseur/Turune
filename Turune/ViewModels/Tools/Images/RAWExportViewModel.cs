@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +31,7 @@ public partial class RAWExportViewModel(
     }
 
     //Properties screen
+    [ObservableProperty] public partial Bitmap? PreviewImage { get; set; }
     [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
@@ -58,6 +60,7 @@ public partial class RAWExportViewModel(
             Progress = 0;
             IsBusy = true;
             IsReady = false;
+            PreviewImage = null;
 
             FileItems.Clear();
             for (int i = 0; i < compressedFiles.Count; i++)
@@ -65,7 +68,7 @@ public partial class RAWExportViewModel(
                 try
                 {
                     byte[] fileData = await _fileIO.ReadBytesAsync(compressedFiles[i].Path.LocalPath);
-                    raw.ParsePacked(fileData);
+                    raw.Parse(fileData);
                     FileItems.Add(new FileItem
                     {
                         Name = Path.GetFileName(compressedFiles[i].Path.LocalPath),
@@ -85,11 +88,11 @@ public partial class RAWExportViewModel(
             }
 
             if (FileItems.Count == 1)
-                FileIOStatus = compressedFiles.Count + " file loaded.";
+                FileIOStatus = FileItems.Count + " file loaded.";
             else if (FileItems.Count == 0)
                 FileIOStatus = "No valid file was selected.";
             else
-                FileIOStatus = compressedFiles.Count + " files loaded.";
+                FileIOStatus = FileItems.Count + " files loaded.";
 
             IsReady = true;
         }
@@ -106,9 +109,14 @@ public partial class RAWExportViewModel(
     }
 
     [RelayCommand]
-    private async Task PreviewImage(string FilePath)
+    private async Task LoadPreviewImage(string FilePath)
     {
-        System.Diagnostics.Debug.WriteLine($"Clicked: {FilePath}");
+        byte[] fileData = await _fileIO.ReadBytesAsync(FilePath);
+        raw.Parse(fileData);
+        using (var stream = new MemoryStream(raw.Export()))
+        {
+            PreviewImage = new Bitmap(stream);
+        }
     }
 
     // [RelayCommand]

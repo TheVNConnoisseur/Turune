@@ -40,11 +40,11 @@ internal class RAW
     }
 
     /// <summary>
-    /// Validates a given file, obtaining its resolution, bit-depth and its decoded bitmap data
+    /// Validates a given file, obtaining its resolution, bit-depth and its decoded bitmap data.
     /// </summary>
     /// <param name="inputFile">Array of bytes that contain the entire image data.</param>
     /// <exception cref="InvalidDataException">The image does not have any of the resolutions the MICo engine expects.</exception>
-    public void ParsePacked(byte[] inputFile)
+    public void Parse(byte[] inputFile)
     {
         //The first thing to do is try to inpher the resolution of the image, which will let us also know its BPP
         foreach (var resolution in Resolution.FullScreen)
@@ -64,8 +64,9 @@ internal class RAW
                 }
             }
 
-            //To know if the selected resolution is the correct one, the file size of the image should coincide with the one calculated previously (or at least, slightly bigger)
-            if (expectedFileSize == RawScheme.Data.Count)
+            //To know if the selected resolution is the correct one, there are some checks that have to be done, some of them are just
+            //simple edge cases that are a consequence of this process being completely heuristic
+            if (expectedFileSize == RawScheme.Data.Count && ((currentOffset == inputFile.Length + 1) || (currentOffset == inputFile.Length - 1)))
             {
                 RawScheme.Properties.Resolution = resolution;
                 RawScheme.Properties.HasAlphaLayer = false;
@@ -102,6 +103,22 @@ internal class RAW
         throw new InvalidDataException("The loaded image does not have a valid resolution.");
     }
 
+    /// <summary>
+    /// Generates a BMP file of the loaded RAW image.
+    /// </summary>
+    /// <returns>Byte array of the RAW image in BMP format uncompressed.</returns>
+    public byte[] Export()
+    {
+        //8 bits = 1 byte, so 3 colours + 1 alpha layer =  8 * 4 = 32 bits
+        if (RawScheme.Properties.HasAlphaLayer)
+            return Utils.ImageFile.BMP.Write(
+                RawScheme.Data.ToArray(), 32, RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
+        //8 bits = 1 byte, so 3 colours =  8 * 3 = 24 bits
+        else
+            return Utils.ImageFile.BMP.Write(
+                RawScheme.Data.ToArray(), 24, RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
+    }
+    
     /// <summary>
     /// Function that is in charge of decoding the image encoded using the run-length encoding.
     /// It only does 1 run instead of reading the entire file.

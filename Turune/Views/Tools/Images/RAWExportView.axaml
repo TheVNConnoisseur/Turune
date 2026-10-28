@@ -1,7 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:vm="using:Turune.ViewModels.Tools.Images"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:md="https://github.com/whistyun/Markdown.Avalonia.Tight"
              xmlns:lang="using:Turune.Localizations"
              x:Class="Turune.Views.Tools.Images.RAWExportView"
              x:DataType="vm:RAWExportViewModel">
@@ -35,7 +34,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Content="{Binding Name}"
-                                        Command="{Binding $parent[ItemsControl].((vm:RAWExportViewModel)DataContext).PreviewImageCommand}"
+                                        Command="{Binding $parent[ItemsControl].((vm:RAWExportViewModel)DataContext).LoadPreviewImageCommand}"
                                         CommandParameter="{Binding Path}"
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Center"
@@ -46,8 +45,11 @@
                 </ScrollViewer>
             </Grid>
         </GroupBox>
-
+        
         <!-- Selected image preview -->
+        <GroupBox VerticalAlignment="Center" Header="Preview" Margin="20" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="1">
+                <Image Source="{Binding PreviewImage}" Stretch="Uniform" />
+        </GroupBox>
         
 
         <!-- Navigation buttons -->
