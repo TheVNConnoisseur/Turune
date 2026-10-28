@@ -38,12 +38,21 @@ public static class ImageFile
         }
         
 
+
+        /// <summary>
+        /// Generates a BMP uncompressed file stream.
+        /// </summary>
+        /// <param name="bitmapData">Array of the bitmap data, already bottom-up.</param>
+        /// <param name="bpp">Bits per pixel of the image.</param>
+        /// <param name="width">Width in pixels of the bitmap.</param>
+        /// <param name="height">Height in pixels of the bitmap.</param>
+        /// <returns>A byte array with the BMP file.</returns>
         public static byte[] Write(byte[] bitmapData, short bpp, int width, int height)
         {
             List<byte> outputBMP = [];
 
-            uint initialRowSize = (uint)(bpp * width);
-            uint finalRowSize = (uint)(((bpp * width)/32) * 4);
+            uint initialRowSize = (uint)((bpp * width + 7) / 8);
+            uint finalRowSize = (uint)(((bpp * width + 31) / 32) * 4);
             uint finalBitmapDataSize = (uint)(finalRowSize * height);
 
             var fileHeader = new BITMAPFILEHEADER
@@ -52,6 +61,12 @@ public static class ImageFile
                 bfOffBits = 14 + 40    //BITMAPFILEHEADER + BITMAPINFOHEADER
             };
             
+            outputBMP.AddRange(Encoding.ASCII.GetBytes(fileHeader.bfType));
+            outputBMP.AddRange(BitConverter.GetBytes(fileHeader.bfSize));
+            outputBMP.AddRange(BitConverter.GetBytes(fileHeader.bfReserved1));
+            outputBMP.AddRange(BitConverter.GetBytes(fileHeader.bfReserved2));
+            outputBMP.AddRange(BitConverter.GetBytes(fileHeader.bfOffBits));
+
             var infoHeader = new BITMAPINFOHEADER
             {
                 biWidth = width,
@@ -64,6 +79,25 @@ public static class ImageFile
                 biClrUsed = 0,  //Using the maximum number of colors corresponding to the value of the biBitCount 
                 biClrImportant = 0, //All colours are required
             };
+
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biSize));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biWidth));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biHeight));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biPlanes));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biBitCount));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biCompression));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biSizeImage));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biXPelsPerMeter));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biYPelsPerMeter));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biClrUsed));
+            outputBMP.AddRange(BitConverter.GetBytes(infoHeader.biClrImportant));
+
+            for (int row = 0; row < height; row++)
+            {
+                byte[] rowData = new byte[finalRowSize];
+                Buffer.BlockCopy(bitmapData, (int)(row * initialRowSize), rowData, 0, (int)initialRowSize);
+                outputBMP.AddRange(rowData);
+            }
 
             return outputBMP.ToArray();
         }

@@ -39,6 +39,11 @@ internal class RAW
         public static IEnumerable<Resolution> NonFullScreen { get; } = [CharacterName];
     }
 
+    /// <summary>
+    /// Validates a given file, obtaining its resolution, bit-depth and its decoded bitmap data
+    /// </summary>
+    /// <param name="inputFile">Array of bytes that contain the entire image data.</param>
+    /// <exception cref="InvalidDataException">The image does not have any of the resolutions the MICo engine expects.</exception>
     public void ParsePacked(byte[] inputFile)
     {
         //The first thing to do is try to inpher the resolution of the image, which will let us also know its BPP
@@ -99,6 +104,7 @@ internal class RAW
 
     /// <summary>
     /// Function that is in charge of decoding the image encoded using the run-length encoding.
+    /// It only does 1 run instead of reading the entire file.
     /// </summary>
     /// <param name="encodedArray">The array of the encoded image.</param>
     /// <param name="currentOffset">The offset of the currently analyzed byte.</param>
@@ -131,7 +137,7 @@ internal class RAW
                     RawScheme.Data.AddRange(pixel_B, pixel_G, pixel_R);
 
                 if (RawScheme.Data.Count >= maxSizeFile) //Ensure that the image does not exceed the expected file size bounds
-                    return;
+                    break;
             }
         }
     }
