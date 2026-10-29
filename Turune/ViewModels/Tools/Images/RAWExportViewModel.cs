@@ -24,10 +24,11 @@ public partial class RAWExportViewModel(
     //RAW elements
     private RAW raw = new();
     public ObservableCollection<FileItem> FileItems { get; } = [];
-    public class FileItem
+    public partial class FileItem : ObservableObject
     {
         public required string Name { get; set; } = string.Empty;
         public required string Path { get; set; } = string.Empty;
+        [ObservableProperty] public partial bool IsSelected { get; set; } = false;
     }
 
     //Properties screen
@@ -111,6 +112,14 @@ public partial class RAWExportViewModel(
     [RelayCommand]
     private async Task LoadPreviewImage(string FilePath)
     {
+        foreach (var item in FileItems)
+        {
+            if (item.Path == FilePath)
+                item.IsSelected = true;
+            else
+                item.IsSelected = false;
+        }
+
         byte[] fileData = await _fileIO.ReadBytesAsync(FilePath);
         raw.Parse(fileData);
         using (var stream = new MemoryStream(raw.Export()))
