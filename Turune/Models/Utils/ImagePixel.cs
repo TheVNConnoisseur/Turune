@@ -6,7 +6,7 @@ namespace Turune.Models.Utils;
 //Avalonia itself also offers the same thing (https://docs.avaloniaui.net/api/avalonia/platform/pixelformat), but it barely offers any format.
 public static class PixelFormat
 {
-    public class ARGB32()
+    public class BGRA32()
     {
         public readonly struct BMP : IBmpFormatInfo
         {
@@ -29,7 +29,7 @@ public static class PixelFormat
         }
     }
 
-    public class RGB24()
+    public class BGR24()
     {
         public readonly struct BMP : IBmpFormatInfo
         {
