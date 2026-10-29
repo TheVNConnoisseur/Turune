@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:vm="using:Turune.ViewModels.Tools.Images"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:Avalonia.Data.Converters"
              xmlns:lang="using:Turune.Localizations"
              x:Class="Turune.Views.Tools.Images.RAWExportView"
              x:DataType="vm:RAWExportViewModel">
@@ -54,18 +55,20 @@
         
 
         <!-- Navigation buttons -->
-        <!-- <StackPanel Grid.Row="2"
-            Grid.ColumnSpan="2"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Spacing="8">
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
-            <Button IsEnabled="{Binding IsReady}" Command="{Binding ExtractCommand}">
+            <Button IsEnabled="{Binding PreviewImage, Converter={x:Static ObjectConverters.IsNotNull}}" Command="{Binding ExportCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
-                    <TextBlock Text="Export files" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock Text="Export image" VerticalAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
-        </StackPanel> -->
+            <Button IsEnabled="{Binding IsReady}" Command="{Binding ExportAllCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
+                    <TextBlock Text="Export all images" VerticalAlignment="Center" TextWrapping="Wrap" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </UserControl>

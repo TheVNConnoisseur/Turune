@@ -108,7 +108,7 @@ public partial class ODNExtractViewModel(
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Exporting files from ODN...",
+            Title = "Exporting files...",
             IsIndeterminate = false
         };
 

@@ -92,8 +92,8 @@ public partial class DATExportViewModel(
 
         try
         {
-            processingVM.StatusText = "Building file structure...";
             processingVM.CancellationToken.ThrowIfCancellationRequested();
+            processingVM.StatusText = "Building file structure...";
             string[] exportedFile = dat.Export();
 
             processingVM.StatusText = "Writing to disk...";
