@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Turune.Models.Utils;
 
 namespace Turune.Models.Formats.Images;
 
@@ -112,11 +113,11 @@ internal class RAW
         //8 bits = 1 byte, so 3 colours + 1 alpha layer =  8 * 4 = 32 bits
         if (RawScheme.Properties.HasAlphaLayer)
             return Utils.ImageFile.BMP.Write(
-                RawScheme.Data.ToArray(), 32, RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
+                RawScheme.Data.ToArray(), new PixelFormat.ARGB32.BMP(), RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
         //8 bits = 1 byte, so 3 colours =  8 * 3 = 24 bits
         else
             return Utils.ImageFile.BMP.Write(
-                RawScheme.Data.ToArray(), 24, RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
+                RawScheme.Data.ToArray(), new PixelFormat.RGB24.BMP(), RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
     }
     
     /// <summary>
