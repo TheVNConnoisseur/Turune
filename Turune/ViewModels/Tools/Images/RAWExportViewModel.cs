@@ -32,11 +32,11 @@ public partial class RAWExportViewModel(
     }
 
     //Properties screen
-    [ObservableProperty] public partial Bitmap? PreviewImage { get; set; }
     [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
     [ObservableProperty] public partial double Progress { get; set; } = 0;
+    [ObservableProperty] public partial Bitmap? PreviewImage { get; set; }  //Bitmap that holds the previewed image
     private bool HasFileItems() => FileItems.Count > 0; //Check for the "Export all images" button
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
@@ -95,18 +95,17 @@ public partial class RAWExportViewModel(
                 FileIOStatus = "No valid file was selected.";
             else
                 FileIOStatus = FileItems.Count + " files loaded.";
-
-            ExportAllCommand.NotifyCanExecuteChanged();
+            
             IsReady = true;
         }
         catch (Exception ex)
         {
             FileIOStatus = ex.Message;
             IsReady = false;
-            IsBusy = false;
         }
         finally
         {
+            ExportAllCommand.NotifyCanExecuteChanged();
             IsBusy = false;
         }
     }

@@ -140,7 +140,7 @@ internal class RAW
             if (hasAlphaLayer)
                 pixel_A = encodedArray[currentOffset++];
 
-            //Get the bit that corresponding to the current pixel, and if it's a 1, it means that the pixel gets repeated
+            //Get the bit that corresponds to the current pixel, and if it's a 1, it means that the pixel gets repeated
             bool rle_HasRun = ((rle_Control >> bit_index) & 1) != 0;
             int rle_Length = 0;
             if (rle_HasRun)
