@@ -63,7 +63,7 @@
                     <TextBlock Text="Export image" VerticalAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
-            <Button IsEnabled="{Binding IsReady}" Command="{Binding ExportAllCommand}">
+            <Button Command="{Binding ExportAllCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
                     <TextBlock Text="Export all images" VerticalAlignment="Center" TextWrapping="Wrap" />

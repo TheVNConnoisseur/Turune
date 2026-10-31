@@ -37,6 +37,7 @@ public partial class RAWExportViewModel(
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
     [ObservableProperty] public partial double Progress { get; set; } = 0;
+    private bool HasFileItems() => FileItems.Count > 0; //Check for the "Export all images" button
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
@@ -95,6 +96,7 @@ public partial class RAWExportViewModel(
             else
                 FileIOStatus = FileItems.Count + " files loaded.";
 
+            ExportAllCommand.NotifyCanExecuteChanged();
             IsReady = true;
         }
         catch (Exception ex)
@@ -170,7 +172,7 @@ public partial class RAWExportViewModel(
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(HasFileItems))]
     private async Task ExportAll()
     {
         var saveFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
