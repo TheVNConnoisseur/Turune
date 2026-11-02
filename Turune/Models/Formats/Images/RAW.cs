@@ -183,13 +183,26 @@ internal class RAW
         if (RawScheme.Properties.Resolution.Width == default)
             throw new InvalidDataException("The loaded image does not have a valid resolution.");
         
-        //Check if the image has a valid bit-depth (ideally it would check the pixel format, but the pixel formats the game
-        //uses are not available in SkiaSharp)
+        //Check if the image has a valid bit-depth (ideally it would check the pixel format, but the pixel
+        //formats the engine uses are not available in SkiaSharp)
         if ((RawScheme.Properties.HasAlphaLayer && bmp_BitCount != 32)
             || (!RawScheme.Properties.HasAlphaLayer && bmp_BitCount != 24))
             throw new InvalidDataException("The loaded image does not have a valid bit-depth (pixel format).");
 
-        RawScheme.Data = bmp.PixelData.ToList();
+        
+        //When recreating the BMP, to ensure that everything was aligned, padding data was added. In this step all of
+        //padding is going to be removed
+        int unpaddedRowSize = bmp_Width * (bmp_BitCount / 8);
+        int paddedRowSize = (((bmp_BitCount / 8) * bmp_Width + 3) / 4) * 4;
+
+        var unpaddedData = new List<byte>(unpaddedRowSize * bmp_Height);
+        for (int row = 0; row < bmp_Height; row++)
+        {
+            int rowStart = row * paddedRowSize;
+            unpaddedData.AddRange(bmp.PixelData.AsSpan(rowStart, unpaddedRowSize));
+        }
+
+        RawScheme.Data = unpaddedData;
     }
     
     public byte[] Import()
