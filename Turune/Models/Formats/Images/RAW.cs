@@ -194,17 +194,15 @@ internal class RAW
     
     public byte[] Import()
     {
-        // while (RawScheme.Data.Count < expectedFileSize)
-        // {
-        //     try
-        //     {
-        //         RLE_Decode(ref inputFile, ref currentOffset, false, expectedFileSize);
-        //     }
-        //     catch(IndexOutOfRangeException)
-        //     {
-        //         break;
-        //     }
-        // }
+        List<byte> outputImage = [];
+        int currentOffset = 0;
+
+        while (currentOffset < RawScheme.Data.Count)
+        {
+            outputImage.AddRange(RLE_Encode(ref currentOffset));
+        }
+
+        return outputImage.ToArray();
     }
     
     /// <summary>
@@ -247,8 +245,83 @@ internal class RAW
         }
     }
 
-    public void RLE_Encode(ref byte[] decodedArray, ref int currentOffset, bool hasAlphaLayer, int maxSizeFile)
+    public byte[] RLE_Encode(ref int currentOffset)
     {
+        List<byte> encodedArray = [];
+        int[] rle_Length =  new int[8];  //Store in an array how many times all pixels do repeat
+        byte[][] pixelsToCopy = new byte[8][];  //Store the pixels themselves that have to be copied
+
+        for (int pixel_index = 0; pixel_index < 8; pixel_index++)
+        {
+            //Get the current pixel to analyze and see if it repeats or not
+            byte[] currentPixel = [];
+            byte[] nextPixel = [];
+            if (RawScheme.Properties.HasAlphaLayer)
+            {
+                currentPixel = [
+                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                nextPixel = [
+                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+            }
+
+            else
+            {
+                currentPixel = [
+                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                nextPixel = [
+                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+            }
+
+            //Now check if the current pixel does get repeated or not
+            int rle_Length_CurrentPixel = 0;
+            while (currentPixel.AsSpan().SequenceEqual(nextPixel))
+            {
+                if (RawScheme.Properties.HasAlphaLayer)
+                {
+                    currentPixel = nextPixel;
+                    nextPixel = [
+                        RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                }
+                
+                else
+                {
+                    currentPixel = nextPixel;
+                    nextPixel = [
+                        RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                }
+
+                rle_Length_CurrentPixel++;
+            }
+
+            //Store in an array the obtained results in order to write the compressed array
+            rle_Length[pixel_index] = rle_Length_CurrentPixel;
+            pixelsToCopy[pixel_index] = currentPixel;
+        }
+
+        //Prepare the byte that tells the game which bytes should be analyzed because they get repeated
+        byte rle_Control = 0;
+        for (int bit_index = 0; bit_index < 8; bit_index++)
+        {
+            if (rle_Length[bit_index] > 0)  //Only the pixels that repeat at least once must be set up
+                rle_Control |= (byte)(1 << bit_index);     //Bitwise OR assignment
+        }
+        encodedArray.Add(rle_Control);
         
+        //Copy the pixels to the encoded array and the RLE length if applicable
+        for (int pixel_index = 0; pixel_index < 8; pixel_index++)
+        {
+            encodedArray.AddRange(pixelsToCopy[pixel_index]);
+
+            if (rle_Length[pixel_index] > 0)
+            {
+                byte rle_Length_HIGH = (byte)(rle_Length[pixel_index] >> 8);   // Extract the high byte of rle_Length[pixel_index]
+                byte rle_Length_LOW = (byte)(rle_Length[pixel_index] & 0xFF); // Extract the low byte of rle_Length[pixel_index]
+
+                encodedArray.Add(rle_Length_HIGH);
+                encodedArray.Add(rle_Length_LOW);
+            }
+        }
+
+        return encodedArray.ToArray();
     }
 }
