@@ -205,6 +205,10 @@ internal class RAW
         RawScheme.Data = unpaddedData;
     }
     
+    /// <summary>
+    /// Generates a RAW image file.
+    /// </summary>
+    /// <returns>Byte array of the RAW image file.</returns>
     public byte[] Import()
     {
         List<byte> outputImage = [];
@@ -221,7 +225,7 @@ internal class RAW
     /// It only does 1 run instead of reading the entire file.
     /// </summary>
     /// <param name="encodedArray">The array of the encoded image.</param>
-    /// <param name="currentOffset">The offset of the currently analyzed byte.</param>
+    /// <param name="currentOffset">The offset of the currently analyzed file.</param>
     /// <param name="hasAlphaLayer">If the analyzed image supposedly has an alpha layer or not.</param>
     /// <param name="maxSizeFile">The maximum size in bytes that the file can occupy.</param>
     public void RLE_Decode(ref byte[] encodedArray, ref int currentOffset, bool hasAlphaLayer, int maxSizeFile)
@@ -256,6 +260,12 @@ internal class RAW
         }
     }
 
+    /// <summary>
+    /// Function that is in charge of encoding the image using the run-length encoding.
+    /// It only does 1 run instead of reading the entire file.
+    /// </summary>
+    /// <param name="currentOffset">The offset of the currently analyzed file.</param>
+    /// <returns>Byte array of the encoded subset of input bytes.</returns>
     public byte[] RLE_Encode(ref int currentOffset)
     {
         List<byte> encodedArray = [];

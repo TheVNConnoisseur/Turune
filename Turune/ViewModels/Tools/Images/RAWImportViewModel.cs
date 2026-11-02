@@ -75,7 +75,7 @@ public partial class RAWImportViewModel(
                     raw.ParseBitmap(fileData);
                     FileItems.Add(new FileItem
                     {
-                        Name = Path.GetFileName(compressedFiles[i].Path.LocalPath),
+                        Name = Path.GetFileNameWithoutExtension(compressedFiles[i].Path.LocalPath),
                         Path = compressedFiles[i].Path.LocalPath
                     });
                 }
@@ -194,7 +194,7 @@ public partial class RAWImportViewModel(
             for (int i = 0; i < FileItems.Count; i++)
             {
                 processingVM.StatusText = "Writing file " + i + " of " + FileItems.Count + " to disk...";
-                string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, FileItems[i].Name + ".bmp");
+                string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, FileItems[i].Name);
 
                 //The images are not loaded in memory, they have to be read and parsed before converting them
                 byte[] inputFile = await _fileIO.ReadBytesAsync(FileItems[i].Path);
