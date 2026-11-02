@@ -70,7 +70,7 @@ public partial class RAWExportViewModel(
                 try
                 {
                     byte[] fileData = await _fileIO.ReadBytesAsync(compressedFiles[i].Path.LocalPath);
-                    raw.Parse(fileData);
+                    raw.ParseRAW(fileData);
                     FileItems.Add(new FileItem
                     {
                         Name = Path.GetFileName(compressedFiles[i].Path.LocalPath),
@@ -122,7 +122,7 @@ public partial class RAWExportViewModel(
         }
 
         byte[] fileData = await _fileIO.ReadBytesAsync(FilePath);
-        raw.Parse(fileData);
+        raw.ParseRAW(fileData);
         using (var stream = new MemoryStream(raw.Export()))
         {
             PreviewImage = new Bitmap(stream);
@@ -201,7 +201,7 @@ public partial class RAWExportViewModel(
 
                 //The images are not loaded in memory, they have to be read and parsed before exporting them
                 byte[] inputFile = await _fileIO.ReadBytesAsync(FileItems[i].Path);
-                raw.Parse(inputFile);
+                raw.ParseRAW(inputFile);
                 await _fileIO.WriteBytesAsync(saveFilePath, raw.Export(), processingVM.CancellationToken);
                 processingVM.Progress = (i + 1) / (double)FileItems.Count * 100;
             }

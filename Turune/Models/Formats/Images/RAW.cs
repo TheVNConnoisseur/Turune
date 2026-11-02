@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Turune.Models.Utils;
 
 namespace Turune.Models.Formats.Images;
@@ -41,11 +42,11 @@ internal class RAW
     }
 
     /// <summary>
-    /// Validates a given file, obtaining its resolution, bit-depth and its decoded bitmap data.
+    /// Validates a given RAW image, obtaining its resolution, bit-depth and its decoded bitmap data.
     /// </summary>
     /// <param name="inputFile">Array of bytes that contain the entire image data.</param>
     /// <exception cref="InvalidDataException">The image does not have any of the resolutions the MICo engine expects.</exception>
-    public void Parse(byte[] inputFile)
+    public void ParseRAW(byte[] inputFile)
     {
         //The first thing to do is try to inpher the resolution of the image, which will let us also know its BPP
         foreach (var resolution in Resolution.FullScreen)
@@ -119,6 +120,77 @@ internal class RAW
             return Utils.ImageFile.BMP.Write(
                 RawScheme.Data.ToArray(), new PixelFormat.BGR24.BMP(), RawScheme.Properties.Resolution.Width, RawScheme.Properties.Resolution.Height);
     }
+
+    /// <summary>
+    /// Validates a given Bitmap, obtaining its resolution and bit-depth.
+    /// </summary>
+    /// <param name="inputFile">Bitmap of the file to validate.</param>
+    public void ParseBitmap(byte[] inputFile)
+    {
+        var bmp = ImageFile.BMP.Read(inputFile);
+        int bmp_Width = 0;
+        int bmp_Height = 0;
+        ushort bmp_BitCount = 0;
+
+        if (bmp.CoreHeader is not null)
+        {
+            bmp_Width = bmp.CoreHeader.Value.bcWidth;
+            bmp_Height = bmp.CoreHeader.Value.bcHeight;
+            bmp_BitCount = bmp.CoreHeader.Value.bcBitCount;
+        }
+        else if (bmp.InfoHeader is not null)
+        {
+            bmp_Width = bmp.InfoHeader.Value.biWidth;
+            bmp_Height = bmp.InfoHeader.Value.biHeight;
+            bmp_BitCount = bmp.InfoHeader.Value.biBitCount;
+        }
+        else if (bmp.V4Header is not null)
+        {
+            bmp_Width = bmp.V4Header.Value.bV4Width;
+            bmp_Height = bmp.V4Header.Value.bV4Height;
+            bmp_BitCount = bmp.V4Header.Value.bV4BitCount;
+        }
+        else if (bmp.V5Header is not null)
+        {
+            bmp_Width = bmp.V5Header.Value.bV5Width;
+            bmp_Height = bmp.V5Header.Value.bV5Height;
+            bmp_BitCount = bmp.V5Header.Value.bV5BitCount;
+        }
+        
+        //First check if the image has a valid resolution
+        foreach (var resolution in Resolution.FullScreen)
+        {
+            if (bmp_Width != resolution.Width || bmp_Height != resolution.Height)
+                break;
+            else
+            {
+                RawScheme.Properties.Resolution = resolution;
+                RawScheme.Properties.HasAlphaLayer = false;
+            }
+        }
+
+        foreach (var resolution in Resolution.NonFullScreen)
+        {
+            if (bmp_Width != resolution.Width || bmp_Height != resolution.Height)
+                break;
+            else
+            {
+                RawScheme.Properties.Resolution = resolution;
+                RawScheme.Properties.HasAlphaLayer = true;
+            }
+        }
+
+        if (RawScheme.Properties.Resolution.Width == default)
+            throw new InvalidDataException("The loaded image does not have a valid resolution.");
+        
+        //Check if the image has a valid bit-depth (ideally it would check the pixel format, but the pixel formats the game
+        //uses are not available in SkiaSharp)
+        if ((RawScheme.Properties.HasAlphaLayer && bmp_BitCount != 32)
+            || (!RawScheme.Properties.HasAlphaLayer && bmp_BitCount != 24))
+            throw new InvalidDataException("The loaded image does not have a valid bit-depth (pixel format).");
+
+        RawScheme.Data = bmp.PixelData.ToList();
+    }
     
     /// <summary>
     /// Function that is in charge of decoding the image encoded using the run-length encoding.
@@ -158,5 +230,10 @@ internal class RAW
                     break;
             }
         }
+    }
+
+    public void RLE_Encode(ref byte[] decodedArray, ref int currentOffset, bool hasAlphaLayer, int maxSizeFile)
+    {
+        
     }
 }

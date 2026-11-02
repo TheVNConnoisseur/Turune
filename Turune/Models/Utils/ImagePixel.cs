@@ -1,5 +1,3 @@
-using System;
-
 namespace Turune.Models.Utils;
 
 //While it's not a 1:1 replica of the version offered by Microsoft (https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.pixelformats), the idea is similar.
