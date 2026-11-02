@@ -257,6 +257,7 @@ internal class RAW
             try
             {
                 currentPixel = ReadPixel(ref currentOffset);
+                pixelsToCopy[pixel_index] = currentPixel;
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -272,8 +273,9 @@ internal class RAW
                 break;
             }
 
-            //Now check if the current pixel does get repeated or not
+            //Now check how many times the current pixel does get repeated
             int rle_Length_CurrentPixel = 0;
+            
             while (currentPixel.AsSpan().SequenceEqual(nextPixel))
             {
                 currentPixel = nextPixel;
@@ -289,9 +291,14 @@ internal class RAW
                 rle_Length_CurrentPixel++;
             }
 
-            //Store in an array the obtained results in order to write the compressed array
             rle_Length[pixel_index] = rle_Length_CurrentPixel;
-            pixelsToCopy[pixel_index] = currentPixel;
+
+            //Due to the offset being advanced by getting the next pixel for the comparison,
+            //to ensure that no input pixel gets dropped, we fix the offset
+            if (RawScheme.Properties.HasAlphaLayer)
+                currentOffset -= 4;
+            else
+                currentOffset -= 3;
         }
 
         //Prepare the byte that tells the game which bytes should be analyzed because they get repeated
