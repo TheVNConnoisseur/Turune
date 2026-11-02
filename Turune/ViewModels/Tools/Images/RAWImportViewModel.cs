@@ -107,7 +107,7 @@ public partial class RAWImportViewModel(
         }
         finally
         {
-            ExportAllCommand.NotifyCanExecuteChanged();
+            ImportAllCommand.NotifyCanExecuteChanged();
             IsBusy = false;
         }
     }
@@ -124,28 +124,23 @@ public partial class RAWImportViewModel(
         }
 
         byte[] fileData = await _fileIO.ReadBytesAsync(FilePath);
-        raw.ParseRAW(fileData);
-        using (var stream = new MemoryStream(raw.Export()))
-        {
-            PreviewImage = new Bitmap(stream);
-        }
+        using var stream = new MemoryStream(fileData);
+        PreviewImage = new Bitmap(stream);
     }
 
     [RelayCommand]
-    private async Task Export()
+    private async Task Import()
     {
         var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save file",
-            DefaultExtension = "bmp",
-            FileTypeChoices = [Models.FileType.Common.BMP]
+            Title = "Save file"
         });
         if (saveFile is null) return;
 
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Exporting file...",
+            Title = "Converting file...",
             IsIndeterminate = true
         };
 
@@ -155,7 +150,7 @@ public partial class RAWImportViewModel(
         {
             processingVM.CancellationToken.ThrowIfCancellationRequested();
             processingVM.StatusText = "Writing file to disk...";
-            await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, raw.Export(), processingVM.CancellationToken);
+            await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, raw.Import(), processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;
@@ -174,18 +169,18 @@ public partial class RAWImportViewModel(
     }
 
     [RelayCommand(CanExecute = nameof(HasFileItems))]
-    private async Task ExportAll()
+    private async Task ImportAll()
     {
         var saveFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select the folder to export the files to"
+            Title = "Select the folder to save the files to"
         });
         if (saveFolder.Count == 0) return;
 
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Exporting files...",
+            Title = "Converting files...",
             IsIndeterminate = false
         };
 
@@ -201,10 +196,10 @@ public partial class RAWImportViewModel(
                 processingVM.StatusText = "Writing file " + i + " of " + FileItems.Count + " to disk...";
                 string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, FileItems[i].Name + ".bmp");
 
-                //The images are not loaded in memory, they have to be read and parsed before exporting them
+                //The images are not loaded in memory, they have to be read and parsed before converting them
                 byte[] inputFile = await _fileIO.ReadBytesAsync(FileItems[i].Path);
-                raw.ParseRAW(inputFile);
-                await _fileIO.WriteBytesAsync(saveFilePath, raw.Export(), processingVM.CancellationToken);
+                raw.ParseBitmap(inputFile);
+                await _fileIO.WriteBytesAsync(saveFilePath, raw.Import(), processingVM.CancellationToken);
                 processingVM.Progress = (i + 1) / (double)FileItems.Count * 100;
             }
             

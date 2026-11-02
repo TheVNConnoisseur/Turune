@@ -161,7 +161,7 @@ internal class RAW
         foreach (var resolution in Resolution.FullScreen)
         {
             if (bmp_Width != resolution.Width || bmp_Height != resolution.Height)
-                break;
+                continue;
             else
             {
                 RawScheme.Properties.Resolution = resolution;
@@ -172,7 +172,7 @@ internal class RAW
         foreach (var resolution in Resolution.NonFullScreen)
         {
             if (bmp_Width != resolution.Width || bmp_Height != resolution.Height)
-                break;
+                continue;
             else
             {
                 RawScheme.Properties.Resolution = resolution;
@@ -190,6 +190,21 @@ internal class RAW
             throw new InvalidDataException("The loaded image does not have a valid bit-depth (pixel format).");
 
         RawScheme.Data = bmp.PixelData.ToList();
+    }
+    
+    public byte[] Import()
+    {
+        // while (RawScheme.Data.Count < expectedFileSize)
+        // {
+        //     try
+        //     {
+        //         RLE_Decode(ref inputFile, ref currentOffset, false, expectedFileSize);
+        //     }
+        //     catch(IndexOutOfRangeException)
+        //     {
+        //         break;
+        //     }
+        // }
     }
     
     /// <summary>

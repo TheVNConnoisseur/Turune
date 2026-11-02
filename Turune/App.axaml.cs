@@ -31,7 +31,7 @@ public partial class App : Application
 
             //Transient ViewModels, no need to keep their state
             services.AddTransient<ViewModels.Tools.Images.RAWExportViewModel>();
-            // services.AddTransient<ViewModels.Tools.Images.RAWImportViewModel>();
+            services.AddTransient<ViewModels.Tools.Images.RAWImportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.DATExportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.DATImportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.INIExportViewModel>();

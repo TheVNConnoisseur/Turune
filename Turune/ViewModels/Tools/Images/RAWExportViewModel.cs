@@ -199,7 +199,7 @@ public partial class RAWExportViewModel(
                 processingVM.StatusText = "Writing file " + i + " of " + FileItems.Count + " to disk...";
                 string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, FileItems[i].Name + ".bmp");
 
-                //The images are not loaded in memory, they have to be read and parsed before exporting them
+                //The images are not loaded in memory, they have to be read and parsed before converting them
                 byte[] inputFile = await _fileIO.ReadBytesAsync(FileItems[i].Path);
                 raw.ParseRAW(inputFile);
                 await _fileIO.WriteBytesAsync(saveFilePath, raw.Export(), processingVM.CancellationToken);

@@ -40,7 +40,7 @@ public static class MenuOptions
                 {
                     Name = "Import",
                     Description = "Convert images in common formats to game-ready images.",
-                    // ToolKey = "Images_RAW_Import"
+                    ToolKey = "Images_RAW_Import"
                 }
             }
         },

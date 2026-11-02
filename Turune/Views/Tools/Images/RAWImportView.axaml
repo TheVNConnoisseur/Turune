@@ -36,7 +36,7 @@
                             <DataTemplate>
                                 <Button Content="{Binding Name}"
                                         IsEnabled="{Binding !IsSelected}"
-                                        Command="{Binding $parent[ItemsControl].((vm:RAWExportViewModel)DataContext).LoadPreviewImageCommand}"
+                                        Command="{Binding $parent[ItemsControl].((vm:RAWImportViewModel)DataContext).LoadPreviewImageCommand}"
                                         CommandParameter="{Binding Path}"
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Center"
@@ -57,16 +57,16 @@
         <!-- Navigation buttons -->
         <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
-            <Button IsEnabled="{Binding PreviewImage, Converter={x:Static ObjectConverters.IsNotNull}}" Command="{Binding ExportCommand}">
+            <Button IsEnabled="{Binding PreviewImage, Converter={x:Static ObjectConverters.IsNotNull}}" Command="{Binding ImportCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
-                    <TextBlock Text="Export image" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock Text="Import image" VerticalAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ExportAllCommand}">
+            <Button Command="{Binding ImportAllCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
-                    <TextBlock Text="Export all images" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock Text="Import all images" VerticalAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
         </StackPanel>
