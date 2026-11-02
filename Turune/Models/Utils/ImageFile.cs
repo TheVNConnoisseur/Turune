@@ -233,7 +233,7 @@ public static class ImageFile
                         currentOffset += 2; //Skip bcPlanes
 
                         ushort bcBitCount = BinaryPrimitives.ReadUInt16LittleEndian(bitmapData.AsSpan(currentOffset));
-                        currentOffset += 4;
+                        currentOffset += 2;
 
                         bmp.CoreHeader = new BITMAPCOREHEADER
                         {
@@ -254,6 +254,9 @@ public static class ImageFile
                         currentOffset += 2; //Skip biPlanes
 
                         ushort biBitCount = BinaryPrimitives.ReadUInt16LittleEndian(bitmapData.AsSpan(currentOffset));
+                        currentOffset += 2;
+
+                        uint biCompression = BinaryPrimitives.ReadUInt32LittleEndian(bitmapData.AsSpan(currentOffset));
                         currentOffset += 4;
 
                         uint biSizeImage = BinaryPrimitives.ReadUInt32LittleEndian(bitmapData.AsSpan(currentOffset));
@@ -276,6 +279,7 @@ public static class ImageFile
                             biWidth = biWidth,
                             biHeight = biHeight,
                             biBitCount = biBitCount,
+                            biCompression = biCompression,
                             biSizeImage = biSizeImage,
                             biXPelsPerMeter = biXPelsPerMeter,
                             biYPelsPerMeter = biYPelsPerMeter,
@@ -295,6 +299,9 @@ public static class ImageFile
                         currentOffset += 2; //Skip bV4Planes
 
                         ushort bV4BitCount = BinaryPrimitives.ReadUInt16LittleEndian(bitmapData.AsSpan(currentOffset));
+                        currentOffset += 2;
+
+                        uint bV4Compression = BinaryPrimitives.ReadUInt32LittleEndian(bitmapData.AsSpan(currentOffset));
                         currentOffset += 4;
 
                         uint bV4SizeImage = BinaryPrimitives.ReadUInt32LittleEndian(bitmapData.AsSpan(currentOffset));
@@ -344,6 +351,7 @@ public static class ImageFile
                             bV4Width = bV4Width,
                             bV4Height = bV4Height,
                             bV4BitCount = bV4BitCount,
+                            bV4Compression = bV4Compression,
                             bV4SizeImage = bV4SizeImage,
                             bV4XPelsPerMeter = bV4XPelsPerMeter,
                             bV4YPelsPerMeter = bV4YPelsPerMeter,
@@ -372,6 +380,9 @@ public static class ImageFile
                         currentOffset += 2; //Skip bV5Planes
 
                         ushort bV5BitCount = BinaryPrimitives.ReadUInt16LittleEndian(bitmapData.AsSpan(currentOffset));
+                        currentOffset += 2;
+                        
+                        uint bV5Compression = BinaryPrimitives.ReadUInt32LittleEndian(bitmapData.AsSpan(currentOffset));
                         currentOffset += 4;
 
                         uint bV5SizeImage = BinaryPrimitives.ReadUInt32LittleEndian(bitmapData.AsSpan(currentOffset));
@@ -432,6 +443,7 @@ public static class ImageFile
                             bV5Width = bV5Width,
                             bV5Height = bV5Height,
                             bV5BitCount = bV5BitCount,
+                            bV5Compression = bV5Compression,
                             bV5SizeImage = bV5SizeImage,
                             bV5XPelsPerMeter = bV5XPelsPerMeter,
                             bV5YPelsPerMeter = bV5YPelsPerMeter,

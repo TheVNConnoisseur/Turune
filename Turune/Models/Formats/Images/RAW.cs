@@ -198,9 +198,7 @@ internal class RAW
         int currentOffset = 0;
 
         while (currentOffset < RawScheme.Data.Count)
-        {
             outputImage.AddRange(RLE_Encode(ref currentOffset));
-        }
 
         return outputImage.ToArray();
     }
@@ -256,40 +254,38 @@ internal class RAW
             //Get the current pixel to analyze and see if it repeats or not
             byte[] currentPixel = [];
             byte[] nextPixel = [];
-            if (RawScheme.Properties.HasAlphaLayer)
+            try
             {
-                currentPixel = [
-                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
-                nextPixel = [
-                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                currentPixel = ReadPixel(ref currentOffset);
             }
-
-            else
+            catch (ArgumentOutOfRangeException)
             {
-                currentPixel = [
-                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
-                nextPixel = [
-                    RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                break;  //No more pixels to copy
+            }
+            try
+            {
+                nextPixel = ReadPixel(ref currentOffset);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                pixelsToCopy[pixel_index] = currentPixel;
+                break;
             }
 
             //Now check if the current pixel does get repeated or not
             int rle_Length_CurrentPixel = 0;
             while (currentPixel.AsSpan().SequenceEqual(nextPixel))
             {
-                if (RawScheme.Properties.HasAlphaLayer)
+                currentPixel = nextPixel;
+                try
                 {
-                    currentPixel = nextPixel;
-                    nextPixel = [
-                        RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                    nextPixel = ReadPixel(ref currentOffset);
                 }
-                
-                else
+                catch(ArgumentOutOfRangeException)
                 {
-                    currentPixel = nextPixel;
-                    nextPixel = [
-                        RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++], RawScheme.Data[currentOffset++]];
+                    rle_Length[pixel_index] = rle_Length_CurrentPixel;
+                    break;
                 }
-
                 rle_Length_CurrentPixel++;
             }
 
@@ -310,7 +306,14 @@ internal class RAW
         //Copy the pixels to the encoded array and the RLE length if applicable
         for (int pixel_index = 0; pixel_index < 8; pixel_index++)
         {
-            encodedArray.AddRange(pixelsToCopy[pixel_index]);
+            try
+            {
+                encodedArray.AddRange(pixelsToCopy[pixel_index]);
+            }
+            catch (ArgumentNullException)
+            {
+                break;
+            }
 
             if (rle_Length[pixel_index] > 0)
             {
@@ -323,5 +326,22 @@ internal class RAW
         }
 
         return encodedArray.ToArray();
+    }
+
+    /// <summary>
+    /// Helper function that reads pixels from RawScheme.Data.
+    /// </summary>
+    /// <param name="offset">Offset where to read from the RawScheme.Data</param>
+    /// <returns></returns>
+    byte[] ReadPixel(ref int offset)
+    {
+        byte[] pixel = [];
+        if (RawScheme.Properties.HasAlphaLayer)
+            pixel = new byte[4];
+        else
+            pixel = new byte[3];
+        for (int i = 0; i < pixel.Length; i++)
+            pixel[i] = RawScheme.Data[offset++];
+        return pixel;
     }
 }
