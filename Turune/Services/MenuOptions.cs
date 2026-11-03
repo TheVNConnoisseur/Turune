@@ -26,20 +26,20 @@ public static class MenuOptions
     {
         new MenuOption
         {
-            Name = "Images",
-            Description = "Extensionless files, they hold any kind of images.",
+            Name = Localizations.Resources.MainMenu_V1_Images,
+            Description = Localizations.Resources.MainMenu_V1_Images_Description,
             Children = new List<MenuOption>
             {
                 new MenuOption
                 {
-                    Name = "Export",
-                    Description = "Convert game-ready images to a common format.",
+                    Name = Localizations.Resources.MainMenu_Operations_Export,
+                    Description = Localizations.Resources.MainMenu_V1_Images_Export_Description,
                     ToolKey = "Images_RAW_Export"
                 },
                 new MenuOption
                 {
-                    Name = "Import",
-                    Description = "Convert images in common formats to game-ready images.",
+                    Name = Localizations.Resources.MainMenu_Operations_Import,
+                    Description = Localizations.Resources.MainMenu_V1_Images_Import_Description,
                     ToolKey = "Images_RAW_Import"
                 }
             }

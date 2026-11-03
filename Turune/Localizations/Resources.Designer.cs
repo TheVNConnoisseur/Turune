@@ -162,6 +162,56 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Images.
+        /// </summary>
+        public static string MainMenu_V1_Images {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_Images", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extensionless files, they hold any kind of images, before being compressed using the RLE scheme, they were simple BMP files..
+        /// </summary>
+        public static string MainMenu_V1_Images_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_Images_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Convert game-ready images to BMP.
+        ///
+        ///### Input
+        ///A game-ready image file.
+        ///
+        ///### Output
+        ///A [BMP file](https://en.wikipedia.org/wiki/BMP_file_format), either in BGRA32 or BGR24, depending on the type of file..
+        /// </summary>
+        public static string MainMenu_V1_Images_Export_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_Images_Export_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Convert BMP images to game-ready images. It is important to respect the resolutions the game expects for each type of file, since that&apos;s hardcoded.
+        ///
+        ///### Input
+        ///A [BMP file](https://en.wikipedia.org/wiki/BMP_file_format) in BGR32 or BGR24 and with a valid resolution that the game accepts.
+        ///
+        ///### Output
+        ///A game-ready image file..
+        /// </summary>
+        public static string MainMenu_V1_Images_Import_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V1_Images_Import_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The initialization file for the game doesn&apos;t really do much besides changing the game&apos;s title, since we don&apos;t have access to any debug feature..
         /// </summary>
         public static string MainMenu_V1_INI_Description {

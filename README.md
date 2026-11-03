@@ -7,9 +7,9 @@
 ## Roadmap
 
 - Version 1
-  - [ ] Images
-    - [ ] Import
-    - [ ] Export
+  - [x] Images
+    - [x] Import
+    - [x] Export
   - [x] INI
     - [x] Export
     - [x] Import

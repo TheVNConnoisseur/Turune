@@ -50,12 +50,38 @@ Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
 ## Compatibility
 All of the features are supported, unless a new game has come out that offers a new encryption scheme yet to discover.</value>
     </data>
+    <data name="MainMenu_V1_Images" xml:space="preserve">
+        <value>Images</value>
+        <comment>Options 2nd column in the main menu</comment>
+    </data>
+    <data name="MainMenu_V1_Images_Description" xml:space="preserve">
+        <value>Extensionless files, they hold any kind of images, before being compressed using the RLE scheme, they were simple BMP files.</value>
+    </data>
     <data name="MainMenu_V1_INI_Description" xml:space="preserve">
         <value>The initialization file for the game doesn't really do much besides changing the game's title, since we don't have access to any debug feature.</value>
-        <comment>Options 2nd column in the main menu</comment>
     </data>
     <data name="MainMenu_V1_ODN_Description" xml:space="preserve">
         <value>The container files that store all of the game's assets. Some of them are encrypted, and it is hardcoded by what kind of asset they store.</value>
+    </data>
+    <data name="MainMenu_V1_Images_Export_Description" xml:space="preserve">
+        <value>### Description
+Convert game-ready images to BMP.
+
+### Input
+A game-ready image file.
+
+### Output
+A [BMP file](https://en.wikipedia.org/wiki/BMP_file_format), either in BGRA32 or BGR24, depending on the type of file.</value>
+    </data>
+    <data name="MainMenu_V1_Images_Import_Description" xml:space="preserve">
+        <value>### Description
+Convert BMP images to game-ready images. It is important to respect the resolutions and pixel formats the game expects for each type of file, since that's hardcoded.
+
+### Input
+A [BMP file](https://en.wikipedia.org/wiki/BMP_file_format) either in BGR32 or BGR24 and with a valid resolution that the game accepts.
+
+### Output
+A game-ready image file.</value>
     </data>
     <data name="MainMenu_V1_INI_Export_Description" xml:space="preserve">
         <value>### Description
@@ -107,9 +133,6 @@ A game-ready ODN file.</value>
     <data name="MainMenu_Operations_Extract" xml:space="preserve">
         <value>Extract</value>
     </data>
-    <data name="MainMenu_Operations_Create" xml:space="preserve">
-        <value>Create</value>
-    </data>
     <data name="ODN_Properties" xml:space="preserve">
         <value>ODN properties</value>
     </data>
@@ -117,18 +140,21 @@ A game-ready ODN file.</value>
         <value>Entries offsets are relative to raw data:</value>
         <comment>Ask if the ODN entries offsets are absolute or relative</comment>
     </data>
-    <data name="ODN_IsEncrypted" xml:space="preserve">
-        <value>Encrypted:</value>
-        <comment>Ask if the ODN to create is encrypted or not</comment>
-    </data>
     <data name="ODN_HasIndexDelimiter" xml:space="preserve">
         <value>Has index delimiter:</value>
+    </data>
+    <data name="MainMenu_Operations_Create" xml:space="preserve">
+        <value>Create</value>
+    </data>
+    <data name="CommonTerms_No" xml:space="preserve">
+        <value>No</value>
     </data>
     <data name="CommonTerms_Yes" xml:space="preserve">
         <value>Yes</value>
     </data>
-    <data name="CommonTerms_No" xml:space="preserve">
-        <value>No</value>
+    <data name="ODN_IsEncrypted" xml:space="preserve">
+        <value>Encrypted:</value>
+        <comment>Ask if the ODN to create is encrypted or not</comment>
     </data>
     <data name="MainMenu_V2_DATInitialization_Description" xml:space="preserve">
         <value>The initialization file.</value>
