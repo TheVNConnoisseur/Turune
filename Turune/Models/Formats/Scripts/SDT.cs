@@ -50,6 +50,11 @@ internal class SDT
 
         switch (currentOpcode)
         {
+            case 0x1:
+                {
+                    opcode.Name = "DebugIF{";
+                    break;
+                }
             case 0x2:
                 {
                     opcode.Name = "DebugMessage";
@@ -2393,6 +2398,11 @@ internal class SDT
             case 0xF4F:
                 {
                     opcode.Name = "EffectLS_TransReSize";
+                    break;
+                }
+            case 0xFFFE:
+                {
+                    opcode.Name = "}";
                     break;
                 }
             default:
