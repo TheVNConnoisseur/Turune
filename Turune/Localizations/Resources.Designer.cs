@@ -197,10 +197,10 @@ namespace Turune.Localizations {
         
         /// <summary>
         ///   Looks up a localized string similar to ### Description
-        ///Convert BMP images to game-ready images. It is important to respect the resolutions the game expects for each type of file, since that&apos;s hardcoded.
+        ///Convert BMP images to game-ready images. It is important to respect the resolutions and pixel formats the game expects for each type of file, since that&apos;s hardcoded.
         ///
         ///### Input
-        ///A [BMP file](https://en.wikipedia.org/wiki/BMP_file_format) in BGR32 or BGR24 and with a valid resolution that the game accepts.
+        ///A [BMP file](https://en.wikipedia.org/wiki/BMP_file_format) either in BGR32 or BGR24 and with a valid resolution that the game accepts.
         ///
         ///### Output
         ///A game-ready image file..
