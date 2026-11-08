@@ -1,7 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:vm="using:Turune.ViewModels.Tools.Containers"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:md="https://github.com/whistyun/Markdown.Avalonia.Tight"
              xmlns:lang="using:Turune.Localizations"
              x:Class="Turune.Views.Tools.Containers.ODNExtractView"
              x:DataType="vm:ODNExtractViewModel">

@@ -27,7 +27,7 @@ internal class ODN
         public bool HasDelimiterEntry { get; set; } = false;
     }
 
-    public ODNScheme OdnScheme = new ODNScheme();
+    public ODNScheme OdnScheme = new ();
 
     ///<summary>Gets the ODN scheme from an original ODN file.</summary>
     ///<param name="inputFile">Original ODN file.</param>
