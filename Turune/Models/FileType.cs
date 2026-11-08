@@ -18,6 +18,7 @@ public class FileType()
             MimeTypes = ["image/bmp"]
         };
     }
+    
     public class Container()
     {
         public static FilePickerFileType ODN { get; } = new("ODN container")
@@ -45,6 +46,16 @@ public class FileType()
         public static FilePickerFileType INI_Compiled { get; } = new("Compiled initialization file")
         {
             Patterns = ["*.ini"],
+            AppleUniformTypeIdentifiers = ["public.archive"],
+            MimeTypes = ["application/octet-stream"]
+        };
+    }
+
+    public class Script()
+    {
+        public static FilePickerFileType SDT { get; } = new("Compiled script file")
+        {
+            Patterns = ["*.sdt"],
             AppleUniformTypeIdentifiers = ["public.archive"],
             MimeTypes = ["application/octet-stream"]
         };

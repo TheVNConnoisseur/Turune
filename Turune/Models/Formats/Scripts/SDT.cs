@@ -1,8 +1,10 @@
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Reflection.Emit;
+using System.Text;
 
 internal class SDT
 {
@@ -13,16 +15,16 @@ internal class SDT
         public uint Unknown2_Count { get; set; }
         public uint Label_Count { get; set; }
         public uint SDTKey_Offset { get; set; }
-        public List<SDT_LabelScheme>? SDT_Label { get; set; }   //There must be Label_Count amount
+        public List<SDT_Label> SDT_Labels { get; set; } = [];   //There must be Label_Count amount
         public byte[] SDTKey { get; set; } = [];    //While the SDT key can be anywhere, the developers just put it after the list of labels (if it exists)
-        public byte[] Data { get; set; } = [];  //All of the opcode data
+        public List<SDT_Opcode> Opcodes { get; set; } = [];
     }
 
     /// <summary>
     /// For the jump labels, the game keeps a list of each possible label, and then
     /// next to it the offset relative to the opcode region.
     /// </summary>
-    internal class SDT_LabelScheme
+    internal class SDT_Label
     {
         public string Name { get; set; } = "";
         public uint Offset { get; set; }
@@ -31,18 +33,49 @@ internal class SDT
     internal class SDT_Opcode
     {
         public string Name { get; set; } = "";
-        
-        //What comes next is the next data relative to each opcode, but it's not always the same, so at the moment
-        //it'll be kept incomplete for the time being
+        public List<string> Parameters { get; set; } = [];
     }
 
     public SDTScheme SdtScheme { get; private set; } = new SDTScheme();
 
-    public void ParsePacked(byte[] inputFile)
+    public void ParsePacked(byte[] inputFile, Encoding encoding)
     {
-        
+        int currentOffset = 0;
+
+        //Reading the values from the header
+        SdtScheme.Opcodes_Offset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+        currentOffset += 4;
+
+        SdtScheme.Unknown1_Count = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+        currentOffset += 4;
+
+        SdtScheme.Unknown2_Count = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+        currentOffset += 4;
+
+        SdtScheme.Label_Count = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+        currentOffset += 4;
+
+        SdtScheme.SDTKey_Offset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+        currentOffset += 4;
+
+        if (SdtScheme.Label_Count > 0)
+        {
+            for (int i = 0; i < SdtScheme.Label_Count; i++)
+            {
+                string sdt_Name = GetEncrytedString(inputFile, ref currentOffset, encoding);
+                uint sdt_Offset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+                SDT_Label sdt_label = new()
+                {
+                    Name = sdt_Name,
+                    Offset = sdt_Offset + SdtScheme.Opcodes_Offset //Making the offset absolute, not relative
+                };
+                currentOffset += 4; //The offset needs to be passed through
+                SdtScheme.SDT_Labels.Add(sdt_label);
+            }
+        }
     }
-    private void ParseOpcode(ref byte[] inputData, ref int currentOffset)
+    
+    private void ParseOpcode(byte[] inputData, ref int currentOffset)
     {
         SDT_Opcode opcode = new();
 
@@ -2409,5 +2442,19 @@ internal class SDT
                 throw new InvalidDataException("Unknown " + currentOpcode + " opcode.");
                 
         }
+    }
+
+    private static string GetEncrytedString(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    {
+        List<byte> labelName_Raw = [];
+        while(inputFile[currentOffset] != 0xFF)
+        {
+            labelName_Raw.Add((byte)(inputFile[currentOffset] ^ 0xFF));
+            currentOffset++;
+        }
+
+        currentOffset++; //Skip the 0xFF terminator byte
+
+        return encoding.GetString(labelName_Raw.ToArray());
     }
 }

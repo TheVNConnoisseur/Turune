@@ -195,7 +195,7 @@ public static class MenuOptions
                 {
                     Name = "Decompile",
                     Description = "Convert compiled script files to human-readable text files.",
-                    // Execute = () => nav.NavigateTo(new LoadIniViewModel(nav)),
+                    ToolKey = "Scripts_SDT_Decompile"
                 }
             }
         }

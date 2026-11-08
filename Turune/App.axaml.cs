@@ -1,3 +1,4 @@
+using System.Text;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -17,6 +18,8 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             //Creating a ServiceCollection in order to have all dependencies together
@@ -30,14 +33,15 @@ public partial class App : Application
             services.AddSingleton<IToolViewModelFactory, ToolViewModelFactory>();
 
             //Transient ViewModels, no need to keep their state
+            services.AddTransient<ViewModels.Tools.Containers.ODNCreateViewModel>();
+            services.AddTransient<ViewModels.Tools.Containers.ODNExtractViewModel>();
             services.AddTransient<ViewModels.Tools.Images.RAWExportViewModel>();
             services.AddTransient<ViewModels.Tools.Images.RAWImportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.DATExportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.DATImportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.INIExportViewModel>();
             services.AddTransient<ViewModels.Tools.Initialization.INIImportViewModel>();
-            services.AddTransient<ViewModels.Tools.Containers.ODNExtractViewModel>();
-            services.AddTransient<ViewModels.Tools.Containers.ODNCreateViewModel>();
+            services.AddTransient<ViewModels.Tools.Scripts.SDTDecompileViewModel>();
 
             var provider = services.BuildServiceProvider();
 
