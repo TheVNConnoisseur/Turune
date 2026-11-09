@@ -28,6 +28,10 @@ internal class SDT
         public uint Offset { get; set; }
     }
 
+    /// <summary>
+    /// Each of the opcodes requires certain parameters, and to avoid having to create
+    /// one type of class per opcode, it's better to just accept each parameters as a string.
+    /// </summary>
     internal class SDT_Opcode
     {
         public string Name { get; set; } = "";
@@ -103,6 +107,8 @@ internal class SDT
                     opcode.Name = "GetSysModeOn";
                     break;
                 }
+            
+            //File IO
             case 0x500:
                 {
                     opcode.Name = "OpenUrlFiles";
@@ -123,6 +129,8 @@ internal class SDT
                     opcode.Name = "OpenEXE";
                     break;
                 }
+            
+            //Save files
             case 0x600:
                 {
                     opcode.Name = "GlobalSave";
@@ -198,6 +206,8 @@ internal class SDT
                     opcode.Name = "GetSaveTextOBJ";
                     break;
                 }
+            
+            //Backlog
             case 0x700:
                 {
                     opcode.Name = "StartBakLog";
@@ -293,6 +303,8 @@ internal class SDT
                     opcode.Name = "BakLogONOFF";
                     break;
                 }
+            
+            //Audio
             case 0x800:
                 {
                     opcode.Name = "AudioPlay";
@@ -448,6 +460,8 @@ internal class SDT
                     opcode.Name = "KoeStopTest";
                     break;
                 }
+            
+            //Video
             case 0x900:
                 {
                     opcode.Name = "PlayVideo";
@@ -483,6 +497,7 @@ internal class SDT
                     opcode.Name = "GetVideoPlayMode";
                     break;
                 }
+            
             case 0xA00:
                 {
                     opcode.Name = "SetDisplay";
@@ -820,9 +835,21 @@ internal class SDT
                 }
             case 0xA44:
                 {
+                    //Jumps to a specific label from another Seen file
                     opcode.Name = "FarCallLabel";
-                    opcode.Parameters.Add(GetSeenNumber(inputFile, ref currentOffset).ToString("D4"));
-                    opcode.Parameters.Add(GetLabelName(inputFile, ref currentOffset, encoding));
+                    string[] destination_Seen = GetNumericParameter(inputFile, ref currentOffset);
+                    string source_seenNumber = destination_Seen[0];              //Indicates that the Seen number is obtained from the following parameter
+                    uint seenNumber = Convert.ToUInt32(destination_Seen[1]);    //Indicates the Seen nummber to jump to
+
+                    opcode.Parameters.Add(source_seenNumber);
+                    opcode.Parameters.Add(seenNumber.ToString("D4"));   //Pad it to 4 numbers since the Seen values can be up to 4 digits
+                    
+                    string[] destination_Label = GetStringParameter(inputFile, ref currentOffset, encoding);
+                    string source_Label = destination_Label[0]; //Indicates that the label name is obtained from the following parameter
+                    string labelName = destination_Label[1];    //Indicates the name of the label to jump to
+
+                    opcode.Parameters.Add(source_Label);
+                    opcode.Parameters.Add(labelName);
                     break;
                 }
             case 0xA45:
@@ -842,8 +869,14 @@ internal class SDT
                 }
             case 0xA48:
                 {
+                    //Jumps to the beginning of a specific Seen file
                     opcode.Name = "Jump";
-                    opcode.Parameters.Add(GetSeenNumber(inputFile, ref currentOffset).ToString("D4"));
+                    string[] destination_Seen = GetNumericParameter(inputFile, ref currentOffset);
+                    string source_seenNumber = destination_Seen[0];              //Indicates that the Seen number is obtained from the following parameter
+                    uint seenNumber = Convert.ToUInt32(destination_Seen[1]);    //Indicates the Seen nummber to jump to
+
+                    opcode.Parameters.Add(source_seenNumber);
+                    opcode.Parameters.Add(seenNumber.ToString("D4"));   //Pad it to 4 numbers since the Seen values can be up to 4 digits
                     break;
                 }
             case 0xA49:
@@ -1166,6 +1199,8 @@ internal class SDT
                     opcode.Name = "GetChengeSelectCGNo";
                     break;
                 }
+            
+            //Flags
             case 0xB00:
                 {
                     opcode.Name = "InitDI";
@@ -1203,7 +1238,11 @@ internal class SDT
                 }
             case 0xB07:
                 {
+                    //Sets the value of a given DI, DG or DT flag
                     opcode.Name = "[] = Num";
+
+
+
                     break;
                 }
             case 0xB08:
@@ -1311,6 +1350,8 @@ internal class SDT
                     opcode.Name = "StrPrintf2";
                     break;
                 }
+            
+            //OBJ and CGB
             case 0xD00:
                 {
                     opcode.Name = "Disp";
@@ -1816,6 +1857,8 @@ internal class SDT
                     opcode.Name = "AniMoveListPlayTrans";
                     break;
                 }
+            
+            //Message window
             case 0xE00:
                 {
                     opcode.Name = "MSGWNDNAME";
@@ -2041,6 +2084,8 @@ internal class SDT
                     opcode.Name = "NoWaitR";
                     break;
                 }
+            
+            //Effects
             case 0xF00:
                 {
                     opcode.Name = "EFObjAlpha";
@@ -2441,6 +2486,7 @@ internal class SDT
                     opcode.Name = "EffectLS_TransReSize";
                     break;
                 }
+            
             case 0xFFFE:
                 {
                     opcode.Name = "}";
@@ -2454,24 +2500,40 @@ internal class SDT
         return opcode;
     }
 
-    private static string GetLabelName(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    /// <summary>
+    /// Parse the array of the compiled SDT, in order to obtain an arbitrary string parameter.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>A string array, with the first value indicating where it comes from, and the second value the actual string (or uint,
+    /// depending if the value is stored in a flag).</returns>
+    /// <exception cref="Exception">The type of value still has not been understood.</exception>
+    /// <exception cref="InvalidDataException">The given type does not exist.</exception>
+    private static string[] GetStringParameter(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
+        List<string> parameters = [];
+
         switch(inputFile[currentOffset++])
         {
             case 8:
                 {
-                    return GetEncrytedString(inputFile, ref currentOffset, encoding);
+                    parameters.Add("SDT");
+                    parameters.Add(GetEncrytedString(inputFile, ref currentOffset, encoding));
+                    break;
                 }
             case 9:
                 {
+                    parameters.Add("SI");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0xA:
                 {
+                    parameters.Add("SG");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0xB:
                 {
+                    parameters.Add("ST");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0xD:
@@ -2489,6 +2551,8 @@ internal class SDT
             default:
                     throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
         }
+
+        return parameters.ToArray();
     }
 
     private static string GetEncrytedString(byte[] inputFile, ref int currentOffset, Encoding encoding)
@@ -2502,30 +2566,55 @@ internal class SDT
         return encoding.GetString(labelName_Raw.ToArray());
     }
 
-    private static uint GetSeenNumber(byte[] inputFile, ref int currentOffset)
+    /// <summary>
+    /// Parse the array of the compiled SDT, in order to obtain an arbitrary numeric value.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>A string array, with the first value indicating where it comes from, and the second value the actual uint32.</returns>
+    /// <exception cref="Exception">The type of value still has not been understood.</exception>
+    /// <exception cref="InvalidDataException">The given type does not exist.</exception>
+    private static string[] GetNumericParameter(byte[] inputFile, ref int currentOffset)
     {
+        List<string> parameters = [];
+
         switch(inputFile[currentOffset++])
         {
             case 0:
                 {
-                    uint seenNumber = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+                    parameters.Add("SDT");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
                     currentOffset += 4;
-                    return seenNumber;
+                    break;
                 }
             case 1:
                 {
+                    parameters.Add("DI");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
                     currentOffset += 4;
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    break;
                 }
             case 2:
                 {
+                    parameters.Add("DG");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
                     currentOffset += 4;
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    break;
                 }
             case 3:
                 {
+                    parameters.Add("DT");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
                     currentOffset += 4;
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    break;
                 }
             case 5:
                 {
@@ -2542,5 +2631,7 @@ internal class SDT
             default:
                 throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
         }
+
+        return parameters.ToArray();
     }
 }
