@@ -94,7 +94,13 @@ internal class SDT
         {
             case 0x1:
                 {
+                    //Checks if the game is in debug mode, otherwise it skips the entire if
                     opcode.Name = "DebugIF{";
+
+                    uint bytesToSkip = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)); //Indicates how many bytes to skip from the SDT file if the game detects that is not in debug mode
+                    currentOffset += 4;
+                    opcode.Parameters.Add(bytesToSkip.ToString());
+
                     break;
                 }
             case 0x2:
@@ -801,6 +807,8 @@ internal class SDT
             case 0xA3D:
                 {
                     opcode.Name = "if{";
+
+                    
                     break;
                 }
             case 0xA3E:
@@ -837,19 +845,19 @@ internal class SDT
                 {
                     //Jumps to a specific label from another Seen file
                     opcode.Name = "FarCallLabel";
+
                     string[] destination_Seen = GetNumericParameter(inputFile, ref currentOffset);
                     string source_seenNumber = destination_Seen[0];              //Indicates that the Seen number is obtained from the following parameter
                     uint seenNumber = Convert.ToUInt32(destination_Seen[1]);    //Indicates the Seen nummber to jump to
-
                     opcode.Parameters.Add(source_seenNumber);
                     opcode.Parameters.Add(seenNumber.ToString("D4"));   //Pad it to 4 numbers since the Seen values can be up to 4 digits
                     
                     string[] destination_Label = GetStringParameter(inputFile, ref currentOffset, encoding);
                     string source_Label = destination_Label[0]; //Indicates that the label name is obtained from the following parameter
                     string labelName = destination_Label[1];    //Indicates the name of the label to jump to
-
                     opcode.Parameters.Add(source_Label);
                     opcode.Parameters.Add(labelName);
+
                     break;
                 }
             case 0xA45:
@@ -1241,7 +1249,17 @@ internal class SDT
                     //Sets the value of a given DI, DG or DT flag
                     opcode.Name = "[] = Num";
 
+                    string[] flag = GetFlagSlot_DX(inputFile, ref currentOffset);
+                    string flag_Type = flag[0];  //Indicates the type of flag the value will be used
+                    string flag_Slot = flag[1];  //Indicates the slot of the array of flags that will store the given value
+                    opcode.Parameters.Add(flag_Type);
+                    opcode.Parameters.Add(flag_Slot);
 
+                    string[] value = GetNumericParameter(inputFile, ref currentOffset);
+                    string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
+                    string value_Number = value[1];    //Indicates the value to store in the given flag
+                    opcode.Parameters.Add(value_Source);
+                    opcode.Parameters.Add(value_Number);
 
                     break;
                 }
@@ -1322,7 +1340,23 @@ internal class SDT
                 }
             case 0xB17:
                 {
+                    //Save a string to a specific flag
                     opcode.Name = "SetStr";
+
+                    string[] flag = GetFlagSlot_SX(inputFile, ref currentOffset);
+                    string flag_Type = flag[0];  //Indicates the type of flag the value will be used
+                    string flag_Slot = flag[1];  //Indicates the slot of the array of flags that will store the given value
+
+                    opcode.Parameters.Add(flag_Type);
+                    opcode.Parameters.Add(flag_Slot);
+
+                    string[] value = GetStringParameter(inputFile, ref currentOffset, encoding);
+                    string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
+                    string value_Text = value[1];    //Indicates the value to store in the given flag
+
+                    opcode.Parameters.Add(value_Source);
+                    opcode.Parameters.Add(value_Text);
+
                     break;
                 }
             case 0xB18:
@@ -1394,7 +1428,23 @@ internal class SDT
                 }
             case 0xD08:
                 {
+                    //Loads a given file (from data00)
                     opcode.Name = "LoadOBJ";
+
+                    string[] value = GetNumericParameter(inputFile, ref currentOffset);
+                    string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
+                    string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
+
+                    opcode.Parameters.Add(value_Source);
+                    opcode.Parameters.Add(value_Number);
+
+                    string[] fileName = GetStringParameter(inputFile, ref currentOffset, encoding);
+                    string fileName_Type = fileName[0];             //Indicates at what type of flag is the file name stored
+                    string fileName_Number = fileName[1];          //Indicates the flag number the name of the file to load is
+
+                    opcode.Parameters.Add(fileName_Type);
+                    opcode.Parameters.Add(fileName_Number);
+
                     break;
                 }
             case 0xD09:
@@ -1497,9 +1547,33 @@ internal class SDT
                     opcode.Name = "NumCGB";
                     break;
                 }
+            
+            //UNKNOWN HOW IT WORKS
             case 0xD1D:
                 {
                     opcode.Name = "ObjPosDest";
+
+                    // string[] value = GetNumericParameter(inputFile, ref currentOffset);
+                    // string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
+                    // string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
+
+                    // opcode.Parameters.Add(value_Source);
+                    // opcode.Parameters.Add(value_Number);
+
+                    // string[] value = GetNumericParameter(inputFile, ref currentOffset);
+                    // string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
+                    // string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
+
+                    // opcode.Parameters.Add(value_Source);
+                    // opcode.Parameters.Add(value_Number);
+
+                    // string[] value = GetNumericParameter(inputFile, ref currentOffset);
+                    // string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
+                    // string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
+
+                    // opcode.Parameters.Add(value_Source);
+                    // opcode.Parameters.Add(value_Number);
+
                     break;
                 }
             case 0xD1E:
@@ -2515,26 +2589,38 @@ internal class SDT
 
         switch(inputFile[currentOffset++])
         {
-            case 8:
+            case 0x8:
                 {
                     parameters.Add("SDT");
                     parameters.Add(GetEncrytedString(inputFile, ref currentOffset, encoding));
                     break;
                 }
-            case 9:
+            case 0x9:
                 {
                     parameters.Add("SI");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    currentOffset += 4;
+                    break;
                 }
             case 0xA:
                 {
                     parameters.Add("SG");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    currentOffset += 4;
+                    break;
                 }
             case 0xB:
                 {
                     parameters.Add("ST");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(
+                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    currentOffset += 4;
+                    break;
                 }
             case 0xD:
                 {
@@ -2580,7 +2666,7 @@ internal class SDT
 
         switch(inputFile[currentOffset++])
         {
-            case 0:
+            case 0x0:
                 {
                     parameters.Add("SDT");
                     parameters.Add(
@@ -2589,7 +2675,7 @@ internal class SDT
                     currentOffset += 4;
                     break;
                 }
-            case 1:
+            case 0x1:
                 {
                     parameters.Add("DI");
                     parameters.Add(
@@ -2598,7 +2684,7 @@ internal class SDT
                     currentOffset += 4;
                     break;
                 }
-            case 2:
+            case 0x2:
                 {
                     parameters.Add("DG");
                     parameters.Add(
@@ -2607,7 +2693,7 @@ internal class SDT
                     currentOffset += 4;
                     break;
                 }
-            case 3:
+            case 0x3:
                 {
                     parameters.Add("DT");
                     parameters.Add(
@@ -2616,20 +2702,144 @@ internal class SDT
                     currentOffset += 4;
                     break;
                 }
-            case 5:
+            case 0x5:
                 {
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
-            case 6:
+            case 0x6:
                 {
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
-            case 7:
+            case 0x7:
                 {
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             default:
-                throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
+                throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
+        }
+
+        return parameters.ToArray();
+    }
+
+    /// <summary>
+    /// Parse the array of the compiled SDT, in order to obtain the type of flag and its
+    /// respective slot. This is for the DI, DG and DT flags.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>A string array, with the first value indicating the type of flag, and the second value the slot number.</returns>
+    /// <exception cref="Exception">The type of value still has not been understood.</exception>
+    /// <exception cref="InvalidDataException">The given type does not exist.</exception>
+    private static string[] GetFlagSlot_DX(byte[] inputFile, ref int currentOffset)
+    {
+        List<string> parameters = [];
+
+        switch(inputFile[currentOffset++])
+        {
+            case 0x1:
+                {
+                    parameters.Add("DI");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt16LittleEndian(
+                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    currentOffset += 4;
+                    break;
+                }
+            case 0x2:
+                {
+                    parameters.Add("DG");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt16LittleEndian(
+                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    break;
+                }
+            case 0x3:
+                {
+                    parameters.Add("DT");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt16LittleEndian(
+                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    break;
+                }
+            case 0x5:
+                {
+                    parameters.Add("DI");
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0x6:
+                {
+                    parameters.Add("DG");
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0x7:
+                {
+                    parameters.Add("DT");
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            default:
+                throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
+        }
+
+        return parameters.ToArray();
+    }
+
+    /// <summary>
+    /// Parse the array of the compiled SDT, in order to obtain the type of flag and its
+    /// respective slot. This is for the SI, SG and ST flags.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>A string array, with the first value indicating the type of flag, and the second value the slot number.</returns>
+    /// <exception cref="Exception">The type of value still has not been understood.</exception>
+    /// <exception cref="InvalidDataException">The given type does not exist.</exception>
+    private static string[] GetFlagSlot_SX(byte[] inputFile, ref int currentOffset)
+    {
+        List<string> parameters = [];
+
+        switch(inputFile[currentOffset++])
+        {
+            case 0x9:
+                {
+                    parameters.Add("SI");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt16LittleEndian(
+                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    currentOffset += 4;
+                    break;
+                }
+            case 0xA:
+                {
+                    parameters.Add("SG");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt16LittleEndian(
+                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    break;
+                }
+            case 0xB:
+                {
+                    parameters.Add("ST");
+                    parameters.Add(
+                        BinaryPrimitives.ReadUInt16LittleEndian(
+                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    break;
+                }
+            case 0xD:
+                {
+                    parameters.Add("SI");
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xE:
+                {
+                    parameters.Add("SG");
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xF:
+                {
+                    parameters.Add("ST");
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            default:
+                throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
         }
 
         return parameters.ToArray();
