@@ -1,9 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Reflection.Emit;
 using System.Text;
 
 internal class SDT
@@ -38,7 +36,7 @@ internal class SDT
 
     public SDTScheme SdtScheme { get; private set; } = new SDTScheme();
 
-    public void ParsePacked(byte[] inputFile, Encoding encoding)
+    public void ParseSDT(byte[] inputFile, Encoding encoding)
     {
         int currentOffset = 0;
 
@@ -73,13 +71,20 @@ internal class SDT
                 SdtScheme.SDT_Labels.Add(sdt_label);
             }
         }
+
+        while (currentOffset < SdtScheme.Opcodes_Offset)    //Skip the SDT key
+            currentOffset++;
+
+        while (currentOffset < inputFile.Length)
+            SdtScheme.Opcodes.Add(ParseOpcode(inputFile, ref currentOffset, encoding));
     }
     
-    private void ParseOpcode(byte[] inputData, ref int currentOffset)
+    private SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
         SDT_Opcode opcode = new();
 
-        int currentOpcode = BinaryPrimitives.ReadInt32LittleEndian(inputData.AsSpan(currentOffset, 4));
+        int currentOpcode = BinaryPrimitives.ReadInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
+        currentOffset += 2;
 
         switch (currentOpcode)
         {
@@ -816,6 +821,8 @@ internal class SDT
             case 0xA44:
                 {
                     opcode.Name = "FarCallLabel";
+                    opcode.Parameters.Add(GetSeenNumber(inputFile, ref currentOffset).ToString("D4"));
+                    opcode.Parameters.Add(GetLabelName(inputFile, ref currentOffset, encoding));
                     break;
                 }
             case 0xA45:
@@ -836,6 +843,7 @@ internal class SDT
             case 0xA48:
                 {
                     opcode.Name = "Jump";
+                    opcode.Parameters.Add(GetSeenNumber(inputFile, ref currentOffset).ToString("D4"));
                     break;
                 }
             case 0xA49:
@@ -2442,19 +2450,97 @@ internal class SDT
                 throw new InvalidDataException("Unknown " + currentOpcode + " opcode.");
                 
         }
+    
+        return opcode;
+    }
+
+    private static string GetLabelName(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    {
+        switch(inputFile[currentOffset++])
+        {
+            case 8:
+                {
+                    return GetEncrytedString(inputFile, ref currentOffset, encoding);
+                }
+            case 9:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xA:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xB:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xD:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xE:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 0xF:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            default:
+                    throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
+        }
     }
 
     private static string GetEncrytedString(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
         List<byte> labelName_Raw = [];
         while(inputFile[currentOffset] != 0xFF)
-        {
-            labelName_Raw.Add((byte)(inputFile[currentOffset] ^ 0xFF));
-            currentOffset++;
-        }
+            labelName_Raw.Add((byte)(inputFile[currentOffset++] ^ 0xFF));
 
         currentOffset++; //Skip the 0xFF terminator byte
 
         return encoding.GetString(labelName_Raw.ToArray());
+    }
+
+    private static uint GetSeenNumber(byte[] inputFile, ref int currentOffset)
+    {
+        switch(inputFile[currentOffset++])
+        {
+            case 0:
+                {
+                    uint seenNumber = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
+                    currentOffset += 4;
+                    return seenNumber;
+                }
+            case 1:
+                {
+                    currentOffset += 4;
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 2:
+                {
+                    currentOffset += 4;
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 3:
+                {
+                    currentOffset += 4;
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 5:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 6:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            case 7:
+                {
+                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                }
+            default:
+                throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
+        }
     }
 }

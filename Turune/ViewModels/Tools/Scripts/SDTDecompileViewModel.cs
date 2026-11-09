@@ -83,7 +83,7 @@ public partial class SDTDecompileViewModel : ObservableObject
                 {
                     byte[] fileData = await _fileIO.ReadBytesAsync(inputFiles[i].Path.LocalPath);
                     SDT sdt = new();
-                    sdt.ParsePacked(fileData, SelectedEncoding.Encoding);
+                    sdt.ParseSDT(fileData, SelectedEncoding.Encoding);
                     FileItems.Add(new FileItem
                     {
                         Name = Path.GetFileNameWithoutExtension(inputFiles[i].Path.LocalPath),
