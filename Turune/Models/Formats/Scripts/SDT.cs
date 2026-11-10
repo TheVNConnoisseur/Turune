@@ -806,27 +806,13 @@ internal class SDT
                 }
             case 0xA3D:
                 {
-                    opcode.Name = "if{";
+                    //A simple if statement like in any normal language.
+                    opcode.Name = "if";    //if{ according to the debug logs
                     
-                    bool valuesLeftToCompare = true;
-
-                    while(valuesLeftToCompare)
-                    {
-                        //Create this temp variable in order to not break the while condition before it should do it
-                        bool isLastOperation = false;
-
-                        //In order to make more than 1 operation, the game has some recursion
-                        if (inputFile[currentOffset++] != 0x1)
-                            isLastOperation = true;
-                        
-                        string firstValueComparison = GetNumericParameter(inputFile, ref currentOffset);
-                        string comparisonOperator = GetOperator(inputFile, ref currentOffset);
-                        string secondValueComparison = GetNumericParameter(inputFile, ref currentOffset);
-                        opcode.Parameters.AddRange(firstValueComparison, comparisonOperator, secondValueComparison);
-
-                        valuesLeftToCompare = !isLastOperation;
-                    }
-                        
+                    opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire if condition
+                    opcode.Parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where this if ends (it should land where the opcode "}" is)
+                    currentOffset += 4;
                     break;
                 }
             case 0xA3E:
@@ -864,18 +850,8 @@ internal class SDT
                     //Jumps to a specific label from another Seen file
                     opcode.Name = "FarCallLabel";
 
-                    string[] destination_Seen = GetNumericParameter(inputFile, ref currentOffset);
-                    string source_seenNumber = destination_Seen[0];              //Indicates that the Seen number is obtained from the following parameter
-                    uint seenNumber = Convert.ToUInt32(destination_Seen[1]);    //Indicates the Seen nummber to jump to
-                    opcode.Parameters.Add(source_seenNumber);
-                    opcode.Parameters.Add(seenNumber.ToString("D4"));   //Pad it to 4 numbers since the Seen values can be up to 4 digits
-                    
-                    string[] destination_Label = GetStringParameter(inputFile, ref currentOffset, encoding);
-                    string source_Label = destination_Label[0]; //Indicates that the label name is obtained from the following parameter
-                    string labelName = destination_Label[1];    //Indicates the name of the label to jump to
-                    opcode.Parameters.Add(source_Label);
-                    opcode.Parameters.Add(labelName);
-
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the Seen nummber to jump to
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));   //Indicates the name of the label to jump to
                     break;
                 }
             case 0xA45:
@@ -897,12 +873,8 @@ internal class SDT
                 {
                     //Jumps to the beginning of a specific Seen file
                     opcode.Name = "Jump";
-                    string[] destination_Seen = GetNumericParameter(inputFile, ref currentOffset);
-                    string source_seenNumber = destination_Seen[0];              //Indicates that the Seen number is obtained from the following parameter
-                    uint seenNumber = Convert.ToUInt32(destination_Seen[1]);    //Indicates the Seen nummber to jump to
 
-                    opcode.Parameters.Add(source_seenNumber);
-                    opcode.Parameters.Add(seenNumber.ToString("D4"));   //Pad it to 4 numbers since the Seen values can be up to 4 digits
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the Seen nummber to jump to
                     break;
                 }
             case 0xA49:
@@ -1267,18 +1239,8 @@ internal class SDT
                     //Sets the value of a given DI, DG or DT flag
                     opcode.Name = "[] = Num";
 
-                    string[] flag = GetFlagSlot_DX(inputFile, ref currentOffset);
-                    string flag_Type = flag[0];  //Indicates the type of flag the value will be used
-                    string flag_Slot = flag[1];  //Indicates the slot of the array of flags that will store the given value
-                    opcode.Parameters.Add(flag_Type);
-                    opcode.Parameters.Add(flag_Slot);
-
-                    string[] value = GetNumericParameter(inputFile, ref currentOffset);
-                    string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
-                    string value_Number = value[1];    //Indicates the value to store in the given flag
-                    opcode.Parameters.Add(value_Source);
-                    opcode.Parameters.Add(value_Number);
-
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset)); //Indicates the slot in the corresponding array of flags that will store the given value
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the value to store in the given flag
                     break;
                 }
             case 0xB08:
@@ -1361,20 +1323,8 @@ internal class SDT
                     //Save a string to a specific flag
                     opcode.Name = "SetStr";
 
-                    string[] flag = GetFlagSlot_SX(inputFile, ref currentOffset);
-                    string flag_Type = flag[0];  //Indicates the type of flag the value will be used
-                    string flag_Slot = flag[1];  //Indicates the slot of the array of flags that will store the given value
-
-                    opcode.Parameters.Add(flag_Type);
-                    opcode.Parameters.Add(flag_Slot);
-
-                    string[] value = GetStringParameter(inputFile, ref currentOffset, encoding);
-                    string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
-                    string value_Text = value[1];    //Indicates the value to store in the given flag
-
-                    opcode.Parameters.Add(value_Source);
-                    opcode.Parameters.Add(value_Text);
-
+                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));     //Indicates the slot of the corresponding array of flags that will store the given value
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the value to store in the given flag
                     break;
                 }
             case 0xB18:
@@ -1444,25 +1394,14 @@ internal class SDT
                     opcode.Name = "ReleaseCGBRange";
                     break;
                 }
+            //Not well understood
             case 0xD08:
                 {
                     //Loads a given file (from data00)
                     opcode.Name = "LoadOBJ";
 
-                    string[] value = GetNumericParameter(inputFile, ref currentOffset);
-                    string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
-                    string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
-
-                    opcode.Parameters.Add(value_Source);
-                    opcode.Parameters.Add(value_Number);
-
-                    string[] fileName = GetStringParameter(inputFile, ref currentOffset, encoding);
-                    string fileName_Type = fileName[0];             //Indicates at what type of flag is the file name stored
-                    string fileName_Number = fileName[1];          //Indicates the flag number the name of the file to load is
-
-                    opcode.Parameters.Add(fileName_Type);
-                    opcode.Parameters.Add(fileName_Number);
-
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the slot from a particular type of flag to get the OBJ from (not quite understood)
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));     //Indicates the flag number where the name of the file to load is
                     break;
                 }
             case 0xD09:
@@ -2871,24 +2810,76 @@ internal class SDT
         return parameter;
     }
 
+
+    private static string EvaluateCondition(byte[] inputFile, ref int currentOffset)
+    {
+        List<string> conditions = []; // Each comparison or standalone operand
+        List<string> joins = [];  // Joins are basically the "&&" (AND) and "||" (OR) between each group of conditions
+
+        byte boundaryOperator;
+        do
+        {
+            string operand_1 = ReadOperand(inputFile, ref currentOffset);   //First get the nested conditions, or the first value in the comparison
+            byte operator_ = inputFile[currentOffset++];    //Get the type of operator: relational (1-6) or boundary (0/7/8)
+            
+            string condition;   //Store as a string tha particular "if" condition
+            byte closingOperator;
+
+            if (operator_ >= 0x1 && operator_ <= 0x6)   //Relational comparison closes this group: (operand_1 <operator> operand_2)
+            {
+                string operand_2 = ReadOperand(inputFile, ref currentOffset);   //Now get the second value, or the nested conditions inside this operand
+                condition = operand_1 + GetRelationalSymbol(operator_) + operand_2; //Write the condition
+                closingOperator = inputFile[currentOffset++]; //The actual boundary byte (0/7/8)
+            }
+            else    //No relational operator attached, so the operand is treated as a standalone boolean
+            {
+                condition = operand_1;
+                closingOperator = operator_;
+            }
+
+            conditions.Add(condition);
+            boundaryOperator = closingOperator;
+
+            if (boundaryOperator == 0x7) joins.Add("&&");   //AND join
+            else if (boundaryOperator == 0x8) joins.Add("||");  //OR join
+            //If the boundaryOperator is 0x00, it's the terminator
+        }
+        while(boundaryOperator != 0x0); //Keep looping until we the the terminator operator
+
+        var finalCondition = new StringBuilder(conditions[0]);  //Prepare the string that will contain all of the conditions (first add the first condition to the list)
+        for (int i = 1; i < conditions.Count; i++)
+            finalCondition.Append(' ').Append(joins[i - 1]).Append(' ').Append(conditions[i]);  //Include a space in between conditions for the joins
+
+        return finalCondition.ToString();
+
+    }
+
     /// <summary>
-    /// Gets the corresponding operator according to the next byte in line.
+    /// For the if and while statements, it is needed to check if the condition is nested or not.
     /// </summary>
-    /// <param name="inputFile">The compiled SDT file.</param>
-    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>The value itself or the nested condition.</returns>
+    private static string ReadOperand(byte[] inputFile, ref int currentOffset)
+    {
+        bool isNestedCondition = inputFile[currentOffset++] == 0x1;
+
+        return isNestedCondition
+            ? "(" + EvaluateCondition(inputFile, ref currentOffset) + ")"
+            : GetNumericParameter(inputFile, ref currentOffset);
+    }
+
+    /// <summary>
+    /// Gets the corresponding operator according to the given byte.
+    /// </summary>
     /// <returns>The C operator as a string.</returns>
     /// <exception cref="InvalidDataException">The given operator is not a valid one.</exception>
-    private static string GetOperator(byte[] inputFile, ref int currentOffset)
+    private static string GetRelationalSymbol(byte operator_) => operator_ switch
     {
-        return inputFile[currentOffset++] switch
-        {
-            0x1 => "==",
-            0x2 => "!=",
-            0x3 => "<",
-            0x4 => ">",
-            0x5 => "<=",
-            0x6 => ">=",
-            _ => throw new InvalidDataException("Invalid bit operator in " + (currentOffset - 1)),
-        };
-    }
+        0x1 => "==",
+        0x2 => "!=",
+        0x3 => "<",
+        0x4 => ">",
+        0x5 => "<=",
+        0x6 => ">=",
+        _ => throw new InvalidDataException("Not a relational operator: " + operator_),
+    };
 }
