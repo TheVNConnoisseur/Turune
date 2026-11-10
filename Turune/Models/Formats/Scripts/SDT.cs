@@ -807,8 +807,26 @@ internal class SDT
             case 0xA3D:
                 {
                     opcode.Name = "if{";
-
                     
+                    bool valuesLeftToCompare = true;
+
+                    while(valuesLeftToCompare)
+                    {
+                        //Create this temp variable in order to not break the while condition before it should do it
+                        bool isLastOperation = false;
+
+                        //In order to make more than 1 operation, the game has some recursion
+                        if (inputFile[currentOffset++] != 0x1)
+                            isLastOperation = true;
+                        
+                        string firstValueComparison = GetNumericParameter(inputFile, ref currentOffset);
+                        string comparisonOperator = GetOperator(inputFile, ref currentOffset);
+                        string secondValueComparison = GetNumericParameter(inputFile, ref currentOffset);
+                        opcode.Parameters.AddRange(firstValueComparison, comparisonOperator, secondValueComparison);
+
+                        valuesLeftToCompare = !isLastOperation;
+                    }
+                        
                     break;
                 }
             case 0xA3E:
@@ -2579,47 +2597,45 @@ internal class SDT
     /// </summary>
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
-    /// <returns>A string array, with the first value indicating where it comes from, and the second value the actual string (or uint,
-    /// depending if the value is stored in a flag).</returns>
+    /// <returns>The value itself or the index in the corresponding array of flags.</returns>
     /// <exception cref="Exception">The type of value still has not been understood.</exception>
     /// <exception cref="InvalidDataException">The given type does not exist.</exception>
-    private static string[] GetStringParameter(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    private static string GetStringParameter(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
-        List<string> parameters = [];
+        string parameter;
 
         switch(inputFile[currentOffset++])
         {
             case 0x8:
                 {
-                    parameters.Add("SDT");
-                    parameters.Add(GetEncrytedString(inputFile, ref currentOffset, encoding));
+                    parameter = GetEncrytedString(inputFile, ref currentOffset, encoding);
                     break;
                 }
             case 0x9:
                 {
-                    parameters.Add("SI");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = "SI[" + value + "]";
                     break;
                 }
             case 0xA:
                 {
-                    parameters.Add("SG");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = "SG[" + value + "]";
                     break;
                 }
             case 0xB:
                 {
-                    parameters.Add("ST");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = "ST[" + value + "]";
                     break;
                 }
             case 0xD:
@@ -2638,7 +2654,7 @@ internal class SDT
                     throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
         }
 
-        return parameters.ToArray();
+        return parameter;
     }
 
     private static string GetEncrytedString(byte[] inputFile, ref int currentOffset, Encoding encoding)
@@ -2657,68 +2673,74 @@ internal class SDT
     /// </summary>
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
-    /// <returns>A string array, with the first value indicating where it comes from, and the second value the actual uint32.</returns>
+    /// <returns>The value itself or the index in the corresponding array of flags.</returns>
     /// <exception cref="Exception">The type of value still has not been understood.</exception>
     /// <exception cref="InvalidDataException">The given type does not exist.</exception>
-    private static string[] GetNumericParameter(byte[] inputFile, ref int currentOffset)
+    private static string GetNumericParameter(byte[] inputFile, ref int currentOffset)
     {
-        List<string> parameters = [];
+        string parameter;
 
         switch(inputFile[currentOffset++])
         {
             case 0x0:
                 {
-                    parameters.Add("SDT");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = value.ToString();
                     break;
                 }
             case 0x1:
                 {
-                    parameters.Add("DI");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = "DI[" + value + "]";
                     break;
                 }
             case 0x2:
                 {
-                    parameters.Add("DG");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = "DG[" + value + "]";
                     break;
                 }
             case 0x3:
                 {
-                    parameters.Add("DT");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(
-                            inputFile.AsSpan(currentOffset, 4)).ToString());
+                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                        inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
+
+                    parameter = "DT[" + value + "]";
                     break;
                 }
             case 0x5:
                 {
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    string index = GetNumericParameter(inputFile, ref currentOffset);
+                    parameter = "DI[" + index + "]";
+                    break;
                 }
             case 0x6:
                 {
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    string index = GetNumericParameter(inputFile, ref currentOffset);
+                    parameter = "DG[" + index + "]";
+                    break;
                 }
             case 0x7:
                 {
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    string index = GetNumericParameter(inputFile, ref currentOffset);
+                    parameter = "DT[" + index + "]";
+                    break;
                 }
             default:
                 throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
         }
 
-        return parameters.ToArray();
+        return parameter;
     }
 
     /// <summary>
@@ -2727,60 +2749,62 @@ internal class SDT
     /// </summary>
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
-    /// <returns>A string array, with the first value indicating the type of flag, and the second value the slot number.</returns>
+    /// <returns>The index in the corresponding array of flags.</returns>
     /// <exception cref="Exception">The type of value still has not been understood.</exception>
     /// <exception cref="InvalidDataException">The given type does not exist.</exception>
-    private static string[] GetFlagSlot_DX(byte[] inputFile, ref int currentOffset)
+    private static string GetFlagSlot_DX(byte[] inputFile, ref int currentOffset)
     {
-        List<string> parameters = [];
+        string parameter;
 
         switch(inputFile[currentOffset++])
         {
             case 0x1:
                 {
-                    parameters.Add("DI");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt16LittleEndian(
-                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    ushort value = BinaryPrimitives.ReadUInt16LittleEndian(
+                        inputFile.AsSpan(currentOffset, 2));    //For some reason, the game only reads this value as an ushort
                     currentOffset += 4;
+
+                    parameter = "DI[" + value + "]";
                     break;
                 }
             case 0x2:
                 {
-                    parameters.Add("DG");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt16LittleEndian(
-                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    ushort value = BinaryPrimitives.ReadUInt16LittleEndian(
+                        inputFile.AsSpan(currentOffset, 2));    //For some reason, the game only reads this value as an ushort
+                    currentOffset += 4;
+
+                    parameter = "DG[" + value + "]";
                     break;
                 }
             case 0x3:
                 {
-                    parameters.Add("DT");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt16LittleEndian(
-                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    ushort value = BinaryPrimitives.ReadUInt16LittleEndian(
+                        inputFile.AsSpan(currentOffset, 2));    //For some reason, the game only reads this value as an ushort
+                    currentOffset += 4;
+
+                    parameter = "DT[" + value + "]";
                     break;
                 }
             case 0x5:
                 {
-                    parameters.Add("DI");
+                    // parameter.Add("DI");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0x6:
                 {
-                    parameters.Add("DG");
+                    // parameters.Add("DG");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0x7:
                 {
-                    parameters.Add("DT");
+                    // parameters.Add("DT");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             default:
                 throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
         }
 
-        return parameters.ToArray();
+        return parameter;
     }
 
     /// <summary>
@@ -2789,59 +2813,82 @@ internal class SDT
     /// </summary>
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
-    /// <returns>A string array, with the first value indicating the type of flag, and the second value the slot number.</returns>
+    /// <returns>The index in the corresponding array of flags.</returns>
     /// <exception cref="Exception">The type of value still has not been understood.</exception>
     /// <exception cref="InvalidDataException">The given type does not exist.</exception>
-    private static string[] GetFlagSlot_SX(byte[] inputFile, ref int currentOffset)
+    private static string GetFlagSlot_SX(byte[] inputFile, ref int currentOffset)
     {
-        List<string> parameters = [];
+        string parameter;
 
         switch(inputFile[currentOffset++])
         {
             case 0x9:
                 {
-                    parameters.Add("SI");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt16LittleEndian(
-                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    ushort value = BinaryPrimitives.ReadUInt16LittleEndian(
+                        inputFile.AsSpan(currentOffset, 2));    //For some reason, the game only reads this value as an ushort
                     currentOffset += 4;
+
+                    parameter = "SI[" + value + "]";
                     break;
                 }
             case 0xA:
                 {
-                    parameters.Add("SG");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt16LittleEndian(
-                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    ushort value = BinaryPrimitives.ReadUInt16LittleEndian(
+                        inputFile.AsSpan(currentOffset, 2));    //For some reason, the game only reads this value as an ushort
+                    currentOffset += 4;
+
+                    parameter = "SG[" + value + "]";
                     break;
                 }
             case 0xB:
                 {
-                    parameters.Add("ST");
-                    parameters.Add(
-                        BinaryPrimitives.ReadUInt16LittleEndian(
-                            inputFile.AsSpan(currentOffset, 2)).ToString());    //For some reason, the game only reads this value as an ushort
+                    ushort value = BinaryPrimitives.ReadUInt16LittleEndian(
+                        inputFile.AsSpan(currentOffset, 2));    //For some reason, the game only reads this value as an ushort
+                    currentOffset += 4;
+
+                    parameter = "ST[" + value + "]";
                     break;
                 }
             case 0xD:
                 {
-                    parameters.Add("SI");
+                    // parameters.Add("SI");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0xE:
                 {
-                    parameters.Add("SG");
+                    // parameters.Add("SG");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             case 0xF:
                 {
-                    parameters.Add("ST");
+                    // parameters.Add("ST");
                     throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
                 }
             default:
                 throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
         }
 
-        return parameters.ToArray();
+        return parameter;
+    }
+
+    /// <summary>
+    /// Gets the corresponding operator according to the next byte in line.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>The C operator as a string.</returns>
+    /// <exception cref="InvalidDataException">The given operator is not a valid one.</exception>
+    private static string GetOperator(byte[] inputFile, ref int currentOffset)
+    {
+        return inputFile[currentOffset++] switch
+        {
+            0x1 => "==",
+            0x2 => "!=",
+            0x3 => "<",
+            0x4 => ">",
+            0x5 => "<=",
+            0x6 => ">=",
+            _ => throw new InvalidDataException("Invalid bit operator in " + (currentOffset - 1)),
+        };
     }
 }
