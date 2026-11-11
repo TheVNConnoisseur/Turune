@@ -508,7 +508,16 @@ internal class SDT
             
             case 0xA00:
                 {
+                    //Sets up the main HWND for the game, and sets the new window in case of the user wants to go from fullscreen to windowed.
+                    
+                    //While it is necessary to be called to configure the HWND itself, its only parameter is only used when the game is using
+                    //their legacy window style (no DirectX support nor resizable screen) and has the exclusive fullscreen mode activated. The
+                    //former is hardcoded onto the main game's executable, and the latter is a value taken directly from the system.dat file.
+                    //So, based on how the developers set up both variables, the parameter for this opcode is largely ignored.
                     opcode.Name = "SetDisplay";
+
+                    string screenMode = GetNumericParameter(inputFile, ref currentOffset);  //0: windowed mode
+                                                                                            //Else: fullscreen mode
                     break;
                 }
             case 0xA01:
@@ -571,9 +580,20 @@ internal class SDT
                     opcode.Name = "SetColorBG";
                     break;
                 }
+            //Not understood
             case 0xA0E:
                 {
+                    //No VK code higher than 0x91 will be considered valid to be used. Also, if the second parameter is equal or smaller than 3, the opcode won't do anything.
                     opcode.Name = "SetKeyInput";
+
+                    string virtualKeyCode = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Virtual-Key code that will activate the call to the label
+                    string virtualKeyCode_Value = byte.TryParse(virtualKeyCode, out byte vkByte)
+                        ? GetVirtualKeyCode_Constant(vkByte)            // The value is a literal, parse it directly
+                        : virtualKeyCode;                              // The value is an indirect reference (DI[...]/DG[...]/DT[...])
+
+                    string unknownParameter = GetNumericParameter(inputFile, ref currentOffset);  //This parameter is not understood, but it must higher than 3.
+
+                    opcode.Parameters.AddRange(virtualKeyCode_Value, unknownParameter);
                     break;
                 }
             case 0xA0F:
@@ -661,6 +681,7 @@ internal class SDT
                     opcode.Name = "LockProc";
                     break;
                 }
+            //Not understood
             case 0xA1D:
                 {
                     //Not understood, it increases a global variable
