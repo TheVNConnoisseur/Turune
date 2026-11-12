@@ -543,9 +543,12 @@ internal class SDT
                     opcode.Name = "SystemResetEx";
                     break;
                 }
+            //Not yet properly understood
             case 0xA05:
                 {
                     opcode.Name = "SetSkip";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xA07:
@@ -634,9 +637,12 @@ internal class SDT
                     opcode.Name = "SetKeyInputJump";
                     break;
                 }
+            //Not understood
             case 0xA13:
                 {
                     opcode.Name = "InsKeySelect";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xA14:
@@ -1423,9 +1429,13 @@ internal class SDT
                     opcode.Name = "DispWait";
                     break;
                 }
+            //Not understood
             case 0xD02:
                 {
                     opcode.Name = "ShowOBJ";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Get the ID of the OBJ to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //This is a boolean value, presumably for indicating if the OBJ should be shown or hidden?
                     break;
                 }
             case 0xD03:
@@ -1475,7 +1485,11 @@ internal class SDT
                 }
             case 0xD0B:
                 {
+                    //It removes the RECT and all associated elements to the OBJ with the given ID number, probably used
+                    //for memory management resources.
                     opcode.Name = "ReleaseOBJ";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Get the OBJ number
                     break;
                 }
             case 0xD0C:
@@ -1505,7 +1519,16 @@ internal class SDT
                 }
             case 0xD11:
                 {
+                    //Loads a given .AM2 image file, and loops it with the given third parameter of this opcode.
                     opcode.Name = "AniMovePlay";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the OBJ ID that is going to be used
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the name of the file to load
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Read as a byte.
+                                                                                              //0: no RECT is created for image, meaning that if there's no object loaded
+                                                                                              //nothing will show up.
+                                                                                              //2: the animation will keep up looping indefinitely
+                                                                                              //Anything else: will play only once at then stay at the first frame.
                     break;
                 }
             case 0xD12:
@@ -1568,27 +1591,9 @@ internal class SDT
                 {
                     opcode.Name = "ObjPosDest";
 
-                    // string[] value = GetNumericParameter(inputFile, ref currentOffset);
-                    // string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
-                    // string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
-
-                    // opcode.Parameters.Add(value_Source);
-                    // opcode.Parameters.Add(value_Number);
-
-                    // string[] value = GetNumericParameter(inputFile, ref currentOffset);
-                    // string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
-                    // string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
-
-                    // opcode.Parameters.Add(value_Source);
-                    // opcode.Parameters.Add(value_Number);
-
-                    // string[] value = GetNumericParameter(inputFile, ref currentOffset);
-                    // string value_Source = value[0];    //Indicates that the numeric value is obtained from the following parameter
-                    // string value_Number = value[1];    //Indicates the slot from the particular type of flag to get OBJ from
-
-                    // opcode.Parameters.Add(value_Source);
-                    // opcode.Parameters.Add(value_Number);
-
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Get the OBJ ID to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //X position of the image (needs confirmation)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Y position of the image (needs confirmation)
                     break;
                 }
             case 0xD1E:
