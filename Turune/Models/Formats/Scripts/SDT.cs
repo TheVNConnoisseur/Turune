@@ -1130,14 +1130,12 @@ internal class SDT
             //Not understood
             case 0xA6F:
                 {
-                    //Increases a global variable, not well understood
                     opcode.Name = "MacroPriority_Set";
                     break;
                 }
             //Not understood
             case 0xA70:
                 {
-                    //Decrease a global variable, not well understood
                     opcode.Name = "MacroPriority";
                     break;
                 }
@@ -1429,13 +1427,14 @@ internal class SDT
                     opcode.Name = "DispWait";
                     break;
                 }
-            //Not understood
             case 0xD02:
                 {
+                    //Makes an OBJ visible or invisible. This is necessary to be run at least once to set the opacity of the specified image.
                     opcode.Name = "ShowOBJ";
 
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Get the ID of the OBJ to work with
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //This is a boolean value, presumably for indicating if the OBJ should be shown or hidden?
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //0: selected OBJ is invisible
+                                                                                              //Anything else: selected OBJ is visible
                     break;
                 }
             case 0xD03:
@@ -1463,14 +1462,13 @@ internal class SDT
                     opcode.Name = "ReleaseCGBRange";
                     break;
                 }
-            //Not well understood
             case 0xD08:
                 {
-                    //Loads a given file (from data00)
+                    //Loads a given image from the data00- folder. The idea is that this is used for static images.
                     opcode.Name = "LoadOBJ";
 
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the slot from a particular type of flag to get the OBJ from (not quite understood)
-                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));     //Indicates the flag number where the name of the file to load is
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the place where to store the OBJ
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));     //Indicates the name of file to load
                     break;
                 }
             case 0xD09:
@@ -1586,14 +1584,15 @@ internal class SDT
                     opcode.Name = "NumCGB";
                     break;
                 }
-            //UNKNOWN HOW IT WORKS
             case 0xD1D:
                 {
+                    //Positions an OBJ on the screen. It is important that for every OBJ set on screen, both values get initialized.
+                    //The coordinate (0,0) is localted at the upper-left corner of the game's window.
                     opcode.Name = "ObjPosDest";
 
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Get the OBJ ID to work with
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //X position of the image (needs confirmation)
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Y position of the image (needs confirmation)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //X position of the image
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Y position of the image
                     break;
                 }
             case 0xD1E:
@@ -1813,7 +1812,14 @@ internal class SDT
                 }
             case 0xD49:
                 {
+                    //As an alternative to AniMovePlay, this lets the user play animated .AM2 files. This presumably
+                    //lets the user select the starting frame, but this opcode is clearly meant to only be used as a
+                    //fallback to AniMovePlay, so this is probably just an older way to play animated images.
                     opcode.Name = "LoadOBJAniFrame";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the OBJ ID that is going to store the animated frames
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the name of the .AM2 file to load
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the starting frame that is going to play out
                     break;
                 }
             case 0xD4A:
