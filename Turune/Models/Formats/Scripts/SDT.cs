@@ -107,7 +107,10 @@ internal class SDT
                 }
             case 0x2:
                 {
+                    //Open a MessageBoxA with the given parameter as the lpCaption.
                     opcode.Name = "DebugMessage";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The message that will be shown in the MessageBox
                     break;
                 }
             case 0x4:
@@ -883,7 +886,12 @@ internal class SDT
                 }
             case 0xA42:
                 {
+                    //Simple GOTO statement, jumps to an arbitrary piece of code.
                     opcode.Name = "GOTO";
+
+                    opcode.Parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Offset relative to the start of the opcode region, indicating how many bytes to jump from the start of said region.
+                    currentOffset += 4;
                     break;
                 }
             case 0xA43:
@@ -2600,7 +2608,12 @@ internal class SDT
                     break;
                 }
             default:
-                throw new InvalidDataException("Unknown " + currentOpcode + " opcode.");
+                {
+                    //The game features some opcodes like 0x3, that really don't do anything at all. In that case
+                    //the engine doesn't do anything.
+                    currentOffset += 2;
+                    break;
+                }
                 
         }
     
