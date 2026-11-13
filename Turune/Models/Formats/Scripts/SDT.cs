@@ -36,7 +36,7 @@ internal class SDT
     {
         public string Name { get; set; } = "";
         public List<string> Parameters { get; set; } = [];
-        public uint Offset { get; set; }    //Indicates where the absolute offset opcode starts
+        public uint Offset { get; set; }    //Indicates where the absolute offset opcode starts, which is needed for the parsing of certain opcodes
     }
 
     public SDTScheme SdtScheme { get; private set; } = new SDTScheme();
@@ -65,7 +65,7 @@ internal class SDT
         {
             for (int i = 0; i < SdtScheme.Label_Count; i++)
             {
-                string sdt_Name = GetEncrytedString(inputFile, ref currentOffset, encoding);
+                string sdt_Name = GetEncryptedString(inputFile, ref currentOffset, encoding);
                 uint sdt_Offset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));
                 SDT_Label sdt_label = new()
                 {
@@ -86,7 +86,10 @@ internal class SDT
     
     private SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
-        SDT_Opcode opcode = new();
+        SDT_Opcode opcode = new()
+        {
+            Offset = (uint)currentOffset
+        };
 
         uint currentOpcode = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
         currentOffset += 2;
@@ -389,6 +392,8 @@ internal class SDT
             case 0x80E:
                 {
                     opcode.Name = "BgmPlay";
+
+                    
                     break;
                 }
             case 0x810:
@@ -1387,11 +1392,11 @@ internal class SDT
                 }
             case 0xB17:
                 {
-                    //Save a string to a specific flag
+                    //Sets the value of a given SI, SG or ST flag. The idea is to use this like with "[] = Num", but this is aimed for strings.
                     opcode.Name = "SetStr";
 
-                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));     //Indicates the slot of the corresponding array of flags that will store the given value
-                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the value to store in the given flag
+                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));     //Indicates the slot of the corresponding array of flags that will store the given string
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the string to store in the given flag
                     break;
                 }
             case 0xB18:
@@ -1411,7 +1416,20 @@ internal class SDT
                 }
             case 0xB1B:
                 {
+                    //Some sort of interface to the standard C function vsprintf. It takes a string that can be parametized and stores
+                    //it onto a specific flag.
                     opcode.Name = "StrPrintf";
+
+                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));    //Get the flag slot where to store the resulting string
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Get the initial string
+
+                    if (CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset))   //In theory there should be at very least 1 parameter, but for safety mesures this is done
+                    {
+                        do
+                        {
+                            opcode.Parameters.Add(GetVSprintFParameter(inputFile, ref currentOffset, encoding));
+                        } while(CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset));  //Keep looping until there are no more parameters to get
+                    }
                     break;
                 }
             case 0xB1C:
@@ -1591,7 +1609,7 @@ internal class SDT
                 }
             case 0xD1D:
                 {
-                    //Positions an OBJ on the screen. It is important that for every OBJ set on screen, both values get initialized.
+                    //Positions an OBJ on the screen. The idea is to use this function when placing an OBJ for the first time on the screen.
                     //The coordinate (0,0) is localted at the upper-left corner of the game's window.
                     opcode.Name = "ObjPosDest";
 
@@ -1602,7 +1620,13 @@ internal class SDT
                 }
             case 0xD1E:
                 {
+                    //Interface to the Windows API OffsetRect (https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-offsetrect),
+                    //which displaces an existing RECT (placed with the coordinates through the ObjPosDest opcode) to a certain amount of offset.
                     opcode.Name = "ObjPosDestOffset";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Get the OBJ ID to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Amount of pixels to move
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Y position of the image
                     break;
                 }
             case 0xD1F:
@@ -1680,9 +1704,13 @@ internal class SDT
                     opcode.Name = "ObjZoomMode";
                     break;
                 }
+            //A parameter needs confirmation
             case 0xD2E:
                 {
                     opcode.Name = "ObjAlpha";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Get the OBJ ID to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Read as a byte, it determines the opacity level
                     break;
                 }
             case 0xD2F:
@@ -2191,9 +2219,13 @@ internal class SDT
                 }
             
             //Effects
+            //Partially understood
             case 0xF00:
                 {
                     opcode.Name = "EFObjAlpha";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Get the ID of the OBJ to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Not understood, it seems to be related to the alpha
                     break;
                 }
             case 0xF01:
@@ -2642,7 +2674,6 @@ internal class SDT
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
     /// <returns>The value itself or the index in the corresponding array of flags.</returns>
-    /// <exception cref="Exception">The type of value still has not been understood.</exception>
     /// <exception cref="InvalidDataException">The given type does not exist.</exception>
     private static string GetStringParameter(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
@@ -2652,7 +2683,7 @@ internal class SDT
         {
             case 0x8:
                 {
-                    parameter = GetEncrytedString(inputFile, ref currentOffset, encoding);
+                    parameter = GetEncryptedString(inputFile, ref currentOffset, encoding);
                     break;
                 }
             case 0x9:
@@ -2714,7 +2745,7 @@ internal class SDT
     /// <param name="currentOffset">The offset where to start parsing values.</param>
     /// <param name="encoding">The encoding used for the string.</param>
     /// <returns>The decrypted string.</returns>
-    private static string GetEncrytedString(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    private static string GetEncryptedString(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
         List<byte> labelName_Raw = [];
         while(inputFile[currentOffset] != 0xFF)
@@ -2740,7 +2771,7 @@ internal class SDT
         {
             case 0x0:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -2749,7 +2780,7 @@ internal class SDT
                 }
             case 0x1:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -2758,7 +2789,7 @@ internal class SDT
                 }
             case 0x2:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -2806,8 +2837,7 @@ internal class SDT
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
     /// <returns>The index in the corresponding array of flags.</returns>
-    /// <exception cref="Exception">The type of value still has not been understood.</exception>
-    /// <exception cref="InvalidDataException">The given type does not exist.</exception>
+    /// <exception cref="InvalidDataException">The given type of flag does not exist.</exception>
     private static string GetFlagSlot_DX(byte[] inputFile, ref int currentOffset)
     {
         string parameter;
@@ -2843,21 +2873,21 @@ internal class SDT
                 }
             case 0x5:
                 {
-                    // parameter.Add("DI");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameter = "DI[" + GetNumericParameter(inputFile, ref currentOffset) + "]";
+                    break;
                 }
             case 0x6:
                 {
-                    // parameters.Add("DG");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameter = "DG[" + GetNumericParameter(inputFile, ref currentOffset) + "]";
+                    break;
                 }
             case 0x7:
                 {
-                    // parameters.Add("DT");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameter = "DT[" + GetNumericParameter(inputFile, ref currentOffset) + "]";
+                    break;
                 }
             default:
-                throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
+                throw new InvalidDataException("Invalid type of flag in offset " + (currentOffset - 1));
         }
 
         return parameter;
@@ -2870,8 +2900,7 @@ internal class SDT
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where to start parsing values.</param>
     /// <returns>The index in the corresponding array of flags.</returns>
-    /// <exception cref="Exception">The type of value still has not been understood.</exception>
-    /// <exception cref="InvalidDataException">The given type does not exist.</exception>
+    /// <exception cref="InvalidDataException">The given type of flag does not exist.</exception>
     private static string GetFlagSlot_SX(byte[] inputFile, ref int currentOffset)
     {
         string parameter;
@@ -2907,21 +2936,21 @@ internal class SDT
                 }
             case 0xD:
                 {
-                    // parameters.Add("SI");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameter = "SI[" + GetNumericParameter(inputFile, ref currentOffset) + "]";
+                    break;
                 }
             case 0xE:
                 {
-                    // parameters.Add("SG");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameter = "SG[" + GetNumericParameter(inputFile, ref currentOffset) + "]";
+                    break;
                 }
             case 0xF:
                 {
-                    // parameters.Add("ST");
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    parameter = "ST[" + GetNumericParameter(inputFile, ref currentOffset) + "]";
+                    break;
                 }
             default:
-                throw new InvalidDataException("Invalid type of opcode in offset " + (currentOffset - 1));
+                throw new InvalidDataException("Invalid type of flag in offset " + (currentOffset - 1));
         }
 
         return parameter;
@@ -3005,6 +3034,12 @@ internal class SDT
         _ => throw new InvalidDataException("Not a relational operator: " + operator_),
     };
 
+    /// <summary>
+    /// Gets the Virtual-Key code constant as a string.
+    /// </summary>
+    /// <param name="vk_code">Virtual-Key code as a byte.</param>
+    /// <returns>The Virtual-Key constant a string.</returns>
+    /// <exception cref="InvalidDataException">The given byte is either for an OEM Virtual-Key or is simply invalid.</exception>
     private static string GetVirtualKeyCode_Constant(byte vk_code) => vk_code switch
     {
         0x01 => "VK_LBUTTON",
@@ -3220,4 +3255,50 @@ internal class SDT
         0xFE => "VK_OEM_CLEAR",
         _ => throw new InvalidDataException("Not a valid Virtual-Key code (or OEM specific one): " + vk_code),
     };
+
+    /// <summary>
+    /// The engine sometimes might have to parse an opcode that has an indefinite amount of strings, and to do that
+    /// it checks if there's a string terminator (0xFF) right after the previous parameter.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where the parsed byte is.</param>
+    /// <returns>False is the next byte is 0xFF, true if otherwise.</returns>
+    /// <remarks>It advances the current offset by 1 byte if there aren't more available strings.</remarks>
+    private static bool CheckIfMoreStringsAreRemaining(byte[] inputFile, ref int currentOffset)
+    {
+        if (inputFile[currentOffset] != 0xFF)
+            return true;
+        else
+        {
+            currentOffset++;
+            return false;
+        }
+        
+    }
+
+    /// <summary>
+    /// For the opcodes that implement the vsprintf function, the game does use a function of its own,
+    /// but in reality when checking the code it just implements GetNumericParameter and GetStringParameter.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <param name="encoding">The encoding used for the string.</param>
+    /// <returns>The index or the actual value stored as a parameter.</returns>
+    /// <exception cref="InvalidDataException">The type of parameter is invalid.</exception>
+    private static string GetVSprintFParameter(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    {
+        switch (inputFile[currentOffset])   //Don't advance the offset because that will be done on the called functions
+        {
+            case 0x0: case 0x1: case 0x2: case 0x3: case 0x5: case 0x6: case 0x7:
+                {
+                    return GetNumericParameter(inputFile, ref currentOffset);
+                }
+            case 0x8: case 0x9: case 0xA: case 0xB: case 0xD: case 0xE: case 0xF:
+                {
+                    return GetStringParameter(inputFile, ref currentOffset, encoding);
+                }
+            default:
+                throw new InvalidDataException("The given opcode type at offset " + currentOffset + " is invalid.");
+        }
+    }
 }
