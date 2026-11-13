@@ -194,7 +194,12 @@ internal class SDT
                 }
             case 0x60A:
                 {
+                    //Looks for a given save file (located in the data folder), and stores the result of said search in a flag.
+                    //This is used to know if the quick save feature should be activated or not.
                     opcode.Name = "SaveFileChk";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The name of the save file
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));    //The flag number where to store the result of GetFileAttributesA towards the searched save file
                     break;
                 }
             case 0x60B:
@@ -2679,15 +2684,21 @@ internal class SDT
                 }
             case 0xD:
                 {
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    string index = GetNumericParameter(inputFile, ref currentOffset);
+                    parameter = "SI[" + index + "]";
+                    break;
                 }
             case 0xE:
                 {
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    string index = GetNumericParameter(inputFile, ref currentOffset);
+                    parameter = "SG[" + index + "]";
+                    break;
                 }
             case 0xF:
                 {
-                    throw new Exception("Unmanaged case in offset " + (currentOffset - 1));
+                    string index = GetNumericParameter(inputFile, ref currentOffset);
+                    parameter = "ST[" + index + "]";
+                    break;
                 }
             default:
                     throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
