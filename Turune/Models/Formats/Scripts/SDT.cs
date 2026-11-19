@@ -1389,7 +1389,7 @@ internal class SDT
             case 0xA84:
                 {
                     opcode.Name = "ReleaseButtonNoReset";
-                    
+
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
@@ -1513,7 +1513,11 @@ internal class SDT
                 }
             case 0xB10:
                 {
+                    //Set the value of a given DT, DG or DI flag slot with an arithmetic expression
                     opcode.Name = "[] = [+-*/%&|^] Num";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Indicate the DI, DG or DT flag slot where the result will be stored
+                    opcode.Parameters.Add(EvaluateArithmeticExpression(inputFile, ref currentOffset));  //Indicates the arithmetic expression that will be calculated
                     break;
                 }
             case 0xB11:
@@ -3190,7 +3194,7 @@ internal class SDT
         byte boundaryOperator;
         do
         {
-            string operand_1 = ReadOperand(inputFile, ref currentOffset);   //First get the nested conditions, or the first value in the comparison
+            string operand_1 = ReadConditionalOperand(inputFile, ref currentOffset);   //First get the nested conditions, or the first value in the comparison
             byte operator_ = inputFile[currentOffset++];    //Get the type of operator: relational (1-6) or boundary (0/7/8)
             
             string condition;   //Store as a string tha particular "if" condition
@@ -3198,8 +3202,8 @@ internal class SDT
 
             if (operator_ >= 0x1 && operator_ <= 0x6)   //Relational comparison closes this group: (operand_1 <operator> operand_2)
             {
-                string operand_2 = ReadOperand(inputFile, ref currentOffset);   //Now get the second value, or the nested conditions inside this operand
-                condition = operand_1 + GetRelationalSymbol(operator_) + operand_2; //Write the condition
+                string operand_2 = ReadConditionalOperand(inputFile, ref currentOffset);   //Now get the second value, or the nested conditions inside this operand
+                condition = operand_1 + GetRelationalOperator(operator_) + operand_2; //Write the condition
                 closingOperator = inputFile[currentOffset++]; //The actual boundary byte (0/7/8)
             }
             else    //No relational operator attached, so the operand is treated as a standalone boolean
@@ -3226,10 +3230,41 @@ internal class SDT
     }
 
     /// <summary>
+    /// Function used to obtain the arithmetic expression from "[] = [+-*/%&|^] Num" opcodes.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where to start parsing values.</param>
+    /// <returns>String with the encapsulated conditions.</returns>
+    private static string EvaluateArithmeticExpression(byte[] inputFile, ref int currentOffset)
+    {
+        //The first thing to do is to read every (operand, operator) pair into flat lists.
+        var operands = new List<string>();
+        var operators = new List<byte>();
+
+        byte boundaryOperator;
+        do
+        {
+            string operand = ReadArithmeticOperand(inputFile, ref currentOffset);
+            operands.Add(operand);
+            byte operator_ = inputFile[currentOffset++];
+            operators.Add(operator_);
+
+            boundaryOperator = operator_;
+        }
+        while (boundaryOperator != 0x0);
+
+        var finalArithmeticExpression = new StringBuilder(operands[0]);
+        for (int i = 0; i < operators.Count - 1; i++)  // The last entry in the operators array is always the 0 terminator
+            finalArithmeticExpression.Append(' ').Append(GetArithmeticOperator(operators[i])).Append(' ').Append(operands[i + 1]);
+
+        return finalArithmeticExpression.ToString();
+    }
+    
+    /// <summary>
     /// For the if and while statements, it is needed to check if the condition is nested or not.
     /// </summary>
     /// <returns>The value itself or the nested condition.</returns>
-    private static string ReadOperand(byte[] inputFile, ref int currentOffset)
+    private static string ReadConditionalOperand(byte[] inputFile, ref int currentOffset)
     {
         bool isNestedCondition = inputFile[currentOffset++] == 0x1;
 
@@ -3239,11 +3274,44 @@ internal class SDT
     }
 
     /// <summary>
-    /// Gets the corresponding operator according to the given byte.
+    /// For the "[] = [+-*/%&|^] Num" opcodes, it is needed to check if the arithmetic expression is nested or not.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where the parsed byte is.</param>
+    /// <returns></returns>
+    private static string ReadArithmeticOperand(byte[] inputFile, ref int currentOffset)
+    {
+        bool isNestedOperation = inputFile[currentOffset++] == 0x1;
+
+        return isNestedOperation
+            ? "(" + EvaluateArithmeticExpression(inputFile, ref currentOffset) + ")"
+            : GetNumericParameter(inputFile, ref currentOffset);
+    }
+    
+    /// <summary>
+    /// Gets the corresponding arithmetic operator according to the given byte.
     /// </summary>
     /// <returns>The C operator as a string.</returns>
     /// <exception cref="InvalidDataException">The given operator is not a valid one.</exception>
-    private static string GetRelationalSymbol(byte operator_) => operator_ switch
+    private static string GetArithmeticOperator(byte operator_) => operator_ switch
+    {
+        0x3 => "*",
+        0x4 => "/",
+        0x5 => "%",
+        0x6 => "&",
+        0x7 => "|",
+        0x8 => "^",
+        0x1 => "+",   // only meaningful in the final +/- fold context; see note below
+        0x2 => "-",
+        _ => throw new InvalidDataException("Unknown arithmetic operator: " + operator_),
+    };
+
+    /// <summary>
+    /// Gets the corresponding relational operator according to the given byte.
+    /// </summary>
+    /// <returns>The C operator as a string.</returns>
+    /// <exception cref="InvalidDataException">The given operator is not a valid one.</exception>
+    private static string GetRelationalOperator(byte operator_) => operator_ switch
     {
         0x1 => "==",
         0x2 => "!=",
