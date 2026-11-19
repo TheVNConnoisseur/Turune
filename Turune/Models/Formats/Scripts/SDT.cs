@@ -96,7 +96,6 @@ internal class SDT
 
         switch (currentOpcode)
         {
-            //One parameter is not well understood
             case 0x1:
                 {
                     //Checks if the game is in debug mode, otherwise it skips the entire if
@@ -116,16 +115,22 @@ internal class SDT
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The message that will be shown in the MessageBox
                     break;
                 }
+            //Not understood
             case 0x4:
                 {
-                    opcode.Name = "GetSysModeOn";
+                    opcode.Name = "GetSysModeNo";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
                     break;
                 }
             
             //File IO
             case 0x500:
                 {
+                    //Opens a given web page through the default web browser
                     opcode.Name = "OpenUrlFiles";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //URL of the page 
                     break;
                 }
             case 0x501:
@@ -180,14 +185,27 @@ internal class SDT
                     opcode.Name = "GetSaveComment";
                     break;
                 }
+            //Parameters yet still to be understood
             case 0x607:
                 {
                     opcode.Name = "GetSaveTime";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
                     break;
                 }
+            //Cannot confirm its parameters
             case 0x608:
                 {
                     opcode.Name = "GetSaveCG";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0x609:
@@ -202,7 +220,7 @@ internal class SDT
                     opcode.Name = "SaveFileChk";
 
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The name of the save file
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));    //The flag number where to store the result of GetFileAttributesA towards the searched save file
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //The flag number where to store the result of GetFileAttributesA towards the searched save file
                     break;
                 }
             case 0x60B:
@@ -215,14 +233,54 @@ internal class SDT
                     opcode.Name = "LocalSaveEx";
                     break;
                 }
+            //Cannot confirm all of the variables
             case 0x60D:
                 {
                     opcode.Name = "GetSaveTextNameOBJ";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The name of the save file to load the message from
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //The ID of the OBJ where the quick save text will be stored
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //3
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //4
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //5
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //6
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //7
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //8
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //9: font height
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //10
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //11
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //12
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //13
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //14
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //15
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //16
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //17
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The name of the font used for the message
                     break;
                 }
+            //Cannot confirm the meaning of all of the parameters
             case 0x60E:
                 {
                     opcode.Name = "GetSaveTextOBJ";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //1
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //2
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //3
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //4
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //5
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //6
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //7
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //8
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //9
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //10
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //11
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //12
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //13
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //14
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //15
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //16
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //17
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //18
                     break;
                 }
             
@@ -317,16 +375,32 @@ internal class SDT
                     opcode.Name = "D_BakLogShadow";
                     break;
                 }
+            //Not understood
             case 0x712:
                 {
                     opcode.Name = "BakLogONOFF";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             
             //Audio
             case 0x800:
                 {
+                    //Plays out an audio file on a given audio channel.
                     opcode.Name = "AudioPlay";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Get the channel number (Ayame.dll can have multiple sources of audio at the same time)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the folder where to load the file (which also indicates the file type)
+                                                                                              //1: data04- (sound effect)
+                                                                                              //2: data03- (voice)
+                                                                                              //Anything else: data05- (background music)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates if to check or not if the same channel is already the same file where asking it to play now.
+                                                                                              //0: restart the channel regardless of the situation
+                                                                                              //Anything else: if the file being loaded is the same as the one being asked to load,
+                                                                                              //the channel won't restart the playback, it will keep ignore the petition of this opcode to
+                                                                                              //avoid any unnecessary interruptions.                                                         
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding)); //Indicates the name of the file to play
                     break;
                 }
             case 0x802:
@@ -346,7 +420,13 @@ internal class SDT
                 }
             case 0x805:
                 {
+                    //When setting an audio channel, this can be used to determine if once it plays out it should loop forever by itself or not.
                     opcode.Name = "AudioRepeat";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Get the channel number (Ayame.dll can have multiple sources of audio at the same time)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the looping value of the channel.
+                                                                                              //-1: loops forever
+                                                                                              //Anything else: plays once
                     break;
                 }
             case 0x806:
@@ -354,9 +434,13 @@ internal class SDT
                     opcode.Name = "AudioFadeTime";
                     break;
                 }
+            //Unable to verify what it does
             case 0x807:
                 {
                     opcode.Name = "AudioFadeInTime";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0x808:
@@ -391,11 +475,13 @@ internal class SDT
                 }
             case 0x80E:
                 {
+                    //Starts the playback of a given sound file. The file must be in the data00- folder.
                     opcode.Name = "BgmPlay";
 
-                    
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Get the name of the sound file to play
                     break;
                 }
+            //Unable to verify what it does exactly
             case 0x810:
                 {
                     opcode.Name = "BgmStop";
@@ -548,6 +634,7 @@ internal class SDT
                     opcode.Name = "SystemReset";
                     break;
                 }
+            //Not verifiable
             case 0xA04:
                 {
                     opcode.Name = "SystemResetEx";
@@ -672,7 +759,15 @@ internal class SDT
                 }
             case 0xA17:
                 {
+                    //Sometimes the game might need to process an action while its doing something else, like playing the background music while
+                    //some character sprites might be moving. In order to do that, it can at any point the engine can create a subprocess that will
+                    //live associated with a partical Seen screen (in order to make it stop once that screen is gone to reduce memory usage). The label
+                    //is probably used to make it easier to know what that subprocess is supposed to do.
                     opcode.Name = "SubProcLabel";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Process ID to use, which must be smaller than 0x100.
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Seen number that the subprocess will be associated to.
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding)); //Label name of the subprocess
                     break;
                 }
             case 0xA18:
@@ -682,6 +777,8 @@ internal class SDT
                 }
             case 0xA19:
                 {
+                    //Clears the memory of the current process, used for when a subprocess is no longer needed. If used while no subprocess
+                    //has been created, the game will complain that the current process is the main one.
                     opcode.Name = "ReleaseProc";
                     break;
                 }
@@ -690,9 +787,12 @@ internal class SDT
                     opcode.Name = "ReleaseProcToNo";
                     break;
                 }
+            //Not understood
             case 0xA1B:
                 {
                     opcode.Name = "GetProcOrgData";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
                     break;
                 }
             case 0xA1C:
@@ -723,14 +823,37 @@ internal class SDT
                     opcode.Name = "SetButtonRect";
                     break;
                 }
+            //Not understood
             case 0xA21:
                 {
                     opcode.Name = "SetButtonOBJ";
+                    
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //ID of the Button array for this Button
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //2
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //3
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //4
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //5
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //6
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //7
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //8
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //9
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //10
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //11
                     break;
                 }
             case 0xA22:
                 {
+                    //It seems to be used for creating a chain of buttons, so to indicate that if a button gets pressed, none of the other buttons in
+                    //the same chain cannot be interacted with while the game is responding to the user's interaction with the former button.
                     opcode.Name = "SetButtonChain";
+
+                    if (CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset))   //In theory there should be at very least 1 parameter, but for safety mesures this is done
+                    {
+                        do
+                        {
+                            opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //ID of the Button array
+                        } while(CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset));  //Keep looping until there are no more parameters to get
+                    }
                     break;
                 }
             case 0xA23:
@@ -748,14 +871,18 @@ internal class SDT
                     opcode.Name = "ReleaseButton";
                     break;
                 }
+            //Not understood
             case 0xA26:
                 {
                     opcode.Name = "ReleaseButtonAll";
                     break;
                 }
+            //Not understood
             case 0xA27:
                 {
                     opcode.Name = "StopButton";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xA28:
@@ -917,7 +1044,7 @@ internal class SDT
                 }
             case 0xA44:
                 {
-                    //Jumps to a specific label from another Seen file
+                    //Jumps to a specific label from another Seen file, and then go back to the original Seen file once the new Seen has ended to do its thing
                     opcode.Name = "FarCallLabel";
 
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the Seen nummber to jump to
@@ -934,6 +1061,7 @@ internal class SDT
                     opcode.Name = "ReleaseCallStack";
                     break;
                 }
+            //Not understood
             case 0xA47:
                 {
                     opcode.Name = "return";
@@ -949,17 +1077,27 @@ internal class SDT
                 }
             case 0xA49:
                 {
+                    //Jumps to the beginning of a label of a specific Seen file
                     opcode.Name = "JumpLabel";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the Seen nummber to jump to
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the name of the label to jump to
                     break;
                 }
             case 0xA4A:
                 {
+                    //Makes the user wait for a determined amount of miliseconds, but it can be skipped if skip mode is enabled.
                     opcode.Name = "Wait";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //In ms, the amount of time the user will have to wait
                     break;
                 }
             case 0xA4B:
                 {
+                    //Makes the user wait for a determined amount of miliseconds no matter what, even if skip mode is enabled.
                     opcode.Name = "WaitNotSkip";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //In ms, the amount of time the user will have to wait
                     break;
                 }
             case 0xA4C:
@@ -989,6 +1127,7 @@ internal class SDT
                 }
             case 0xA51:
                 {
+                    //Just keeps looping the same opcode over and over again.
                     opcode.Name = "Loop";
                     break;
                 }
@@ -1149,6 +1288,7 @@ internal class SDT
                     opcode.Name = "MacroPriority";
                     break;
                 }
+            //Not understood
             case 0xA71:
                 {
                     opcode.Name = "ReleaseKeyInputall";
@@ -1234,6 +1374,7 @@ internal class SDT
                     opcode.Name = "GetGameEndMode";
                     break;
                 }
+            //Not understood
             case 0xA82:
                 {
                     opcode.Name = "ClearKeyPushDT";
@@ -1244,11 +1385,15 @@ internal class SDT
                     opcode.Name = "StopButtonNoReset";
                     break;
                 }
+            //Not understood
             case 0xA84:
                 {
                     opcode.Name = "ReleaseButtonNoReset";
+                    
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
+            //Not understood
             case 0xA85:
                 {
                     opcode.Name = "ReleaseButtonAllNoReset";
@@ -1276,6 +1421,7 @@ internal class SDT
                     opcode.Name = "InitDI";
                     break;
                 }
+            //Not understood
             case 0xB01:
                 {
                     opcode.Name = "InitDG";
@@ -1322,7 +1468,12 @@ internal class SDT
                 }
             case 0xB09:
                 {
+                    //Sets the value of a given DI, DB or DT flag by doing the following operation: [First value] - [Second value]
                     opcode.Name = "Num - Num";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset)); //Indicates the slot in the corresponding array of flags that will store the result
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the first value of the reduction
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the second value of the reduction
                     break;
                 }
             case 0xB0A:
@@ -1332,7 +1483,12 @@ internal class SDT
                 }
             case 0xB0B:
                 {
+                    //Sets the value of a given DI, DB or DT flag by doing the following operation: [First value] / [Second value]
                     opcode.Name = "Num / Num";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset)); //Indicates the slot in the corresponding array of flags that will store the result
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the first value of the division
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the second value of the division
                     break;
                 }
             case 0xB0C:
@@ -1577,9 +1733,29 @@ internal class SDT
                     opcode.Name = "AniMoveWaitInputNotSkip";
                     break;
                 }
+            //To be understood
             case 0xD17:
                 {
                     opcode.Name = "TextOBJ";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));
                     break;
                 }
             case 0xD18:
@@ -1704,13 +1880,13 @@ internal class SDT
                     opcode.Name = "ObjZoomMode";
                     break;
                 }
-            //A parameter needs confirmation
             case 0xD2E:
                 {
+                    //Modifies the opacity level of an image.
                     opcode.Name = "ObjAlpha";
 
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Get the OBJ ID to work with
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Read as a byte, it determines the opacity level
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //From 0 to 255 (1 byte), indicates the level of opacity the OBJ will have
                     break;
                 }
             case 0xD2F:
@@ -1940,9 +2116,14 @@ internal class SDT
                     opcode.Name = "GetShowOBJ";
                     break;
                 }
+            //Not understood
             case 0xD5B:
                 {
                     opcode.Name = "GetObjSize";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
                     break;
                 }
             case 0xD5C:
@@ -2127,9 +2308,12 @@ internal class SDT
                     opcode.Name = "TxtShadow";
                     break;
                 }
+            //Not understood
             case 0xE1B:
                 {
                     opcode.Name = "SelEXflgparm";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xE1C:
@@ -2224,13 +2408,16 @@ internal class SDT
                 {
                     opcode.Name = "EFObjAlpha";
 
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Get the ID of the OBJ to work with
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Not understood, it seems to be related to the alpha
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //ID of the OBJ to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Not understood, it seems to be related to the alpha
                     break;
                 }
+            //Not verified
             case 0xF01:
                 {
                     opcode.Name = "EFAllAlpha";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xF02:
@@ -2260,12 +2447,34 @@ internal class SDT
                 }
             case 0xF07:
                 {
+                    //Does the same as ObjAlpha, but with the difference that the change of opacity level is done through a
+                    //transition.
                     opcode.Name = "EFSObjAlpha";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //ID of the OBJ to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //In ms, the amount of time that it takes to complete the transition
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //From 0 to 255 (1 byte), indicates the final level of opacity the OBJ will have
                     break;
                 }
+            //To be understood
             case 0xF08:
                 {
-                    opcode.Name = "EJSObjColor";
+                    opcode.Name = "EFSObjColor";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //ID of the OBJ to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //In ms, the amount of time that it takes to complete the transition
+                    
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //short
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //short
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //short
                     break;
                 }
             case 0xF09:
@@ -2300,7 +2509,17 @@ internal class SDT
                 }
             case 0xF0F:
                 {
+                    //Does the same as ObjPosDestOffset, but with an ease-in/ease-out transition.
                     opcode.Name = "EFSObjPosDestOffset";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //ID of the OBJ to work with
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //In ms, the amount of time that it takes to complete the transition.
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Offset to displace the OBJ position (X axis)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Offset to displace the OBJ position (Y axis)
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Easing mode, indicates the speed of the transition (read as a byte)
+                                                                                              //1: ease-out
+                                                                                              //2: ease-in
+                                                                                              //Anything else: lineal
                     break;
                 }
             case 0xF10:
@@ -2363,6 +2582,7 @@ internal class SDT
                     opcode.Name = "StopEffectLS";
                     break;
                 }
+            //Not understood
             case 0xF1C:
                 {
                     opcode.Name = "EffectEnd";
@@ -2688,7 +2908,7 @@ internal class SDT
                 }
             case 0x9:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -2697,7 +2917,7 @@ internal class SDT
                 }
             case 0xA:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -2706,7 +2926,7 @@ internal class SDT
                 }
             case 0xB:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -2798,7 +3018,7 @@ internal class SDT
                 }
             case 0x3:
                 {
-                    uint value = BinaryPrimitives.ReadUInt32LittleEndian(
+                    int value = BinaryPrimitives.ReadInt32LittleEndian(
                         inputFile.AsSpan(currentOffset, 4));
                     currentOffset += 4;
 
@@ -3273,7 +3493,6 @@ internal class SDT
             currentOffset++;
             return false;
         }
-        
     }
 
     /// <summary>
