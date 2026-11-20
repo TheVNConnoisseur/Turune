@@ -516,9 +516,12 @@ internal class SDT
                     opcode.Name = "AudioWait";
                     break;
                 }
+            //Not understood
             case 0x816:
                 {
                     opcode.Name = "AudioWaitNotSkip";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0x817:
@@ -770,6 +773,7 @@ internal class SDT
                     opcode.Name = "KeyInputPush";
                     break;
                 }
+            //Not understood
             case 0xA15:
                 {
                     opcode.Name = "KeyInputPop";
@@ -914,6 +918,7 @@ internal class SDT
                     opcode.Name = "ButtonPush";
                     break;
                 }
+            //Not understood
             case 0xA29:
                 {
                     opcode.Name = "ButtonPop";
@@ -1009,6 +1014,7 @@ internal class SDT
                     opcode.Name = "GetMousePushDT";
                     break;
                 }
+            //Not understood
             case 0xA3C:
                 {
                     opcode.Name = "ClearMousePushDT";
@@ -1021,7 +1027,7 @@ internal class SDT
                     
                     opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire if condition
                     opcode.Parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where this if ends (it should land where the opcode "}" is)
+                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
                     break;
                 }
@@ -1031,7 +1037,7 @@ internal class SDT
                     opcode.Name = "else";  //else{ according to the debug logs
 
                     opcode.Parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where this if ends (it should land where the opcode "}" is)
+                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
 
                     break;
@@ -1039,6 +1045,11 @@ internal class SDT
             case 0xA3F:
                 {
                     opcode.Name = "while";  //while{ according to the debug logs
+
+                    opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire while condition
+                    opcode.Parameters.Add(
+                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the while condition gets broken
+                    currentOffset += 4;
                     break;
                 }
             case 0xA40:
@@ -1547,9 +1558,14 @@ internal class SDT
                     opcode.Parameters.Add(EvaluateArithmeticExpression(inputFile, ref currentOffset));  //Indicates the arithmetic expression that will be calculated
                     break;
                 }
+            //Not understood
             case 0xB11:
                 {
                     opcode.Name = "RAND";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xB12:
