@@ -2972,27 +2972,19 @@ internal class SDT
             StringBuilder sb = new();
 
             //Now it is time to prepare the actual line for the current opcode
-            if (opcode.Name == "}")
-            {
+            if (opcode.Name == "}")         //This opcode is the only exception where there is no parenthesis for parameters
                 sb.Append(opcode.Name);
-            }
-            else if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
-            {
-                sb.Append(opcode.Name + "(");   //First comes the opcode name and its respective parenthesis for the parameters
-                foreach (string parameter in opcode.Parameters) //Now write all of the given paramters with their respective trail commas
-                    sb.Append(parameter + ", ");
-                if (opcode.Parameters.Count >= 1)
-                    sb.Remove(sb.Length - 2, 2);    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
-                sb.Append(')');                     //Close the parenthesis of the parameters
-            }
             else
             {
-                sb.Append(opcode.Name + "(");
-                foreach (string parameter in opcode.Parameters)
+                sb.Append(opcode.Name + "(");                       //First comes the opcode name and its respective parenthesis for the parameters
+                foreach (string parameter in opcode.Parameters)     //Now write all of the given paramters with their respective trail commas
                     sb.Append(parameter + ", ");
                 if (opcode.Parameters.Count >= 1)
-                    sb.Remove(sb.Length - 2, 2);
-                sb.Append(");");                     //Add a comma to the end of the function
+                    sb.Remove(sb.Length - 2, 2);                    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
+                if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
+                    sb.Append(')');                                 //Close the parenthesis of the parameters
+                else
+                    sb.Append(");");                                //Add a comma to the end of the function
             }
 
             //After creating the current line, it is important to add the necessary indentation,
@@ -3016,7 +3008,6 @@ internal class SDT
                 
             sdtLines.Add(sb.ToString());
         }
-
         return sdtLines.ToArray();
     }
 
