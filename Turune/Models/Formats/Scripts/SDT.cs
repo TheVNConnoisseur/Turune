@@ -152,7 +152,11 @@ internal class SDT
             //Save files
             case 0x600:
                 {
+                    //Save the status of all of the global variables onto a save file (located inside the data folder). If the file does not exist,
+                    //it'll be created. Global variables tend to be things like the list of unlocked scenes.
                     opcode.Name = "GlobalSave";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //The name of the save file
                     break;
                 }
             case 0x601:
@@ -537,9 +541,13 @@ internal class SDT
                     opcode.Name = "KoeRepeat";
                     break;
                 }
+            //Not understood
             case 0x81B:
                 {
                     opcode.Name = "CheckAudioPlay";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
                     break;
                 }
             case 0x81C:
@@ -712,7 +720,7 @@ internal class SDT
                         : virtualKeyCode;                              // The value is an indirect reference (DI[...]/DG[...]/DT[...])
                     
 
-                    string destination_SeenNumber = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Seen number that constains the label to jump to
+                    string destination_SeenNumber = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Seen number that contains the label to jump to
 
                     string destination_LabelName = GetStringParameter(inputFile, ref currentOffset, encoding);    //This indicates the name of the label to jump to
 
@@ -726,7 +734,21 @@ internal class SDT
                 }
             case 0xA11:
                 {
+                    //Makes that a specific key press (set through a Virtual-Key code (https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes))
+                    //jump to a specific label. No VK code higher than 0x91 will be considered valid to be used.
                     opcode.Name = "SetKeyInputJumpLabel";
+
+                    string virtualKeyCode = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Virtual-Key code that will activate the call to the label
+                    string virtualKeyCode_Value = byte.TryParse(virtualKeyCode, out byte vkByte)
+                        ? GetVirtualKeyCode_Constant(vkByte)            // The value is a literal, parse it directly
+                        : virtualKeyCode;                              // The value is an indirect reference (DI[...]/DG[...]/DT[...])
+                    
+
+                    string destination_SeenNumber = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Seen number that contains the label to jump to
+
+                    string destination_LabelName = GetStringParameter(inputFile, ref currentOffset, encoding);    //This indicates the name of the label to jump to
+
+                    opcode.Parameters.AddRange(virtualKeyCode_Value, destination_SeenNumber, destination_LabelName);
                     break;
                 }
             case 0xA12:
@@ -742,6 +764,7 @@ internal class SDT
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
+            //Not understood
             case 0xA14:
                 {
                     opcode.Name = "KeyInputPush";
@@ -885,6 +908,7 @@ internal class SDT
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
+            //Not understood
             case 0xA28:
                 {
                     opcode.Name = "ButtonPush";
@@ -1014,7 +1038,7 @@ internal class SDT
                 }
             case 0xA3F:
                 {
-                    opcode.Name = "while{";
+                    opcode.Name = "while";  //while{ according to the debug logs
                     break;
                 }
             case 0xA40:
@@ -1241,9 +1265,12 @@ internal class SDT
                     opcode.Name = "SetAllCountTime";
                     break;
                 }
+            //Not understood
             case 0xA68:
                 {
                     opcode.Name = "MouseHide";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xA69:
@@ -2105,9 +2132,18 @@ internal class SDT
                     opcode.Name = "DISPLock";
                     break;
                 }
+            //Not understood
             case 0xD58:
                 {
                     opcode.Name = "ObjTrans";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xD59:
@@ -2115,9 +2151,13 @@ internal class SDT
                     opcode.Name = "GetObjFileName";
                     break;
                 }
+            //Not understood
             case 0xD5A:
                 {
                     opcode.Name = "GetShowOBJ";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
                     break;
                 }
             //Not understood
@@ -2155,9 +2195,12 @@ internal class SDT
                     opcode.Name = "GetObjRect";
                     break;
                 }
+            //Not understood
             case 0xD61:
                 {
                     opcode.Name = "AllHideReleaseOBJ";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xD62:
@@ -2697,9 +2740,12 @@ internal class SDT
                     opcode.Name = "EFAllAlphaZoomBakB";
                     break;
                 }
+            //Not understood
             case 0xF32:
                 {
                     opcode.Name = "EFAObjAlpha";
+
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));
                     break;
                 }
             case 0xF33:
