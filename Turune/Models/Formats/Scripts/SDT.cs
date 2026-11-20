@@ -36,11 +36,16 @@ internal class SDT
     {
         public string Name { get; set; } = "";
         public List<string> Parameters { get; set; } = [];
-        public uint Offset { get; set; }    //Indicates where the absolute offset opcode starts, which is needed for the parsing of certain opcodes
+        public int Offset { get; set; }    //Indicates where the opcode starts, which is needed for the parsing of certain opcodes
     }
 
     public SDTScheme SdtScheme { get; private set; } = new SDTScheme();
 
+    /// <summary>
+    /// Function that obtains all of the metadata that holds a SDT file.
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="encoding">Indicates in what encoding should all byte arrays that contain a string be parsed with.</param>
     public void ParseSDT(byte[] inputFile, Encoding encoding)
     {
         int currentOffset = 0;
@@ -89,11 +94,19 @@ internal class SDT
             
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="inputFile">The compiled SDT file.</param>
+    /// <param name="currentOffset">The offset where the opcode starts.</param>
+    /// <param name="encoding">Indicates in what encoding should all byte arrays that contain a string be parsed with.</param>
+    /// <remarks>All of the parameters that aren't really necessary to decompiling the SDT file are parsed but not returned.</remarks>
+    /// <returns>A SDT_Opcode object.</returns>
     private SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding)
     {
         SDT_Opcode opcode = new()
         {
-            Offset = (uint)currentOffset
+            Offset = currentOffset
         };
 
         uint currentOpcode = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2));
@@ -106,9 +119,8 @@ internal class SDT
                     //Checks if the game is in debug mode, otherwise it skips the entire if
                     opcode.Name = "DebugIF";       //In the logs it shows up as "DebugIF{"
 
-                    // uint bytesToSkip = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)); //Indicates how many bytes to skip from the SDT file if the game detects that is not in debug mode
+                    uint bytesToSkip = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)); //Indicates how many bytes to skip from the SDT file if the game detects that is not in debug mode
                     currentOffset += 4;
-                    // opcode.Parameters.Add(bytesToSkip.ToString());
 
                     break;
                 }
@@ -746,15 +758,15 @@ internal class SDT
                     //jump to a specific label. No VK code higher than 0x91 will be considered valid to be used.
                     opcode.Name = "SetKeyInputJumpLabel";
 
-                    string virtualKeyCode = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Virtual-Key code that will activate the call to the label
+                    string virtualKeyCode = GetNumericParameter(inputFile, ref currentOffset);                      //This indicates the Virtual-Key code that will activate the call to the label
                     string virtualKeyCode_Value = byte.TryParse(virtualKeyCode, out byte vkByte)
-                        ? GetVirtualKeyCode_Constant(vkByte)            // The value is a literal, parse it directly
-                        : virtualKeyCode;                              // The value is an indirect reference (DI[...]/DG[...]/DT[...])
+                        ? GetVirtualKeyCode_Constant(vkByte)                                                        // The value is a literal, parse it directly
+                        : virtualKeyCode;                                                                           // The value is an indirect reference (DI[...]/DG[...]/DT[...])
                     
 
-                    string destination_SeenNumber = GetNumericParameter(inputFile, ref currentOffset);  //This indicates the Seen number that contains the label to jump to
+                    string destination_SeenNumber = GetNumericParameter(inputFile, ref currentOffset);              //This indicates the Seen number that contains the label to jump to
 
-                    string destination_LabelName = GetStringParameter(inputFile, ref currentOffset, encoding);    //This indicates the name of the label to jump to
+                    string destination_LabelName = GetStringParameter(inputFile, ref currentOffset, encoding);      //This indicates the name of the label to jump to
 
                     opcode.Parameters.AddRange(virtualKeyCode_Value, destination_SeenNumber, destination_LabelName);
                     break;
@@ -1028,32 +1040,28 @@ internal class SDT
             case 0xA3D:
                 {
                     //A simple if statement like in any normal language.
-                    opcode.Name = "if";    //if{ according to the debug logs
+                    opcode.Name = "if";    //'if{' according to the debug logs
                     
                     opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire if condition
-                    // opcode.Parameters.Add(
-                    //     BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
+                    uint jumpOffset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));  //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
                     break;
                 }
             case 0xA3E:
                 {
                     //A simple else statement like in any normal language.
-                    opcode.Name = "else";  //else{ according to the debug logs
+                    opcode.Name = "else";  //'else{' according to the debug logs
 
-                    // opcode.Parameters.Add(
-                    //     BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
+                    uint jumpOffset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));  //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
-
                     break;
                 }
             case 0xA3F:
                 {
-                    opcode.Name = "while";  //while{ according to the debug logs
+                    opcode.Name = "while";  //'while{' according to the debug logs
 
                     opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire while condition
-                    // opcode.Parameters.Add(
-                    //     BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the while condition gets broken
+                    uint jumpOffset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));  //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
                     break;
                 }
@@ -1120,7 +1128,7 @@ internal class SDT
                     //Jumps to the beginning of a label of a specific Seen file
                     opcode.Name = "JumpLabel";
 
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the Seen nummber to jump to
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //Indicates the Seen nummber to jump to
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the name of the label to jump to
                     break;
                 }
@@ -1500,7 +1508,7 @@ internal class SDT
                     //Sets the value of a given DI, DG or DT flag
                     opcode.Name = "[] = Num";
 
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset)); //Indicates the slot in the corresponding array of flags that will store the given value
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));        //Indicates the slot in the corresponding array of flags that will store the given value
                     opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the value to store in the given flag
                     break;
                 }
@@ -1514,9 +1522,9 @@ internal class SDT
                     //Sets the value of a given DI, DB or DT flag by doing the following operation: [First value] - [Second value]
                     opcode.Name = "Num - Num";
 
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset)); //Indicates the slot in the corresponding array of flags that will store the result
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the first value of the reduction
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the second value of the reduction
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));        //Indicates the slot in the corresponding array of flags that will store the result
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the first value of the reduction
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the second value of the reduction
                     break;
                 }
             case 0xB0A:
@@ -1529,9 +1537,9 @@ internal class SDT
                     //Sets the value of a given DI, DB or DT flag by doing the following operation: [First value] / [Second value]
                     opcode.Name = "Num / Num";
 
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset)); //Indicates the slot in the corresponding array of flags that will store the result
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the first value of the division
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Indicates the second value of the division
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));        //Indicates the slot in the corresponding array of flags that will store the result
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the first value of the division
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the second value of the division
                     break;
                 }
             case 0xB0C:
@@ -1603,7 +1611,7 @@ internal class SDT
                     //Sets the value of a given SI, SG or ST flag. The idea is to use this like with "[] = Num", but this is aimed for strings.
                     opcode.Name = "SetStr";
 
-                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));     //Indicates the slot of the corresponding array of flags that will store the given string
+                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));                //Indicates the slot of the corresponding array of flags that will store the given string
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the string to store in the given flag
                     break;
                 }
@@ -1628,15 +1636,15 @@ internal class SDT
                     //it onto a specific flag.
                     opcode.Name = "StrPrintf";
 
-                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));    //Get the flag slot where to store the resulting string
+                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));                //Get the flag slot where to store the resulting string
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Get the initial string
 
-                    if (CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset))   //In theory there should be at very least 1 parameter, but for safety mesures this is done
+                    if (CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset))                   //In theory there should be at very least 1 parameter, but for safety mesures this is done
                     {
                         do
                         {
                             opcode.Parameters.Add(GetVSprintFParameter(inputFile, ref currentOffset, encoding));
-                        } while(CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset));  //Keep looping until there are no more parameters to get
+                        } while(CheckIfMoreStringsAreRemaining(inputFile, ref currentOffset));          //Keep looping until there are no more parameters to get
                     }
                     break;
                 }
@@ -1698,8 +1706,8 @@ internal class SDT
                     //Loads a given image from the data00- folder. The idea is that this is used for static images.
                     opcode.Name = "LoadOBJ";
 
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the place where to store the OBJ
-                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));     //Indicates the name of file to load
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));               //Indicates the place where to store the OBJ
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));      //Indicates the name of file to load
                     break;
                 }
             case 0xD09:
@@ -1751,13 +1759,13 @@ internal class SDT
                     //Loads a given .AM2 image file, and loops it with the given third parameter of this opcode.
                     opcode.Name = "AniMovePlay";
 
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the OBJ ID that is going to be used
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //Indicates the OBJ ID that is going to be used
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the name of the file to load
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset)); //Read as a byte.
-                                                                                              //0: no RECT is created for image, meaning that if there's no object loaded
-                                                                                              //nothing will show up.
-                                                                                              //2: the animation will keep up looping indefinitely
-                                                                                              //Anything else: will play only once at then stay at the first frame.
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //Read as a byte.
+                                                                                                        //0: no RECT is created for image, meaning that if there's no object loaded
+                                                                                                        //nothing will show up.
+                                                                                                        //2: the animation will keep up looping indefinitely
+                                                                                                        //Anything else: will play only once at then stay at the first frame.
                     break;
                 }
             case 0xD12:
@@ -2078,9 +2086,9 @@ internal class SDT
                     //fallback to AniMovePlay, so this is probably just an older way to play animated images.
                     opcode.Name = "LoadOBJAniFrame";
 
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the OBJ ID that is going to store the animated frames
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //Indicates the OBJ ID that is going to store the animated frames
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Indicates the name of the .AM2 file to load
-                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));   //Indicates the starting frame that is going to play out
+                    opcode.Parameters.Add(GetNumericParameter(inputFile, ref currentOffset));           //Indicates the starting frame that is going to play out
                     break;
                 }
             case 0xD4A:
@@ -2920,7 +2928,7 @@ internal class SDT
                     //"if", "else" and "while" terminator statement. If it's for a "while" statement, it loops back to the beginning of the loop.
                     opcode.Name = "}";
                     
-                    // ushort blockType = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2)); //Indicates if the block is an "if", "else" or "while"
+                    ushort blockType = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2)); //Indicates if the block is an "if", "else" or "while"
                     currentOffset += 2;
 
                     // if (blockType == 0xA3F) //"while" block
@@ -2933,13 +2941,13 @@ internal class SDT
                     // {
                     //     opcode.Parameters.Add("if");
                     //     opcode.Parameters.Add(
-                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current line (it's only used for debugging purposes in-game)
+                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current offset (it's only used for debugging purposes in-game)
                     // }
                     // else    //"else" block
                     // {
                     //     opcode.Parameters.Add("else");
                     //     opcode.Parameters.Add(
-                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current line (it's only used for debugging purposes in-game)
+                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current offset (it's only used for debugging purposes in-game)
                     // }
 
                     currentOffset += 4;
@@ -2955,7 +2963,6 @@ internal class SDT
                 }
                 
         }
-    
         return opcode;
     }
 
@@ -2972,7 +2979,7 @@ internal class SDT
             StringBuilder sb = new();
 
             //Now it is time to prepare the actual line for the current opcode
-            if (opcode.Name == "}")         //This opcode is the only exception where there is no parenthesis for parameters
+            if (opcode.Name == "}" || opcode.Name == "else")         //Some standard C functions don't have any parenthesis for parameters
                 sb.Append(opcode.Name);
             else
             {
@@ -3077,7 +3084,6 @@ internal class SDT
             default:
                     throw new InvalidDataException("There's an invalid type of opcode in offset " + (currentOffset - 1));
         }
-
         return parameter;
     }
 
@@ -3232,7 +3238,6 @@ internal class SDT
             default:
                 throw new InvalidDataException("Invalid type of flag in offset " + (currentOffset - 1));
         }
-
         return parameter;
     }
 
@@ -3295,7 +3300,6 @@ internal class SDT
             default:
                 throw new InvalidDataException("Invalid type of flag in offset " + (currentOffset - 1));
         }
-
         return parameter;
     }
 
@@ -3322,7 +3326,7 @@ internal class SDT
             if (operator_ >= 0x1 && operator_ <= 0x6)   //Relational comparison closes this group: (operand_1 <operator> operand_2)
             {
                 string operand_2 = ReadConditionalOperand(inputFile, ref currentOffset);   //Now get the second value, or the nested conditions inside this operand
-                condition = operand_1 + GetRelationalOperator(operator_) + operand_2; //Write the condition
+                condition = operand_1 + ' ' + GetRelationalOperator(operator_) + ' ' +  operand_2; //Write the condition (with empty spaces)
                 closingOperator = inputFile[currentOffset++]; //The actual boundary byte (0/7/8)
             }
             else    //No relational operator attached, so the operand is treated as a standalone boolean

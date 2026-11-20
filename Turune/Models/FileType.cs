@@ -18,9 +18,9 @@ public class FileType()
             MimeTypes = ["image/bmp"]
         };
 
-        public static FilePickerFileType TXT { get; } = new("Text file")
+        public static FilePickerFileType CPP { get; } = new("C++ source file")
         {
-            Patterns = ["*.txt"],
+            Patterns = ["*.cpp"],
             AppleUniformTypeIdentifiers = ["public.text"],
             MimeTypes = ["text/plain"]
         };

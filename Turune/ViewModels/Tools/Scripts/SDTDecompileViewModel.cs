@@ -130,7 +130,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         {
             Title = "Save file",
             DefaultExtension = "txt",
-            FileTypeChoices = [Models.FileType.Common.TXT]
+            FileTypeChoices = [Models.FileType.Common.CPP]
         });
         if (saveFile is null) return;
 
