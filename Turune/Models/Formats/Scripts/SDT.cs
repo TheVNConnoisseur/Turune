@@ -81,7 +81,12 @@ internal class SDT
             currentOffset++;
 
         while (currentOffset < inputFile.Length)
-            SdtScheme.Opcodes.Add(ParseOpcode(inputFile, ref currentOffset, encoding));
+        {
+            SDT_Opcode opcode = ParseOpcode(inputFile, ref currentOffset, encoding);
+            if (opcode.Name != "")
+                SdtScheme.Opcodes.Add(opcode);  //Only add to the SDTScheme if there was an actual opcode captured (unassigned opcodes are skipped by the game)
+        }
+            
     }
     
     private SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding)
@@ -101,9 +106,9 @@ internal class SDT
                     //Checks if the game is in debug mode, otherwise it skips the entire if
                     opcode.Name = "DebugIF";       //In the logs it shows up as "DebugIF{"
 
-                    uint bytesToSkip = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)); //Indicates how many bytes to skip from the SDT file if the game detects that is not in debug mode
+                    // uint bytesToSkip = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)); //Indicates how many bytes to skip from the SDT file if the game detects that is not in debug mode
                     currentOffset += 4;
-                    opcode.Parameters.Add(bytesToSkip.ToString());
+                    // opcode.Parameters.Add(bytesToSkip.ToString());
 
                     break;
                 }
@@ -1026,8 +1031,8 @@ internal class SDT
                     opcode.Name = "if";    //if{ according to the debug logs
                     
                     opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire if condition
-                    opcode.Parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
+                    // opcode.Parameters.Add(
+                    //     BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
                     break;
                 }
@@ -1036,8 +1041,8 @@ internal class SDT
                     //A simple else statement like in any normal language.
                     opcode.Name = "else";  //else{ according to the debug logs
 
-                    opcode.Parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
+                    // opcode.Parameters.Add(
+                    //     BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the condition is not met
                     currentOffset += 4;
 
                     break;
@@ -1047,8 +1052,8 @@ internal class SDT
                     opcode.Name = "while";  //while{ according to the debug logs
 
                     opcode.Parameters.Add(EvaluateCondition(inputFile, ref currentOffset)); //Get the entire while condition
-                    opcode.Parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the while condition gets broken
+                    // opcode.Parameters.Add(
+                    //     BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where to jump if the while condition gets broken
                     currentOffset += 4;
                     break;
                 }
@@ -2912,30 +2917,30 @@ internal class SDT
             
             case 0xFFFE:
                 {   
-                    //"If", "else" and "while" terminator statement. If it's for a "while" statement, it loops back to the beginning of the loop.
+                    //"if", "else" and "while" terminator statement. If it's for a "while" statement, it loops back to the beginning of the loop.
                     opcode.Name = "}";
                     
-                    ushort blockType = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2)); //Indicates if the block is an "if", "else" or "while"
+                    // ushort blockType = BinaryPrimitives.ReadUInt16LittleEndian(inputFile.AsSpan(currentOffset, 2)); //Indicates if the block is an "if", "else" or "while"
                     currentOffset += 2;
 
-                    if (blockType == 0xA3F) //"while" block
-                    {
-                        opcode.Parameters.Add("while");
-                        opcode.Parameters.Add(
-                            BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where this "while" loop starts
-                    }
-                    else if (blockType == 0xA3D)    //"if" block
-                    {
-                        opcode.Parameters.Add("if");
-                        opcode.Parameters.Add(
-                            BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current line (it's only used for debugging purposes in-game)
-                    }
-                    else    //"else" block
-                    {
-                        opcode.Parameters.Add("else");
-                        opcode.Parameters.Add(
-                            BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current line (it's only used for debugging purposes in-game)
-                    }
+                    // if (blockType == 0xA3F) //"while" block
+                    // {
+                    //     opcode.Parameters.Add("while");
+                    //     opcode.Parameters.Add(
+                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the relative offset from the beginning of the opcode region to where this "while" loop starts
+                    // }
+                    // else if (blockType == 0xA3D)    //"if" block
+                    // {
+                    //     opcode.Parameters.Add("if");
+                    //     opcode.Parameters.Add(
+                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current line (it's only used for debugging purposes in-game)
+                    // }
+                    // else    //"else" block
+                    // {
+                    //     opcode.Parameters.Add("else");
+                    //     opcode.Parameters.Add(
+                    //         BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Get the current line (it's only used for debugging purposes in-game)
+                    // }
 
                     currentOffset += 4;
 
@@ -2962,28 +2967,53 @@ internal class SDT
     {
         List<string> sdtLines = [];
         int tabSpacing = 0;  //To make the code more appealing, a tab should be included to make the user know that a function is being called inside another one
-        foreach(var opcode in SdtScheme.Opcodes)    //For each opcode, prepare a StringBuilder for it
+        foreach(var opcode in SdtScheme.Opcodes)
         {
             StringBuilder sb = new();
 
-            // if (opcode.Name == "}") //A closing bracket tab spacing must be reduced before starting the line
-            //     tabSpacing--;
-
-            sb.Insert(0, new string('\t', tabSpacing)); //Add the tab spacing necessary
-            sb.Append(opcode.Name + "(");   //First comes the opcode name and its respective parenthesis for the parameters
-            foreach (string parameter in opcode.Parameters) //Now write all of the given paramters with their respective trail commas
-                sb.Append(parameter + ", ");
-            if (opcode.Parameters.Count >= 1)
-                sb.Remove(sb.Length - 2, 2);    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
-            sb.Append(')');                     //Close the parenthesis of the parameters
-
-            if (opcode.Name == "if" || opcode.Name == "else")
+            //Now it is time to prepare the actual line for the current opcode
+            if (opcode.Name == "}")
             {
-                sb.AppendLine();
+                sb.Append(opcode.Name);
+            }
+            else if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
+            {
+                sb.Append(opcode.Name + "(");   //First comes the opcode name and its respective parenthesis for the parameters
+                foreach (string parameter in opcode.Parameters) //Now write all of the given paramters with their respective trail commas
+                    sb.Append(parameter + ", ");
+                if (opcode.Parameters.Count >= 1)
+                    sb.Remove(sb.Length - 2, 2);    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
+                sb.Append(')');                     //Close the parenthesis of the parameters
+            }
+            else
+            {
+                sb.Append(opcode.Name + "(");
+                foreach (string parameter in opcode.Parameters)
+                    sb.Append(parameter + ", ");
+                if (opcode.Parameters.Count >= 1)
+                    sb.Remove(sb.Length - 2, 2);
+                sb.Append(");");                     //Add a comma to the end of the function
+            }
+
+            //After creating the current line, it is important to add the necessary indentation,
+            //and prepare the value of indentation for the next line
+            if (opcode.Name == "}")
+            {
+                tabSpacing--;
                 sb.Insert(0, new string('\t', tabSpacing));
+            }
+            else if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
+            {
+                sb.Insert(0, new string('\t', tabSpacing));
+                sb.AppendLine();
+
+                sb.Append(new string('\t', tabSpacing));    //Start a new line with the corresponding '{' (the game does not feature this as an opcode)
                 sb.Append('{');
                 tabSpacing++;
             }
+            else
+                sb.Insert(0, new string('\t', tabSpacing));
+                
             sdtLines.Add(sb.ToString());
         }
 
