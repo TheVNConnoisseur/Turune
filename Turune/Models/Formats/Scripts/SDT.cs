@@ -2954,17 +2954,36 @@ internal class SDT
         return opcode;
     }
 
-    public string[] Decompile()
+    /// <summary>
+    /// Export the current SDTScheme to human-readable text.
+    /// </summary>
+    /// <returns>A string array of the resulting text file.</returns>
+    public string[] Export()
     {
         List<string> sdtLines = [];
-        foreach(var opcode in SdtScheme.Opcodes)
+        int tabSpacing = 0;  //To make the code more appealing, a tab should be included to make the user know that a function is being called inside another one
+        foreach(var opcode in SdtScheme.Opcodes)    //For each opcode, prepare a StringBuilder for it
         {
             StringBuilder sb = new();
-            sb.Append(opcode.Name + "(");
-            foreach (string parameter in opcode.Parameters)
+
+            // if (opcode.Name == "}") //A closing bracket tab spacing must be reduced before starting the line
+            //     tabSpacing--;
+
+            sb.Insert(0, new string('\t', tabSpacing)); //Add the tab spacing necessary
+            sb.Append(opcode.Name + "(");   //First comes the opcode name and its respective parenthesis for the parameters
+            foreach (string parameter in opcode.Parameters) //Now write all of the given paramters with their respective trail commas
                 sb.Append(parameter + ", ");
-            // sb.Remove(sb.Length - 2, 2);
-            sb.Append(')');
+            if (opcode.Parameters.Count >= 1)
+                sb.Remove(sb.Length - 2, 2);    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
+            sb.Append(')');                     //Close the parenthesis of the parameters
+
+            if (opcode.Name == "if" || opcode.Name == "else")
+            {
+                sb.AppendLine();
+                sb.Insert(0, new string('\t', tabSpacing));
+                sb.Append('{');
+                tabSpacing++;
+            }
             sdtLines.Add(sb.ToString());
         }
 

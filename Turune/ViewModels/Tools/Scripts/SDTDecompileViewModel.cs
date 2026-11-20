@@ -147,7 +147,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         {
             processingVM.CancellationToken.ThrowIfCancellationRequested();
             processingVM.StatusText = "Writing file to disk...";
-            await _fileIO.WriteLinesAsync(saveFile.Path.LocalPath, sdt.Decompile(), processingVM.CancellationToken);
+            await _fileIO.WriteLinesAsync(saveFile.Path.LocalPath, sdt.Export(), processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;
