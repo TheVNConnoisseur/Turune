@@ -2954,6 +2954,23 @@ internal class SDT
         return opcode;
     }
 
+    public string[] Decompile()
+    {
+        List<string> sdtLines = [];
+        foreach(var opcode in SdtScheme.Opcodes)
+        {
+            StringBuilder sb = new();
+            sb.Append(opcode.Name + "(");
+            foreach (string parameter in opcode.Parameters)
+                sb.Append(parameter + ", ");
+            // sb.Remove(sb.Length - 2, 2);
+            sb.Append(')');
+            sdtLines.Add(sb.ToString());
+        }
+
+        return sdtLines.ToArray();
+    }
+
     /// <summary>
     /// Parse the array of the compiled SDT, in order to obtain an arbitrary string parameter.
     /// </summary>

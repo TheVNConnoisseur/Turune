@@ -17,6 +17,13 @@ public class FileType()
             AppleUniformTypeIdentifiers = ["com.microsoft.bmp"],
             MimeTypes = ["image/bmp"]
         };
+
+        public static FilePickerFileType TXT { get; } = new("Text file")
+        {
+            Patterns = ["*.txt"],
+            AppleUniformTypeIdentifiers = ["public.text"],
+            MimeTypes = ["text/plain"]
+        };
     }
     
     public class Container()

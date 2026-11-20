@@ -24,6 +24,7 @@ public partial class SDTDecompileViewModel : ObservableObject
     }
 
     //SDT elements
+    SDT sdt = new();
     public ObservableCollection<FileItem> FileItems { get; } = [];
     public partial class FileItem : ObservableObject
     {
@@ -82,7 +83,6 @@ public partial class SDTDecompileViewModel : ObservableObject
                 try
                 {
                     byte[] fileData = await _fileIO.ReadBytesAsync(inputFiles[i].Path.LocalPath);
-                    SDT sdt = new();
                     sdt.ParseSDT(fileData, SelectedEncoding.Encoding);
                     FileItems.Add(new FileItem
                     {
@@ -128,7 +128,9 @@ public partial class SDTDecompileViewModel : ObservableObject
     {
         var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save file"
+            Title = "Save file",
+            DefaultExtension = "txt",
+            FileTypeChoices = [Models.FileType.Common.TXT]
         });
         if (saveFile is null) return;
 
@@ -145,7 +147,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         {
             processingVM.CancellationToken.ThrowIfCancellationRequested();
             processingVM.StatusText = "Writing file to disk...";
-            // await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, sdt.Decompile(), processingVM.CancellationToken);
+            await _fileIO.WriteLinesAsync(saveFile.Path.LocalPath, sdt.Decompile(), processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;
