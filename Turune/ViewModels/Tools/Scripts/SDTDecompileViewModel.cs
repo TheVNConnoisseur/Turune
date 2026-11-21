@@ -105,7 +105,11 @@ public partial class SDTDecompileViewModel : ObservableObject
             if (FileItems.Count == 1)
                 FileIOStatus = FileItems.Count + " file loaded.";
             else if (FileItems.Count == 0)
+            {
                 FileIOStatus = "No valid file was selected.";
+                IsReady = false;
+                return;
+            }
             else
                 FileIOStatus = FileItems.Count + " files loaded.";
             
