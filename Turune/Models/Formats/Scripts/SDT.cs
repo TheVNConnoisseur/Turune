@@ -24,8 +24,8 @@ internal class SDT
     /// </summary>
     internal class SDT_Label
     {
-        public string Name { get; set; } = "";
-        public uint Offset { get; set; }
+        public string Name { get; set; } = "";  //Indicates the name of the label itself
+        public uint Offset { get; set; }        //Offset relative to the opcode region where the label itself is located
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ internal class SDT
                 SDT_Label sdt_label = new()
                 {
                     Name = sdt_Name,
-                    Offset = sdt_Offset + SdtScheme.Opcodes_Offset //Making the offset absolute, not relative
+                    Offset = sdt_Offset
                 };
                 currentOffset += 4; //The offset needs to be passed through
                 SdtScheme.SDT_Labels.Add(sdt_label);
@@ -87,11 +87,11 @@ internal class SDT
 
         while (currentOffset < inputFile.Length)
         {
-            SDT_Opcode opcode = ParseOpcode(inputFile, ref currentOffset, encoding);
+            SDT_Opcode opcode = ParseOpcode(inputFile, ref currentOffset, encoding, SdtScheme.SDT_Labels);
+
             if (opcode.Name != "")
                 SdtScheme.Opcodes.Add(opcode);  //Only add to the SDTScheme if there was an actual opcode captured (unassigned opcodes are skipped by the game)
         }
-            
     }
     
     /// <summary>
@@ -102,7 +102,7 @@ internal class SDT
     /// <param name="encoding">Indicates in what encoding should all byte arrays that contain a string be parsed with.</param>
     /// <remarks>All of the parameters that aren't really necessary to decompiling the SDT file are parsed but not returned.</remarks>
     /// <returns>A SDT_Opcode object.</returns>
-    private SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding)
+    private static SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding, List<SDT_Label> sdtLabels)
     {
         SDT_Opcode opcode = new()
         {
@@ -1067,21 +1067,31 @@ internal class SDT
                 }
             case 0xA40:
                 {
+                    //Just the standard C function, it stops the current loop that is being done
                     opcode.Name = "break";
+
+                    uint loggingOffset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));   //Current offset, only used for debugging purposes
+                    currentOffset += 4;
+                    uint breakOffset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));   //When this opcode gets accessed, indicates at what offset relative to the opcodes to jump to
+                    currentOffset += 4;
                     break;
                 }
             case 0xA41:
                 {
+                    //Just the standard C function, skips the current iteration of the loop
                     opcode.Name = "continue";
+
+                    uint continueOffset = BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));   //When this opcode gets accessed, indicates at what offset relative to the opcodes to jump to
+                    currentOffset += 4;
                     break;
                 }
             case 0xA42:
                 {
-                    //Simple GOTO statement, jumps to an arbitrary piece of code.
-                    opcode.Name = "GOTO";
+                    //Simple goto statement, jumps to an arbitrary piece of code.
+                    opcode.Name = "goto";   //'GOTO' in the debug logs
 
-                    opcode.Parameters.Add(
-                        BinaryPrimitives.ReadUInt32LittleEndian(inputFile.AsSpan(currentOffset, 4)).ToString());    //Offset relative to the start of the opcode region, indicating how many bytes to jump from the start of said region.
+                    int labelListOffset = BinaryPrimitives.ReadInt32LittleEndian(inputFile.AsSpan(currentOffset, 4));  //Get the offset relative to the label list where it specifies the offset to jump to (which is relative to the opcode region)
+                    opcode.Parameters.Add(GetNameLabelList(sdtLabels, labelListOffset, encoding));
                     currentOffset += 4;
                     break;
                 }
@@ -2981,6 +2991,8 @@ internal class SDT
             //Now it is time to prepare the actual line for the current opcode
             if (opcode.Name == "}" || opcode.Name == "else")         //Some standard C functions don't have any parenthesis for parameters
                 sb.Append(opcode.Name);
+            else if (opcode.Name == "goto")                         //The standard 'goto' statement includes the name of the label without any space
+                sb.Append(opcode.Name + " " + opcode.Parameters[0] + ";");
             else
             {
                 sb.Append(opcode.Name + "(");                       //First comes the opcode name and its respective parenthesis for the parameters
@@ -3424,7 +3436,7 @@ internal class SDT
         0x6 => "&",
         0x7 => "|",
         0x8 => "^",
-        0x1 => "+",   // only meaningful in the final +/- fold context; see note below
+        0x1 => "+",
         0x2 => "-",
         _ => throw new InvalidDataException("Unknown arithmetic operator: " + operator_),
     };
@@ -3442,7 +3454,7 @@ internal class SDT
         0x4 => ">",
         0x5 => "<=",
         0x6 => ">=",
-        _ => throw new InvalidDataException("Not a relational operator: " + operator_),
+        _ => throw new InvalidDataException("Unknown relational operator: " + operator_),
     };
 
     /// <summary>
@@ -3681,7 +3693,7 @@ internal class SDT
             return true;
         else
         {
-            currentOffset++;
+            currentOffset++;            //Skip the 0xFF byte
             return false;
         }
     }
@@ -3710,5 +3722,35 @@ internal class SDT
             default:
                 throw new InvalidDataException("The given opcode type at offset " + currentOffset + " is invalid.");
         }
+    }
+
+    /// <summary>
+    /// Obtain the name of a desired label in the label list.
+    /// </summary>
+    /// <param name="listLabels">List of labels obtained from the SDT file.</param>
+    /// <param name="desiredOffset">Amount of bytes to cross from the beginning of the label list region to reach the desired label offset.</param>
+    /// <param name="encoding">The encoding used for the string.</param>
+    /// <returns></returns>
+    /// <exception cref="InvalidDataException">A valid offset for a label was not found.</exception>
+    /// <remarks>The original function from the engine what does obtain is the offset of said label to make the proper jump.</remarks> 
+    private static string GetNameLabelList(List<SDT_Label> listLabels, int desiredOffset, Encoding encoding)
+    {
+        int bytesCrossed = 0;                       //Count how many bytes we have crossed from the label list      
+        string labelName = "";
+        foreach (SDT_Label label in listLabels)
+        {
+            bytesCrossed += encoding.GetByteCount(label.Name);
+            bytesCrossed++;                             //Add the null terminator (0xFF)
+            if (desiredOffset == bytesCrossed)
+            {
+                labelName = label.Name;
+                break;
+            }
+            bytesCrossed += 4;                          //Each offset is 4 bytes long
+        }
+        if (labelName != "")
+            return labelName;
+        else
+            throw new InvalidDataException("Label not found that its offset resides at position " + (desiredOffset + 20) + ".");  //We add the initial 20 bytes to make it absolute
     }
 }
