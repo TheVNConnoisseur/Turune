@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ public interface IFileIO
     Task<byte[]> ReadBytesAsync(string path, CancellationToken ct = default);
     Task<string[]> ReadLinesAsync(string path, CancellationToken ct = default);
     Task WriteBytesAsync(string path, byte[] data, CancellationToken ct = default);
-    Task WriteLinesAsync(string path, string[] lines, CancellationToken ct = default);
+    Task WriteLinesAsync(string path, string[] lines, Encoding encoding, CancellationToken ct = default);
     Task<IReadOnlyList<byte[]>> ReadBytesManyAsync(IReadOnlyList<string> paths, CancellationToken ct = default);
 }
 public sealed class FileIO : IFileIO
@@ -24,9 +25,8 @@ public sealed class FileIO : IFileIO
     public Task WriteBytesAsync(string path, byte[] data, CancellationToken ct = default)
         => File.WriteAllBytesAsync(path, data, ct);
 
-    public Task WriteLinesAsync(string path, string[] lines, CancellationToken ct = default)
-        => File.WriteAllLinesAsync(path, lines, ct);
-
+    public Task WriteLinesAsync(string path, string[] lines, Encoding encoding, CancellationToken ct = default)
+        => File.WriteAllLinesAsync(path, lines, encoding, ct);
     public async Task<IReadOnlyList<byte[]>> ReadBytesManyAsync(IReadOnlyList<string> paths, CancellationToken ct = default)
     {
         var result = new List<byte[]>(paths.Count);

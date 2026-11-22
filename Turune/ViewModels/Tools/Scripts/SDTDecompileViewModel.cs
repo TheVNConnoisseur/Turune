@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -24,7 +23,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         _navigation = navigation;
         _encodings = encodings;
 
-        AvailableEncodings = new ObservableCollection<Services.EncodingInfo>(_encodings.AvailableEncodings);
+        AvailableEncodings = new ObservableCollection<EncodingInfo>(_encodings.AvailableEncodings);
         InputEncoding = AvailableEncodings.Count > 0
             ? AvailableEncodings[0]
             : throw new InvalidOperationException("No encodings available for the given environment.");
@@ -47,17 +46,17 @@ public partial class SDTDecompileViewModel : ObservableObject
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
     [ObservableProperty] public partial double Progress { get; set; } = 0;
     private bool HasFileItems() => FileItems.Count > 0;
-    [ObservableProperty] public partial Services.EncodingInfo InputEncoding { get; set; }
-    partial void OnInputEncodingChanged(Services.EncodingInfo value)
+    [ObservableProperty] public partial EncodingInfo InputEncoding { get; set; }
+    partial void OnInputEncodingChanged(EncodingInfo value)
     {
         FileItems.Clear();
         FileIOStatus = "Please select a file.";
         IsReady = false;
     }
-    [ObservableProperty] public partial Services.EncodingInfo ExportEncoding { get; set; }
+    [ObservableProperty] public partial EncodingInfo ExportEncoding { get; set; }
 
     // Instance-level, sourced from IEncodingService at construction time.
-    public ObservableCollection<Services.EncodingInfo> AvailableEncodings { get; }
+    public ObservableCollection<EncodingInfo> AvailableEncodings { get; }
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
@@ -129,59 +128,17 @@ public partial class SDTDecompileViewModel : ObservableObject
         }
         finally
         {
-            DecompileAllCommand.NotifyCanExecuteChanged();
+            DecompileCommand.NotifyCanExecuteChanged();
             IsBusy = false;
         }
     }
 
-    [RelayCommand]
-    private async Task Decompile()
-    {
-        var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
-        {
-            Title = "Save file",
-            DefaultExtension = "txt",
-            FileTypeChoices = [Models.FileType.Common.CPP]
-        });
-        if (saveFile is null) return;
-
-        //Pass the entire process onto an external VM
-        var processingVM = new ProcessingViewModel(_navigation)
-        {
-            Title = "Converting file...",
-            IsIndeterminate = true
-        };
-
-        _navigation.NavigateTo(processingVM);
-
-        try
-        {
-            processingVM.CancellationToken.ThrowIfCancellationRequested();
-            processingVM.StatusText = "Writing file to disk...";
-            await _fileIO.WriteLinesAsync(saveFile.Path.LocalPath, sdt.Export(), processingVM.CancellationToken);
-            
-            processingVM.Progress = 100;
-            processingVM.IsIndeterminate = false;
-            processingVM.StatusText = "Done.";
-            processingVM.State = ProcessingState.Succeeded;
-        }
-        catch (OperationCanceledException)
-        {
-            //Cancelling process handled by ProcessingViewModel.Cancel()
-        }
-        catch (Exception ex)
-        {
-            processingVM.StatusText = ex.Message;
-            processingVM.State = ProcessingState.Failed;
-        }
-    }
-
     [RelayCommand(CanExecute = nameof(HasFileItems))]
-    private async Task DecompileAll()
+    private async Task Decompile()
     {
         var saveFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select the folder to save the files to"
+            Title = "Select the output folder"
         });
         if (saveFolder.Count == 0) return;
 
@@ -201,13 +158,15 @@ public partial class SDTDecompileViewModel : ObservableObject
             //Write all of the loaded files to the selected path
             for (int i = 0; i < FileItems.Count; i++)
             {
-                processingVM.StatusText = "Writing file " + i + " of " + FileItems.Count + " to disk...";
-                string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, FileItems[i].Name);
+                if (FileItems.Count == 1)
+                    processingVM.StatusText = "Writing file to disk...";
+                else
+                    processingVM.StatusText = "Writing file " + i + " of " + FileItems.Count + " to disk...";
+                string saveFilePath = Path.Combine(saveFolder[0].Path.LocalPath, FileItems[i].Name + ".cpp");
 
-                //The images are not loaded in memory, they have to be read and parsed before converting them
                 byte[] inputFile = await _fileIO.ReadBytesAsync(FileItems[i].Path);
-                // sdt.ParseBitmap(inputFile);
-                // await _fileIO.WriteBytesAsync(saveFilePath, sdt.Decompile(), processingVM.CancellationToken);
+                sdt.ParseSDT(inputFile, ExportEncoding.Encoding);
+                await _fileIO.WriteLinesAsync(saveFilePath, sdt.Export(), ExportEncoding.Encoding, processingVM.CancellationToken);
                 processingVM.Progress = (i + 1) / (double)FileItems.Count * 100;
             }
             

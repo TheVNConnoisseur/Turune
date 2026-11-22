@@ -66,7 +66,7 @@
             <Button IsEnabled="{Binding IsReady}" Command="{Binding DecompileCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <PathIcon Data="{StaticResource Bootstrap.Floppy}" Width="16" />
-                    <TextBlock Text="Export all" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock Text="Export" VerticalAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
         </StackPanel>
