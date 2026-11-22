@@ -18,7 +18,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        EncodingService.EnsureProvidersRegistered();
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -31,6 +31,7 @@ public partial class App : Application
             services.AddSingleton<IFileIO, FileIO>();
             services.AddSingleton<NavigationViewModel>();
             services.AddSingleton<IToolViewModelFactory, ToolViewModelFactory>();
+            services.AddSingleton<IEncodingService, EncodingService>();
 
             //Transient ViewModels, no need to keep their state
             services.AddTransient<ViewModels.Tools.Containers.ODNCreateViewModel>();

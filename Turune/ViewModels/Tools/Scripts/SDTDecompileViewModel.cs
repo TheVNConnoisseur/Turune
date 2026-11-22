@@ -15,12 +15,20 @@ public partial class SDTDecompileViewModel : ObservableObject
     private readonly IStorageService _storageService;
     private readonly IFileIO _fileIO;
     private readonly NavigationViewModel _navigation;
+    private readonly IEncodingService _encodings;
 
-    public SDTDecompileViewModel(IStorageService storageService, IFileIO fileIO, NavigationViewModel navigation)
+    public SDTDecompileViewModel(IStorageService storageService, IFileIO fileIO, NavigationViewModel navigation, IEncodingService encodings)
     {
         _storageService = storageService;
         _fileIO = fileIO;
         _navigation = navigation;
+        _encodings = encodings;
+
+        AvailableEncodings = new ObservableCollection<Services.EncodingInfo>(_encodings.AvailableEncodings);
+        InputEncoding = AvailableEncodings.Count > 0
+            ? AvailableEncodings[0]
+            : throw new InvalidOperationException("No encodings available for the given environment.");
+        ExportEncoding = InputEncoding;
     }
 
     //SDT elements
@@ -39,18 +47,17 @@ public partial class SDTDecompileViewModel : ObservableObject
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
     [ObservableProperty] public partial double Progress { get; set; } = 0;
     private bool HasFileItems() => FileItems.Count > 0;
-    [ObservableProperty] public partial EncodingOption SelectedEncoding { get; set; } = AvailableEncodings[0];
-    public record EncodingOption(string DisplayName, Encoding Encoding)
+    [ObservableProperty] public partial Services.EncodingInfo InputEncoding { get; set; }
+    partial void OnInputEncodingChanged(Services.EncodingInfo value)
     {
-        public override string ToString() => DisplayName;
+        FileItems.Clear();
+        FileIOStatus = "Please select a file.";
+        IsReady = false;
     }
-    public static ObservableCollection<EncodingOption> AvailableEncodings { get; } =
-    [
-        new EncodingOption("Shift-JIS", Encoding.GetEncoding("shift_jis")),
-        new EncodingOption("UTF-8", Encoding.UTF8),
-        new EncodingOption("ASCII", Encoding.ASCII),
-        new EncodingOption("UTF-16 LE", Encoding.Unicode)
-    ];
+    [ObservableProperty] public partial Services.EncodingInfo ExportEncoding { get; set; }
+
+    // Instance-level, sourced from IEncodingService at construction time.
+    public ObservableCollection<Services.EncodingInfo> AvailableEncodings { get; }
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
@@ -83,7 +90,7 @@ public partial class SDTDecompileViewModel : ObservableObject
                 try
                 {
                     byte[] fileData = await _fileIO.ReadBytesAsync(inputFiles[i].Path.LocalPath);
-                    sdt.ParseSDT(fileData, SelectedEncoding.Encoding);
+                    sdt.ParseSDT(fileData, InputEncoding.Encoding);
                     FileItems.Add(new FileItem
                     {
                         Name = Path.GetFileNameWithoutExtension(inputFiles[i].Path.LocalPath),
