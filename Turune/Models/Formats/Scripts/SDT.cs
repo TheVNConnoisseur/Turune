@@ -2992,50 +2992,80 @@ internal class SDT
     public string[] Export()
     {
         List<string> sdtLines = [];
-        int tabSpacing = 0;  //To make the code more appealing, a tab should be included to make the user know that a function is being called inside another one
+        int tabSpacing = 1;  //To make the code more appealing, a tab should be included to make the user know that a function is being called inside another one
         foreach(var opcode in SdtScheme.Opcodes)
         {
             StringBuilder sb = new();
 
             //Now it is time to prepare the actual line for the current opcode
-            if (opcode.Name == "}" || opcode.Name == "else")         //Some standard C functions don't have any parenthesis for parameters
-                sb.Append(opcode.Name);
-            else if (opcode.Name == "goto")                         //The standard 'goto' statement includes the name of the label without any space
-                sb.Append(opcode.Name + " " + opcode.Parameters[0] + ";");
-            else if (opcode.Name == "Label")                        //The labels that the 'goto' statements only have their name written (standard C practice)
-                sb.Append(opcode.Parameters[0] + ":");
-            else
+            switch (opcode.Name)
             {
-                sb.Append(opcode.Name + "(");                       //First comes the opcode name and its respective parenthesis for the parameters
-                foreach (string parameter in opcode.Parameters)     //Now write all of the given paramters with their respective trail commas
-                    sb.Append(parameter + ", ");
-                if (opcode.Parameters.Count >= 1)
-                    sb.Remove(sb.Length - 2, 2);                    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
-                if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
-                    sb.Append(')');                                 //Close the parenthesis of the parameters
-                else
-                    sb.Append(");");                                //Add a comma to the end of the function
+                case "}": case "else":                  //Some standard C functions don't have any parenthesis for parameters
+                    {
+                        sb.Append(opcode.Name);
+                        break;
+                    }
+                case "return":                          //Standard C function that has no parenthesis but has an ending comma
+                    {
+                        sb.Append(opcode.Name + ";");
+                        break;
+                    }
+                case "goto":                            //The standard 'goto' statement includes the name of the label without any space
+                    {
+                        sb.Append(opcode.Name + " " + opcode.Parameters[0] + ";");
+                        break;
+                    }
+                case "Label":                           //The labels that the 'goto' statements only have their name written (standard C practice)
+                    {
+                        sb.Append(opcode.Parameters[0] + ":");
+                        break;
+                    }
+                default:
+                    {
+                        sb.Append(opcode.Name + "(");                       //First comes the opcode name and its respective parenthesis for the parameters
+                        foreach (string parameter in opcode.Parameters)     //Now write all of the given paramters with their respective trail commas
+                            sb.Append(parameter + ", ");
+                        if (opcode.Parameters.Count >= 1)
+                            sb.Remove(sb.Length - 2, 2);                    //Remove the empty space and the command of the last parameter, because there aren't going to be anymore
+                        if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
+                            sb.Append(')');                                 //Close the parenthesis of the parameters
+                        else
+                            sb.Append(");");                                //Add a comma to the end of the function
+                        break;
+                    }
             }
 
             //After creating the current line, it is important to add the necessary indentation,
             //and prepare the value of indentation for the next line
-            if (opcode.Name == "}")
+            switch (opcode.Name)
             {
-                tabSpacing--;
-                sb.Insert(0, new string('\t', tabSpacing));
-            }
-            else if (opcode.Name == "if" || opcode.Name == "else" || opcode.Name == "while" || opcode.Name == "DebugIF")
-            {
-                sb.Insert(0, new string('\t', tabSpacing));
-                sb.AppendLine();
+                case "}":
+                    {
+                        tabSpacing--;
+                        sb.Insert(0, new string('\t', tabSpacing));
+                        break;
+                    }
+                case "if": case "else": case "while": case "DebugIF":
+                    {
+                        sb.Insert(0, new string('\t', tabSpacing));
+                        sb.AppendLine();
 
-                sb.Append(new string('\t', tabSpacing));    //Start a new line with the corresponding '{' (the game does not feature this as an opcode)
-                sb.Append('{');
-                tabSpacing++;
+                        sb.Append(new string('\t', tabSpacing));    //Start a new line with the corresponding '{' (the game does not feature this as an opcode)
+                        sb.Append('{');
+                        tabSpacing++;
+                        break;
+                    }
+                case "Label":
+                    {
+                        //Labels don't have any tab spacing, they are a special case
+                        break;
+                    }
+                default:
+                    {
+                        sb.Insert(0, new string('\t', tabSpacing));
+                        break;
+                    }
             }
-            else if (opcode.Name == "Label"){}              //Labels don't have any tab spacing, they are a special case
-            else
-                sb.Insert(0, new string('\t', tabSpacing));
                 
             sdtLines.Add(sb.ToString());
         }
