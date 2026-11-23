@@ -123,12 +123,32 @@ The files to compress, and the characteristics of the ODN file (obtained from th
 ### Output
 A game-ready ODN file.</value>
     </data>
+    <data name="MainMenu_V2_DATInitialization_Description" xml:space="preserve">
+        <value>The initialization file.</value>
+    </data>
+    <data name="MainMenu_V2_DATInitialization_Export_Description" xml:space="preserve">
+        <value>### Description
+Create an INI file with the information contained in a compiled system.dat file.
+
+### Input
+A game-ready compiled system.dat file with the strings parsed in the selected encoding.
+
+### Output
+A human readable INI file in the selected export encoding.</value>
+    </data>
+    <data name="MainMenu_V2_DATInitialization_Import_Description" xml:space="preserve">
+        <value>### Description
+Parses an INI file containing all of the information of a valid system.dat file in order to compile it.
+
+### Input
+An INI file obtained from the *Export* operation for the same types of files.
+
+### Output
+A game-ready file with the strings parsed in the selected encoding.</value>
+    </data>
     <data name="MainMenu_Operations_Export" xml:space="preserve">
         <value>Export</value>
         <comment>Options 3rd column in the main menu</comment>
-    </data>
-    <data name="MainMenu_Operations_Import" xml:space="preserve">
-        <value>Import</value>
     </data>
     <data name="MainMenu_Operations_Extract" xml:space="preserve">
         <value>Extract</value>
@@ -140,9 +160,6 @@ A game-ready ODN file.</value>
         <value>Entries offsets are relative to raw data:</value>
         <comment>Ask if the ODN entries offsets are absolute or relative</comment>
     </data>
-    <data name="ODN_HasIndexDelimiter" xml:space="preserve">
-        <value>Has index delimiter:</value>
-    </data>
     <data name="MainMenu_Operations_Create" xml:space="preserve">
         <value>Create</value>
     </data>
@@ -152,11 +169,14 @@ A game-ready ODN file.</value>
     <data name="CommonTerms_Yes" xml:space="preserve">
         <value>Yes</value>
     </data>
+    <data name="ODN_HasIndexDelimiter" xml:space="preserve">
+        <value>Has index delimiter:</value>
+    </data>
+    <data name="MainMenu_Operations_Import" xml:space="preserve">
+        <value>Import</value>
+    </data>
     <data name="ODN_IsEncrypted" xml:space="preserve">
         <value>Encrypted:</value>
         <comment>Ask if the ODN to create is encrypted or not</comment>
-    </data>
-    <data name="MainMenu_V2_DATInitialization_Description" xml:space="preserve">
-        <value>The initialization file.</value>
     </data>
 </root>

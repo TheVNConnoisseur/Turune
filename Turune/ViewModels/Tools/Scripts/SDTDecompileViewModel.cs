@@ -55,8 +55,6 @@ public partial class SDTDecompileViewModel : ObservableObject
         IsReady = false;
     }
     [ObservableProperty] public partial EncodingInformation ExportEncoding { get; set; }
-
-    // Instance-level, sourced from IEncodingService at construction time.
     public ObservableCollection<EncodingInformation> AvailableEncodings { get; }
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
@@ -167,7 +165,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Converting files...",
+            Title = "Processing...",
             IsIndeterminate = false
         };
 
@@ -199,11 +197,10 @@ public partial class SDTDecompileViewModel : ObservableObject
         {
             //Cancelling process handled by ProcessingViewModel.Cancel()
         }
-        catch (EncoderFallbackException ex)
+        catch (EncoderFallbackException)
         {
             processingVM.StatusText =
-                $"Cannot export to {ExportEncoding.DisplayName}: it can't represent the character '{ex.CharUnknown}' " +
-                $"(U+{(int)ex.CharUnknown:X4}) found in the decompiled text. Try using an Unicode encoding or the original encoding instead.";
+                $"Cannot export to {ExportEncoding.DisplayName}: try using an Unicode encoding or the original encoding instead.";
             processingVM.State = ProcessingState.Failed;
         }
         catch (Exception ex)

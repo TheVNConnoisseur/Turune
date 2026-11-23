@@ -60,8 +60,7 @@
         </GroupBox>
         
         <!-- Navigation buttons -->
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal"
-                    HorizontalAlignment="Center" Spacing="8">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
             <Button IsEnabled="{Binding IsReady}" Command="{Binding ExportCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">

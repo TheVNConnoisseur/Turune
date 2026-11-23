@@ -312,6 +312,38 @@ namespace Turune.Localizations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Create an INI file with the information contained in a compiled system.dat file.
+        ///
+        ///### Input
+        ///A game-ready compiled system.dat file with the strings parsed in the selected encoding.
+        ///
+        ///### Output
+        ///A human readable INI file in the selected export encoding..
+        /// </summary>
+        public static string MainMenu_V2_DATInitialization_Export_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V2_DATInitialization_Export_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Description
+        ///Parses an INI file containing all of the information of a valid system.dat file in order to compile it.
+        ///
+        ///### Input
+        ///An INI file obtained from the *Export* operation for the same types of files.
+        ///
+        ///### Output
+        ///A game-ready file with the strings parsed in the selected encoding..
+        /// </summary>
+        public static string MainMenu_V2_DATInitialization_Import_Description {
+            get {
+                return ResourceManager.GetString("MainMenu_V2_DATInitialization_Import_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ## Supported games
         ///Everything from [Kangokujou ~Ingyaku no Shihai~](https://vndb.org/v20364).
         ///

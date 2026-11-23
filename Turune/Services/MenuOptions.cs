@@ -127,14 +127,14 @@ public static class MenuOptions
             {
                 new MenuOption
                 {
-                    Name = "Export",
-                    Description = "Parse a game-ready system.dat file in order to make it readable.",
+                    Name = Localizations.Resources.MainMenu_Operations_Export,
+                    Description = Localizations.Resources.MainMenu_V2_DATInitialization_Export_Description,
                     ToolKey = "Initialization_DAT_Export"
                 },
                 new MenuOption
                 {
-                    Name = "Import",
-                    Description = "With a previously export system.dat file, generate a game-ready initialization file. It is very important to have the file in Shift-JIS.",
+                    Name = Localizations.Resources.MainMenu_Operations_Import,
+                    Description = Localizations.Resources.MainMenu_V2_DATInitialization_Import_Description,
                     ToolKey = "Initialization_DAT_Import"
                 }
             }

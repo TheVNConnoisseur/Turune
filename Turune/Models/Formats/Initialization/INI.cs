@@ -58,7 +58,7 @@ internal class INI
         IniScheme.VoiceChannels = Convert.ToByte(Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 1)));
         currentOffset++;
 
-        List<List<byte>> characterNamesArray = new List<List<byte>>();
+        List<List<byte>> characterNamesArray = [];
 
         for (int i = 0; i < 3; i++)
             characterNamesArray.Add(new List<byte>());

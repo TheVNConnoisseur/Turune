@@ -293,7 +293,8 @@ internal class DAT
 
     ///<summary>Gets the INI scheme from an original system.dat file.</summary>
     ///<param name="inputFile">Original system.dat file.</param>
-    public void ParsePacked(byte[] inputFile)
+    ///<param name="encoding">Encoding used for parsing the strings.</param>
+    public void ParsePacked(byte[] inputFile, Encoding encoding)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
@@ -540,7 +541,7 @@ internal class DAT
         byte[] encryptedSDTKey = inputFile.AsSpan(currentOffset, 260).ToArray();    //The SDT key is encrypted from the get-go
         int sdtKey_NullIndex = Array.IndexOf(encryptedSDTKey, (byte)0);     //Since it is a string when decrypted, we have to trim out the null bytes in the end (if there are)
         encryptedSDTKey = encryptedSDTKey.AsSpan(0, sdtKey_NullIndex).ToArray();
-        DatScheme.Part1.SDTKey = DecryptSDTKey(encryptedSDTKey, DatScheme.Part1.DATKey);
+        DatScheme.Part1.SDTKey = DecryptSDTKey(encryptedSDTKey, DatScheme.Part1.DATKey, encoding);
         currentOffset += 260;
 
 
@@ -850,26 +851,26 @@ internal class DAT
         //Font
         DatScheme.Part1.FontName = iniReader.Read("Fonts", "Name");
         string color_CharacterName = iniReader.Read("Fonts", "Color_CharacterName").TrimStart('#');
-        DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB = new byte[]
-        {
+        DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB =
+        [
             Convert.ToByte(color_CharacterName.Substring(4, 2), 16), // B
             Convert.ToByte(color_CharacterName.Substring(2, 2), 16), // G
             Convert.ToByte(color_CharacterName.Substring(0, 2), 16)  // R
-        };
+        ];
         string color_MessageText = iniReader.Read("Fonts", "Color_MessageText").TrimStart('#');
-        DatScheme.Part1.MessageWindow_Message_DefaultRGB = new byte[]
-        {
+        DatScheme.Part1.MessageWindow_Message_DefaultRGB =
+        [
             Convert.ToByte(color_MessageText.Substring(4, 2), 16), // B
             Convert.ToByte(color_MessageText.Substring(2, 2), 16), // G
             Convert.ToByte(color_MessageText.Substring(0, 2), 16)  // R
-        };
+        ];
         string color_ChoiceBoxText = iniReader.Read("Fonts", "ChoiceBox_Text_RGB").TrimStart('#');
-        DatScheme.Part3.ChoiceBox_Text_RGB = new byte[]
-        {
+        DatScheme.Part3.ChoiceBox_Text_RGB =
+        [
             Convert.ToByte(color_ChoiceBoxText.Substring(4, 2), 16), //B
             Convert.ToByte(color_ChoiceBoxText.Substring(2, 2), 16), //G
             Convert.ToByte(color_ChoiceBoxText.Substring(0, 2), 16)  //R
-        };
+        ];
         for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
         {
             DatScheme.Part1.Font[i].Height = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "Height"));
@@ -878,13 +879,13 @@ internal class DAT
             DatScheme.Part1.Font[i].DropShadow_HorizontalOffset = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "DropShadow_HorizontalOffset"));
             DatScheme.Part1.Font[i].DropShadow_VerticalOffset = Convert.ToInt32(iniReader.Read($"Fonts_{i}", "DropShadow_VerticalOffset"));
             string color_DropShadow = iniReader.Read($"Fonts_{i}", "DropShadow_RGBA").TrimStart('#');
-            DatScheme.Part1.Font[i].DropShadow_RGBA = new byte[]
-            {
+            DatScheme.Part1.Font[i].DropShadow_RGBA =
+            [
                 Convert.FromHexString(color_DropShadow)[3], //A
                 Convert.FromHexString(color_DropShadow)[2], //B
                 Convert.FromHexString(color_DropShadow)[1], //G
                 Convert.FromHexString(color_DropShadow)[0], //R
-            };
+            ];
         }
 
         //Fonts_CharacterNameCustomColor
@@ -893,22 +894,22 @@ internal class DAT
         {
             iniReader.Read($"Fonts_CharacterNameCustomColor_{i}", "CharacterName");
             string color_CustomCharacterName = iniReader.Read($"Fonts_CharacterNameCustomColor_{i}", "Color").TrimStart('#');
-            DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i] = new byte[]
-            {
+            DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i] =
+            [
             Convert.ToByte(color_CustomCharacterName.Substring(4, 2), 16), // B
             Convert.ToByte(color_CustomCharacterName.Substring(2, 2), 16), // G
             Convert.ToByte(color_CustomCharacterName.Substring(0, 2), 16)  // R
-            };
+            ];
         }
 
         //BackgroundFill
         string color_BackgroundFill = iniReader.Read("BackgroundFill", "Color").TrimStart('#');
-        DatScheme.Part1.BackgroundFill_RGB = new byte[]
-        {
+        DatScheme.Part1.BackgroundFill_RGB =
+        [
             Convert.ToByte(color_BackgroundFill.Substring(4, 2), 16), //B
             Convert.ToByte(color_BackgroundFill.Substring(2, 2), 16), //G
             Convert.ToByte(color_BackgroundFill.Substring(0, 2), 16)  //R
-        };
+        ];
         DatScheme.Part1.BackgroundFill_Opacity = Convert.ToByte(iniReader.Read("BackgroundFill", "Opacity"));
 
         //Fonts_ID
@@ -1176,12 +1177,9 @@ internal class DAT
     }
 
     ///<summary>Create an original system.dat file from the DAT scheme.</summary>
-    public byte[] Generate()
+    public byte[] Generate(Encoding encoding)
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
-
-        List<byte> outputFile = new List<byte>();
+        List<byte> outputFile = [];
 
         ////////////
         // 1st PART
@@ -1193,9 +1191,9 @@ internal class DAT
         outputFile.AddRange(DatScheme.Part1.ExclusiveFullscreen);
         outputFile.AddRange(DatScheme.Part1.LocaleEnglish);
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.WindowTitle, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.WindowTitle, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.DATKey, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.DATKey, 260, encoding));
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.WindowWidth));
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.WindowHeight));
         outputFile.AddRange(DatScheme.Part1.Reserved0);
@@ -1222,46 +1220,46 @@ internal class DAT
 
         //Folder names
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.SDT_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.SDT_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.MG2_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.MG2_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.MAL_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.MAL_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.BGM_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.BGM_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.Voice_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.Voice_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.SE_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.SE_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.AM2_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.AM2_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.Unused_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.Unused_FolderName, 260, encoding));
 
         //Save files
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.SaveData_FolderName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.SaveData_FolderName, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.SaveData_FileName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.SaveData_FileName, 260, encoding));
 
         //Close game process
         outputFile.AddRange(DatScheme.Part1.CloseGame_UseMessageBox);
         outputFile.AddRange(DatScheme.Part1.Reserved1);
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.CloseGame_SeenNumber));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.CloseGame_JumpLabel, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.CloseGame_JumpLabel, 260, encoding));
 
         //Screen mode process
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ScreenMode_ActivateFullScreen_SeenNumber));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.ScreenMode_ActivateFullScreen_JumpLabel, 260, encoding));
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.ScreenMode_ActivateWindowed_SeenNumber));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.ScreenMode_ActivateWindowed_JumpLabel, 260, encoding));
 
         //Fonts
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part1.FontName, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part1.FontName, 260, encoding));
         for (int i = 0; i < DatScheme.Part1.Font.Length; i++)
         {
             outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part1.Font[i].Height));
@@ -1276,7 +1274,7 @@ internal class DAT
         //Message window: color customization
         for (int i = 0; i < DatScheme.Part1.MessageWindow_CustomColorCharName_CharName.Length; i++)
             outputFile.AddRange(
-                    CreateByteArrayFromString(DatScheme.Part1.MessageWindow_CustomColorCharName_CharName[i], 50, shiftJIS));
+                    CreateByteArrayFromString(DatScheme.Part1.MessageWindow_CustomColorCharName_CharName[i], 50, encoding));
         for (int i = 0; i < DatScheme.Part1.MessageWindow_CustomColorCharName_RGB.Length; i++)
             outputFile.AddRange(DatScheme.Part1.MessageWindow_CustomColorCharName_RGB[i]);
         outputFile.AddRange(DatScheme.Part1.MessageWindow_CharacterName_DefaultRGB);
@@ -1314,7 +1312,7 @@ internal class DAT
 
         //SDT key
         outputFile.AddRange(DatScheme.Part1.SDTKey_Shuffler);
-        byte[] sdtkey_Trimmed = EncryptSDTKey(DatScheme.Part1.SDTKey, DatScheme.Part1.DATKey);
+        byte[] sdtkey_Trimmed = EncryptSDTKey(DatScheme.Part1.SDTKey, DatScheme.Part1.DATKey, encoding);
         byte[] sdtKey = new byte[260]; sdtKey.Initialize();
         Buffer.BlockCopy(sdtkey_Trimmed, 0, sdtKey, 0, sdtkey_Trimmed.Length);
         outputFile.AddRange(sdtKey);
@@ -1338,7 +1336,7 @@ internal class DAT
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Width));
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_MessagePart_BackgroundFill_Height));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part2.MessageWindow_MessagePart_Background_ImageFile, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part2.MessageWindow_MessagePart_Background_ImageFile, 260, encoding));
 
         //Message window: character name part
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_FontID));
@@ -1358,7 +1356,7 @@ internal class DAT
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown2));
         outputFile.AddRange(DatScheme.Part2.MessageWindow_CharacterNamePart_Unknown3);
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part2.MessageWindow_CharacterNamePart_Background_ImageFile, 260, encoding));
 
         //Reserved
         outputFile.AddRange(DatScheme.Part2.Reserved2);
@@ -1407,13 +1405,13 @@ internal class DAT
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Image_XMargin));
         outputFile.AddRange(BitConverter.GetBytes(DatScheme.Part3.ChoiceBox_Unknown5));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_NotChosen, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_NotChosen, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_NotChosen_MouseHovered, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_NotChosen_MouseHovered, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_AlreadyChosen, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_AlreadyChosen, 260, encoding));
         outputFile.AddRange(
-            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered, 260, shiftJIS));
+            CreateByteArrayFromString(DatScheme.Part3.ChoiceBox_Image_AlreadyChosen_MouseHovered, 260, encoding));
 
         //Unused
         outputFile.AddRange(DatScheme.Part3.Reserved1);
@@ -1458,13 +1456,11 @@ internal class DAT
     ///<summary>Decrypts the SDT key.</summary>
     ///<param name="encryptedSDTKey">Byte array of the encrypted key.</param>
     ///<param name="datKey">String of the DAT key.</param>
-    private static string DecryptSDTKey(byte[] encryptedSDTKey, string datKey)
+    ///<param name="encoding">Encoding used to write the DAT key.</param>
+    private static string DecryptSDTKey(byte[] encryptedSDTKey, string datKey, Encoding encoding)
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
-
         //Calculate the string lengths of the SDT encrypted key and DAT key
-        int datKey_Length = shiftJIS.GetByteCount(datKey);
+        int datKey_Length = encoding.GetByteCount(datKey);
         int sdtKey_Length = encryptedSDTKey.Length;
 
         //Calculate the first and last byte for the SDT key
@@ -1483,15 +1479,13 @@ internal class DAT
     ///<summary>Encrypts the SDT key.</summary>
     ///<param name="decryptedSDTkey">String of the decrypted key.</param>
     ///<param name="datKey">String of the DAT key.</param>
-    private static byte[] EncryptSDTKey(string decryptedSDTkey, string datKey)
+    ///<param name="encoding">Encoding used to write the DAT key.</param>
+    private static byte[] EncryptSDTKey(string decryptedSDTkey, string datKey, Encoding encoding)
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
-
         byte[] encryptedSDTKey = Encoding.ASCII.GetBytes(decryptedSDTkey);
 
         //Calculate the string lengths of the SDT encrypted key and DAT key
-        int datKey_Length = shiftJIS.GetByteCount(datKey);
+        int datKey_Length = encoding.GetByteCount(datKey);
         int sdtKey_Length = encryptedSDTKey.Length;
 
         //Nibble swap all of the SDT key bytes
