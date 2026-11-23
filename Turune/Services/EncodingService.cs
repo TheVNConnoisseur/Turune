@@ -10,11 +10,11 @@ namespace Turune.Services;
 /// A single named encoding entry in the catalog. It follows the basic structure of the original class (but with the Encoding element added in):
 /// https://learn.microsoft.com/en-us/dotnet/api/system.text.encodinginfo
 /// </summary>
-public sealed record EncodingInfo(string Name, string DisplayName, int CodePage, Encoding Encoding);
+public sealed record EncodingInformation(string Name, string DisplayName, int CodePage, Encoding Encoding);
 
 public interface IEncodingService
 {
-    IReadOnlyList<EncodingInfo> AvailableEncodings { get; }
+    IReadOnlyList<EncodingInformation> AvailableEncodings { get; }
 }
 
 public sealed class EncodingService : IEncodingService
@@ -34,8 +34,8 @@ public sealed class EncodingService : IEncodingService
         }
     }
     
-    public IReadOnlyList<EncodingInfo> AvailableEncodings { get; }
-    private readonly Dictionary<string, EncodingInfo> _byName;
+    public IReadOnlyList<EncodingInformation> AvailableEncodings { get; }
+    private readonly Dictionary<string, EncodingInformation> _byName;
 
     public EncodingService()
     {
@@ -48,9 +48,9 @@ public sealed class EncodingService : IEncodingService
     /// Create a catalog of all available encodings to the user's disposal.
     /// </summary>
     /// <returns>A strict-only list of all available encodings.</returns>
-    private static List<EncodingInfo> BuildCatalog()
+    private static List<EncodingInformation> BuildCatalog()
     {
-        var encodingList = new List<EncodingInfo>();
+        var encodingList = new List<EncodingInformation>();
 
         //Add the encodings that by default .NET returns: https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.getencodings
         foreach (var info in Encoding.GetEncodings())
@@ -66,7 +66,7 @@ public sealed class EncodingService : IEncodingService
                 continue;
             }
 
-            encodingList.Add(new EncodingInfo(info.Name, info.DisplayName, info.CodePage, enc));
+            encodingList.Add(new EncodingInformation(info.Name, info.DisplayName, info.CodePage, enc));
         }
         return encodingList.OrderBy(e => e.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
     }

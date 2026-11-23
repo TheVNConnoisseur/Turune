@@ -9,7 +9,7 @@ namespace Turune.Services;
 public interface IFileIO
 {
     Task<byte[]> ReadBytesAsync(string path, CancellationToken ct = default);
-    Task<string[]> ReadLinesAsync(string path, CancellationToken ct = default);
+    Task<string[]> ReadLinesAsync(string path, Encoding encoding, CancellationToken ct = default);
     Task WriteBytesAsync(string path, byte[] data, CancellationToken ct = default);
     Task WriteLinesAsync(string path, string[] lines, Encoding encoding, CancellationToken ct = default);
     Task<IReadOnlyList<byte[]>> ReadBytesManyAsync(IReadOnlyList<string> paths, CancellationToken ct = default);
@@ -19,7 +19,7 @@ public sealed class FileIO : IFileIO
     public Task<byte[]> ReadBytesAsync(string path, CancellationToken ct = default)
         => File.ReadAllBytesAsync(path, ct);
 
-    public Task<string[]> ReadLinesAsync(string path, CancellationToken ct = default)
+    public Task<string[]> ReadLinesAsync(string path, Encoding encoding, CancellationToken ct = default)
         => File.ReadAllLinesAsync(path, ct);
 
     public Task WriteBytesAsync(string path, byte[] data, CancellationToken ct = default)
