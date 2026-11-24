@@ -9,10 +9,10 @@
     <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,Auto" Margin="20">
         
         <!-- Input folder selection -->
-        <GroupBox VerticalAlignment="Center" Header="Input selection" Margin="20" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="1">
+        <GroupBox VerticalAlignment="Center" Header="Input selection" Margin="20" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1">
             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
                 <!-- Button to select folder with files to compress -->
-                <Button Grid.Row="0" Margin="0,10,0,20" Command="{Binding SelectInputFolderCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Grid.Row="0" Margin="0,10,0,20" Command="{Binding SelectInputCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource Bootstrap.Folder2 open}" Width="16" />
                         <TextBlock Text="Select" VerticalAlignment="Center" TextWrapping="Wrap" />
@@ -81,11 +81,7 @@
         </GroupBox>
 
         <!-- Navigation buttons -->
-        <StackPanel Grid.Row="2"
-            Grid.ColumnSpan="2"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Spacing="8">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
             <Button IsEnabled="{Binding IsReady}" Command="{Binding CreateCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">

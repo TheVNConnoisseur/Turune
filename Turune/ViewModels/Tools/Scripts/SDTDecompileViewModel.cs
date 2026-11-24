@@ -28,7 +28,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         InputEncoding = AvailableEncodings.Count > 0
             ? AvailableEncodings[0]
             : throw new InvalidOperationException("No encodings available for the given environment.");
-        ExportEncoding = InputEncoding;
+        OutputEncoding = InputEncoding;
     }
 
     //SDT elements
@@ -38,7 +38,6 @@ public partial class SDTDecompileViewModel : ObservableObject
     {
         public required string Name { get; set; } = string.Empty;
         public required string Path { get; set; } = string.Empty;
-        [ObservableProperty] public partial bool IsSelected { get; set; } = false;
     }
 
     //Properties screen
@@ -54,7 +53,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         FileIOStatus = "Please select a file.";
         IsReady = false;
     }
-    [ObservableProperty] public partial EncodingInformation ExportEncoding { get; set; }
+    [ObservableProperty] public partial EncodingInformation OutputEncoding { get; set; }
     public ObservableCollection<EncodingInformation> AvailableEncodings { get; }
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
@@ -186,7 +185,7 @@ public partial class SDTDecompileViewModel : ObservableObject
                 byte[] inputFile = await _fileIO.ReadBytesAsync(FileItems[i].Path);
                 sdt = new();
                 sdt.ParseSDT(inputFile, InputEncoding.Encoding);
-                await _fileIO.WriteLinesAsync(exportPaths[i], sdt.Export(), ExportEncoding.Encoding, processingVM.CancellationToken);
+                await _fileIO.WriteLinesAsync(exportPaths[i], sdt.Export(), OutputEncoding.Encoding, processingVM.CancellationToken);
                 processingVM.Progress = (i + 1) / (double)FileItems.Count * 100;
             }
             
@@ -200,7 +199,7 @@ public partial class SDTDecompileViewModel : ObservableObject
         catch (EncoderFallbackException)
         {
             processingVM.StatusText =
-                $"Cannot export to {ExportEncoding.DisplayName}: try using an Unicode encoding or the original encoding instead.";
+                $"Cannot export to {OutputEncoding.DisplayName}: try using an Unicode encoding or the original encoding instead.";
             processingVM.State = ProcessingState.Failed;
         }
         catch (Exception ex)

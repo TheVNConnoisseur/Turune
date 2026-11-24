@@ -9,10 +9,23 @@
     <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,Auto" Margin="20">
 
         <!-- Input file selection -->
-        <GroupBox VerticalAlignment="Center" Header="Input selection" Margin="20" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="1">
+        <GroupBox VerticalAlignment="Center" Header="Input selection" Margin="20" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1">
             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                <!-- ComboBox to select the original encoding -->
+                <Grid Grid.Row="0" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" Margin="20">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,30,0" VerticalAlignment="Center"
+                        Text="Encoding:">
+                        <ToolTip.Tip>
+                            <md:MarkdownScrollViewer Markdown="Indicates the encoding used for parsing all of the strings.
+                            If the encoding selected is not the correct one, the file won't be considered valid."/>
+                        </ToolTip.Tip>
+                    </TextBlock>
+                    <ComboBox Width="300" MaxDropDownHeight="300" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1"
+                        ItemsSource="{Binding AvailableEncodings}" SelectedItem="{Binding InputEncoding}" DisplayMemberBinding="{Binding DisplayName}" />
+                </Grid>
+
                 <!-- Button to select file with files to import -->
-                <Button Grid.Row="0" Margin="0,10,0,20" Command="{Binding SelectInputFileCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Grid.Row="1" Margin="0,10,0,20" Command="{Binding SelectInputFileCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource Bootstrap.Folder2 open}" Width="16" />
                         <TextBlock Text="Select" VerticalAlignment="Center" TextWrapping="Wrap" />
@@ -20,7 +33,7 @@
                 </Button>
                 
                 <!-- Panel that reports the file parsing process -->
-                <Panel Width="250" Grid.Row="1">
+                <Panel Width="250" Grid.Row="2">
                     <ProgressBar IsVisible="{Binding IsBusy}" Minimum="0" Maximum="100" IsIndeterminate="True" Margin="10,0,10,10" />
                     <TextBlock Text="{Binding FileIOStatus}" IsVisible="{Binding !IsBusy}" FontSize="13" TextWrapping="Wrap"
                             HorizontalAlignment="Center" TextAlignment="Center" Margin="10,0,10,10"/>
@@ -29,11 +42,7 @@
         </GroupBox>
 
         <!-- Navigation buttons -->
-        <StackPanel Grid.Row="2"
-            Grid.ColumnSpan="2"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Spacing="8">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
             <Button Content="←  Back" IsEnabled="{Binding !IsBusy}" Command="{Binding GoBackCommand}"/>
             <Button IsEnabled="{Binding IsReady}" Command="{Binding ImportCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">

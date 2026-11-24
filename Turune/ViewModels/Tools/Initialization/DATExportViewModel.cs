@@ -23,12 +23,12 @@ public partial class DATExportViewModel : ObservableObject
         _encodings = encodings;
 
         AvailableEncodings = new ObservableCollection<EncodingInformation>(_encodings.AvailableEncodings);
-        ExportEncoding = AvailableEncodings.Count > 0
+        OutputEncoding = AvailableEncodings.Count > 0
             ? AvailableEncodings[0]
             : throw new InvalidOperationException("No encodings available for the given environment.");
+        InputEncoding = OutputEncoding;
     }
 
-    //DAT elements
     private DAT dat = new();
 
     //Properties screen
@@ -42,7 +42,7 @@ public partial class DATExportViewModel : ObservableObject
         FileIOStatus = "Please select a file.";
         IsReady = false;
     }
-    [ObservableProperty] public partial EncodingInformation ExportEncoding { get; set; }
+    [ObservableProperty] public partial EncodingInformation OutputEncoding { get; set; }
     public ObservableCollection<EncodingInformation> AvailableEncodings { get; }
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
@@ -114,7 +114,7 @@ public partial class DATExportViewModel : ObservableObject
             processingVM.StatusText = "Writing to disk...";
 
             string[] exportFile = dat.Export();
-            await _fileIO.WriteLinesAsync(exportPath.Path.LocalPath, exportFile, ExportEncoding.Encoding, processingVM.CancellationToken);
+            await _fileIO.WriteLinesAsync(exportPath.Path.LocalPath, exportFile, OutputEncoding.Encoding, processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;
@@ -124,7 +124,7 @@ public partial class DATExportViewModel : ObservableObject
         catch (EncoderFallbackException)
         {
             processingVM.StatusText =
-                $"Cannot export to {ExportEncoding.DisplayName}: try using an Unicode encoding or the original encoding instead.";
+                $"Cannot export to {OutputEncoding.DisplayName}: try using an Unicode encoding or the original encoding instead.";
             processingVM.State = ProcessingState.Failed;
         }
         catch (OperationCanceledException)

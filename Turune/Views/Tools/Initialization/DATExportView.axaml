@@ -54,7 +54,7 @@
                     </ToolTip.Tip>
                 </TextBlock>
                 <ComboBox Width="300" MaxDropDownHeight="300" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1"
-                    ItemsSource="{Binding AvailableEncodings}" SelectedItem="{Binding ExportEncoding}" DisplayMemberBinding="{Binding DisplayName}" />
+                    ItemsSource="{Binding AvailableEncodings}" SelectedItem="{Binding OutputEncoding}" DisplayMemberBinding="{Binding DisplayName}" />
             </Grid>
         </GroupBox>
 

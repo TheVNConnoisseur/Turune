@@ -19,8 +19,6 @@ public partial class RAWImportViewModel(
     private readonly IStorageService _storageService = storageService;
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
-
-    //RAW elements
     private RAW raw = new();
     public ObservableCollection<FileItem> FileItems { get; } = [];
     public partial class FileItem : ObservableObject

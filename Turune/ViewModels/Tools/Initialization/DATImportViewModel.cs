@@ -14,7 +14,6 @@ public partial class DATImportViewModel : ObservableObject
     private readonly IFileIO _fileIO;
     private readonly NavigationViewModel _navigation;
     private readonly IEncodingService _encodings;
-
     public DATImportViewModel(IStorageService storageService, IFileIO fileIO, NavigationViewModel navigation, IEncodingService encodings)
     {
         _storageService = storageService;
@@ -27,8 +26,6 @@ public partial class DATImportViewModel : ObservableObject
             ? AvailableEncodings[0]
             : throw new InvalidOperationException("No encodings available for the given environment.");
     }
-
-    //DAT elements
     private DAT dat = new();
 
     //Properties screen

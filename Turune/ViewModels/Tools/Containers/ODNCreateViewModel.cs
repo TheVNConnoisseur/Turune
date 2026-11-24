@@ -1,5 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,35 +19,43 @@ public partial class ODNCreateViewModel(
     private readonly IStorageService _storageService = storageService;
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
+    private ODN odn = new();
+    public ObservableCollection<FileItem> FileItems { get; } = [];
+    public partial class FileItem : ObservableObject
+    {
+        public required string Name { get; set; } = string.Empty;
+        public required byte[] Data { get; set; } = [];
+    }
 
     //ODN properties
     [ObservableProperty] public partial bool IsEncrypted { get; set; }
     [ObservableProperty] public partial bool EntriesOffsetsAreRelativeToRawData { get; set; }
     [ObservableProperty] public partial bool HasDelimiterEntry { get; set; }
 
-    //ODN elements
-    private ODN odn = new();
-    public byte[][] filesData = [];
-    public string[] filesNames = [];
-
     //Properties screen
     [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a folder.";
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
     [ObservableProperty] public partial double Progress { get; set; } = 0;
+    private bool HasFileItems() => FileItems.Count > 0;
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
     [RelayCommand]
-    private async Task SelectInputFolder()
+    private async Task SelectInput()
     {
         try
         {
-            var uncompressedFilesFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            // var inputPath = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            // {
+            //     Title = "Select input folder"
+            // });
+            var inputPath = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title = "Select folder with the files to compress"
+                Title = "Select a compressed image to open",
+                AllowMultiple = true
             });
-            if (uncompressedFilesFolder.Count == 0)
+            if (inputPath.Count == 0)
             {
                 //Only set the sentence of no folder selected in case the user already selected previously accepted files.
                 if (IsReady == false)
@@ -58,25 +67,26 @@ public partial class ODNCreateViewModel(
             Progress = 0;
             IsReady = false;
             
+            FileItems.Clear();
             odn = new ODN();
+            inputPath = inputPath.OrderBy(p => Path.GetFileName(p.Path.LocalPath)).ToList();    //Ensure that it is ordered alphabetically
 
-            //Because of an issue with Linux's IO handling, the way of obtaining the file names is through an FolderPicker
-            List<string> uncompressedFilesPaths = Directory.GetFiles(uncompressedFilesFolder[0].Path.LocalPath).ToList();
-            uncompressedFilesPaths.Sort();  //Ensure that all files are ordered alphabetically, because otherwise the list is ordered at random
-        
-            filesData = new byte[uncompressedFilesPaths.Count][];
-            filesNames = new string[uncompressedFilesPaths.Count];
-
-            for (int i = 0; i < uncompressedFilesPaths.Count; i++)
+            for (int i = 0; i < inputPath.Count; i++)
             {
-                filesData[i] = await _fileIO.ReadBytesAsync(uncompressedFilesPaths[i]);
-                filesNames[i] = Path.GetFileName(uncompressedFilesPaths[i]);
+                FileItems.Add(new FileItem
+                    {
+                        Name = Path.GetFileName(inputPath[i].Path.LocalPath),
+                        Data = await _fileIO.ReadBytesAsync(inputPath[i].Path.LocalPath)
+                    });
 
-                Progress = (i + 1) / (double)uncompressedFilesPaths.Count * 100; //Showcase the progress of reading all of the files in memory
+                Progress = (i + 1) / (double)inputPath.Count * 100; //Showcase the progress of reading all of the files in memory
             }
 
-            odn.ParseUnpacked(filesNames, filesData);
-            FileIOStatus = filesNames.Length + " files parsed correctly.";
+            
+            var fileItems_Names = FileItems.Select(f => f.Name).ToArray();
+            var fileItems_Data = FileItems.Select(f => f.Data).ToArray();
+            odn.ParseUnpacked(fileItems_Names, fileItems_Data);
+            FileIOStatus = FileItems.Count + " files parsed correctly.";
             IsReady = true;
         }
         catch (Exception ex)
@@ -105,7 +115,7 @@ public partial class ODNCreateViewModel(
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Creating ODN file...",
+            Title = "Processing...",
             IsIndeterminate = true
         };
 
@@ -113,12 +123,11 @@ public partial class ODNCreateViewModel(
 
         try
         {
-            processingVM.StatusText = "Building file structure...";
-            processingVM.CancellationToken.ThrowIfCancellationRequested();
-            byte[] exportedFile = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntry);
-
             processingVM.StatusText = "Writing to disk...";
-            await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, exportedFile, processingVM.CancellationToken);
+            processingVM.CancellationToken.ThrowIfCancellationRequested();
+
+            byte[] exportFile = odn.Create(IsEncrypted, EntriesOffsetsAreRelativeToRawData, HasDelimiterEntry);
+            await _fileIO.WriteBytesAsync(saveFile.Path.LocalPath, exportFile, processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;

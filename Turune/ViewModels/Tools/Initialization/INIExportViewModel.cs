@@ -1,4 +1,7 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -7,23 +10,40 @@ using Turune.Models.Formats.Initialization;
 using Turune.Services;
 
 namespace Turune.ViewModels.Tools.Initialization;
-public partial class INIExportViewModel(
-    IStorageService storageService,
-    IFileIO fileIO,
-    NavigationViewModel navigation) : ObservableObject
+public partial class INIExportViewModel : ObservableObject
 {
-    private readonly IStorageService _storageService = storageService;
-    private readonly IFileIO _fileIO = fileIO;
-    private readonly NavigationViewModel _navigation = navigation;
+    private readonly IStorageService _storageService;
+    private readonly IFileIO _fileIO;
+    private readonly NavigationViewModel _navigation;
+    private readonly IEncodingService _encodings;
+    public INIExportViewModel(IStorageService storageService, IFileIO fileIO, NavigationViewModel navigation, IEncodingService encodings)
+    {
+        _storageService = storageService;
+        _fileIO = fileIO;
+        _navigation = navigation;
+        _encodings = encodings;
 
-    //INI elements
+        AvailableEncodings = new ObservableCollection<EncodingInformation>(_encodings.AvailableEncodings);
+        InputEncoding = AvailableEncodings.Count > 0
+            ? AvailableEncodings[0]
+            : throw new InvalidOperationException("No encodings available for the given environment.");
+        OutputEncoding = InputEncoding;
+    }
     private INI ini = new();
-    public byte[] fileData = [];
 
     //Properties screen
     [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
     [ObservableProperty] public partial bool IsReady { get; set; } = false;
     [ObservableProperty] public partial bool IsBusy { get; set; } = false;
+    [ObservableProperty] public partial EncodingInformation InputEncoding { get; set; }
+    partial void OnInputEncodingChanged(EncodingInformation value)
+    {
+        ini = new();
+        FileIOStatus = "Please select a file.";
+        IsReady = false;
+    }
+    [ObservableProperty] public partial EncodingInformation OutputEncoding { get; set; }
+    public ObservableCollection<EncodingInformation> AvailableEncodings { get; }
 
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
@@ -32,13 +52,13 @@ public partial class INIExportViewModel(
     {
         try
         {
-            var inputFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+            var inputPath = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select file to open",
                 FileTypeFilter = [Models.FileType.Initialization.INI_Compiled],
                 SuggestedFileType = Models.FileType.Initialization.INI_Compiled
             });
-            if (inputFile.Count == 0)
+            if (inputPath.Count == 0)
             {
                 //Only set the sentence of no file selected in case the user already selected previously an accepted file.
                 if (IsReady == false)
@@ -50,10 +70,10 @@ public partial class INIExportViewModel(
             IsReady = false;
             
             ini = new INI();
-            fileData = await _fileIO.ReadBytesAsync(inputFile[0].Path.LocalPath);
-            ini.ParsePacked(fileData);
+            byte[] inputFile = await _fileIO.ReadBytesAsync(inputPath[0].Path.LocalPath);
+            ini.ParsePacked(inputFile, InputEncoding.Encoding);
 
-            FileIOStatus = inputFile[0].Name + " parsed correctly.";
+            FileIOStatus = inputPath[0].Name + " parsed correctly.";
             IsReady = true;
         }
         catch (Exception ex)
@@ -71,18 +91,18 @@ public partial class INIExportViewModel(
     [RelayCommand]
     private async Task Export()
     {
-        var saveFile = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
+        var exportPath = await _storageService.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = "Save file",
             DefaultExtension = "ini",
             FileTypeChoices = [Models.FileType.Initialization.INI]
         });
-        if (saveFile is null) return;
+        if (exportPath is null) return;
 
         //Pass the entire process onto an external VM
         var processingVM = new ProcessingViewModel(_navigation)
         {
-            Title = "Exporting file...",
+            Title = "Processing...",
             IsIndeterminate = true
         };
 
@@ -90,12 +110,11 @@ public partial class INIExportViewModel(
 
         try
         {
-            processingVM.StatusText = "Building file structure...";
-            processingVM.CancellationToken.ThrowIfCancellationRequested();
-            string[] exportedFile = ini.Export();
-
             processingVM.StatusText = "Writing to disk...";
-            await _fileIO.WriteLinesAsync(saveFile.Path.LocalPath, exportedFile, processingVM.CancellationToken);
+            processingVM.CancellationToken.ThrowIfCancellationRequested();
+
+            string[] exportFile = ini.Export();
+            await _fileIO.WriteLinesAsync(exportPath.Path.LocalPath, exportFile, OutputEncoding.Encoding, processingVM.CancellationToken);
             
             processingVM.Progress = 100;
             processingVM.IsIndeterminate = false;
@@ -105,6 +124,12 @@ public partial class INIExportViewModel(
         catch (OperationCanceledException)
         {
             //Cancelling process handled by ProcessingViewModel.Cancel()
+        }
+        catch (EncoderFallbackException)
+        {
+            processingVM.StatusText =
+                $"Cannot export to {OutputEncoding.DisplayName}: try using an Unicode encoding or the original encoding instead.";
+            processingVM.State = ProcessingState.Failed;
         }
         catch (Exception ex)
         {

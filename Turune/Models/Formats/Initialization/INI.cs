@@ -20,11 +20,9 @@ internal class INI
 
     ///<summary>Gets the INI scheme from an original system.ini file.</summary>
     ///<param name="inputFile">Original system.ini file.</param>
-    public void ParsePacked(byte[] inputFile)
+    ///<param name="encoding">Encoding used to parse the strings that are not in ASCII.</param>
+    public void ParsePacked(byte[] inputFile, Encoding encoding)
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
-
         int currentOffset = 0;
 
         //Catalog number (or executable name, to be more precise)
@@ -37,7 +35,7 @@ internal class INI
             encryptedCatalogNumber[i] ^= 0xD1;
         currentOffset += (int)lengthCatalogNumber;
 
-        IniScheme.CatalogNumber = shiftJIS.GetString(encryptedCatalogNumber);
+        IniScheme.CatalogNumber = encoding.GetString(encryptedCatalogNumber);
 
         //Window title
         uint windowTitleLength = Convert.ToUInt32(Encoding.ASCII.GetString(inputFile.AsSpan(currentOffset, 4)));
@@ -48,7 +46,7 @@ internal class INI
             encryptedWindowTitle[i] ^= 0xD1;
         currentOffset += (int)windowTitleLength;
 
-        IniScheme.WindowTitle = shiftJIS.GetString(encryptedWindowTitle);
+        IniScheme.WindowTitle = encoding.GetString(encryptedWindowTitle);
 
         //Game resolution
         IniScheme.GameResolution = inputFile[currentOffset];
@@ -75,7 +73,7 @@ internal class INI
         }
 
         for (int i = 0; i < 3; i++)
-            IniScheme.CharacterNames[i] = shiftJIS.GetString(characterNamesArray[i].ToArray()).Replace("\0", "");
+            IniScheme.CharacterNames[i] = encoding.GetString(characterNamesArray[i].ToArray()).Replace("\0", "");
     }
 
     ///<summary>Gets the INI scheme from a normal INI file.</summary>
@@ -121,28 +119,26 @@ internal class INI
     }
 
     ///<summary>Create an original system.ini file from the INIScheme.</summary>
-    public byte[] Generate()
+    ///<param name="encoding">Encoding used to parse the strings that are not in ASCII.</param>
+    public byte[] Generate(Encoding encoding)
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        Encoding shiftJIS = Encoding.GetEncoding("shift-jis");
-
-        List<byte> outputFile = new List<byte>();
+        List<byte> outputFile = [];
 
         //The byte count has to be done in shiftJIS because the title
         //is in Shift-JIS, so it takes into consideration the double-byte
         //characters.
-        string lengthCatalogNumber = shiftJIS.GetByteCount(IniScheme.CatalogNumber).ToString("D4"); 
+        string lengthCatalogNumber = encoding.GetByteCount(IniScheme.CatalogNumber).ToString("D4"); 
         outputFile.AddRange(Encoding.ASCII.GetBytes(lengthCatalogNumber));
 
-        byte[] encryptedCatalogNumber = shiftJIS.GetBytes(IniScheme.CatalogNumber);
+        byte[] encryptedCatalogNumber = encoding.GetBytes(IniScheme.CatalogNumber);
         for (int i = 0; i < encryptedCatalogNumber.Length; i++)
             encryptedCatalogNumber[i] ^= 0xD1;
         outputFile.AddRange(encryptedCatalogNumber);
 
-        string lengthWindowTitle = shiftJIS.GetByteCount(IniScheme.WindowTitle).ToString("D4");
+        string lengthWindowTitle = encoding.GetByteCount(IniScheme.WindowTitle).ToString("D4");
         outputFile.AddRange(Encoding.ASCII.GetBytes(lengthWindowTitle));
 
-        byte[] encryptedWindowTitle = shiftJIS.GetBytes(IniScheme.WindowTitle);
+        byte[] encryptedWindowTitle = encoding.GetBytes(IniScheme.WindowTitle);
         for (int i = 0; i < encryptedWindowTitle.Length; i++)
             encryptedWindowTitle[i] ^= 0xD1;
         outputFile.AddRange(encryptedWindowTitle);
@@ -158,7 +154,7 @@ internal class INI
 
         for (int i = 0; i < 3; i++)
         {
-            byte[] characterName = shiftJIS.GetBytes(IniScheme.CharacterNames[i]);
+            byte[] characterName = encoding.GetBytes(IniScheme.CharacterNames[i]);
             for (int j = 0; j < characterName.Length; j++)
                 characterNames[i + 3 * j] = characterName[j];           //Character names are interleaved in the original system.ini file.
         }

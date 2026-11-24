@@ -24,7 +24,6 @@ public partial class ODNExtractViewModel(
 
     //ODN elements
     private ODN odn = new();
-    public byte[] fileData = [];
 
     //Properties screen
     [ObservableProperty] public partial string? FileIOStatus { get; set; } = "Please select a file.";
@@ -34,17 +33,17 @@ public partial class ODNExtractViewModel(
     [RelayCommand] private void GoBack() => _navigation.GoBack();
 
     [RelayCommand]
-    private async Task SelectInputFile()
+    private async Task SelectInput()
     {
         try
         {
-            var compressedFile = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+            var inputPath = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select ODN file to open",
                 FileTypeFilter = [Models.FileType.Container.ODN],
                 SuggestedFileType = Models.FileType.Container.ODN
             });
-            if (compressedFile.Count == 0)
+            if (inputPath.Count == 0)
             {
                 //Only set the sentence of no file selected in case the user already selected previously an accepted file.
                 if (IsReady == false)
@@ -61,8 +60,8 @@ public partial class ODNExtractViewModel(
             IsReady = false;
             
             odn = new ODN();
-            fileData = await _fileIO.ReadBytesAsync(compressedFile[0].Path.LocalPath);
-            odn.ParsePacked(fileData);
+            byte[] inputFile = await _fileIO.ReadBytesAsync(inputPath[0].Path.LocalPath);
+            odn.ParsePacked(inputFile);
             
             //Parse all of the information from the ODN file
             if (odn.OdnScheme.Properties.IsEncrypted)
@@ -80,7 +79,7 @@ public partial class ODNExtractViewModel(
             else
                 HasDelimiterEntry = Localizations.Resources.CommonTerms_No;
 
-            FileIOStatus = compressedFile[0].Name + " parsed correctly.";
+            FileIOStatus = inputPath[0].Name + " parsed correctly.";
             IsReady = true;
         }
         catch (Exception ex)
@@ -100,7 +99,7 @@ public partial class ODNExtractViewModel(
     {
         var saveFolder = await _storageService.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select the folder to export the files to"
+            Title = "Select the output folder"
         });
         if (saveFolder.Count == 0) return;
 

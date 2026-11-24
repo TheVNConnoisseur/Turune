@@ -18,8 +18,6 @@ public partial class RAWExportViewModel(
     private readonly IStorageService _storageService = storageService;
     private readonly IFileIO _fileIO = fileIO;
     private readonly NavigationViewModel _navigation = navigation;
-
-    //RAW elements
     private RAW raw = new();
     public ObservableCollection<FileItem> FileItems { get; } = [];
     public partial class FileItem : ObservableObject
@@ -44,12 +42,12 @@ public partial class RAWExportViewModel(
     {
         try
         {
-            var compressedFiles = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
+            var inputPath = await _storageService.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select a compressed image to open",
                 AllowMultiple = true
             });
-            if (compressedFiles.Count == 0)
+            if (inputPath.Count == 0)
             {
                 //Only set the sentence of no file selected in case the user already selected previously accepted files.
                 if (IsReady == false)
@@ -63,16 +61,16 @@ public partial class RAWExportViewModel(
             PreviewImage = null;
 
             FileItems.Clear();
-            for (int i = 0; i < compressedFiles.Count; i++)
+            for (int i = 0; i < inputPath.Count; i++)
             {
                 try
                 {
-                    byte[] fileData = await _fileIO.ReadBytesAsync(compressedFiles[i].Path.LocalPath);
+                    byte[] fileData = await _fileIO.ReadBytesAsync(inputPath[i].Path.LocalPath);
                     raw.ParseRAW(fileData);
                     FileItems.Add(new FileItem
                     {
-                        Name = Path.GetFileName(compressedFiles[i].Path.LocalPath),
-                        Path = compressedFiles[i].Path.LocalPath
+                        Name = Path.GetFileName(inputPath[i].Path.LocalPath),
+                        Path = inputPath[i].Path.LocalPath
                     });
                 }
                 catch (InvalidDataException)
@@ -84,7 +82,7 @@ public partial class RAWExportViewModel(
                     continue;
                 }
                 
-                Progress = (i + 1) / (double)compressedFiles.Count * 100; //Showcase the progress of reading all of the files in memory
+                Progress = (i + 1) / (double)inputPath.Count * 100; //Showcase the progress of reading all of the files in memory
             }
 
             if (FileItems.Count == 1)
