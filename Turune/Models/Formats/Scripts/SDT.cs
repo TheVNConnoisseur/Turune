@@ -112,6 +112,7 @@ internal class SDT
     /// <param name="inputFile">The compiled SDT file.</param>
     /// <param name="currentOffset">The offset where the opcode starts.</param>
     /// <param name="encoding">Indicates in what encoding should all byte arrays that contain a string be parsed with.</param>
+    /// <param name="sdtLabels">List of all the labels included currently in the SDT object.</param>
     /// <remarks>All of the parameters that aren't really necessary to decompiling the SDT file are parsed but not returned.</remarks>
     /// <returns>A SDT_Opcode object.</returns>
     private static SDT_Opcode ParseOpcode(byte[] inputFile, ref int currentOffset, Encoding encoding, List<SDT_Label> sdtLabels)
@@ -156,17 +157,29 @@ internal class SDT
                     //Opens a given web page through the default web browser
                     opcode.Name = "OpenUrlFiles";
 
-                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //URL of the page 
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //URL of the page
                     break;
                 }
             case 0x501:
                 {
+                    //Opens a given .txt through the program associated with it in the user's system
                     opcode.Name = "OpenTextFiles";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Name of the text file
                     break;
                 }
             case 0x502:
                 {
-                    opcode.Name = "OpenFoloder";
+                    //Opens a given folder. This is mostly used for the extras menus, where the developers always include extra content like sketches from the sprites, and so on. The engine takes into account
+                    //both types of users, those with the download edition, where the extras are provided within the game's root folder, which is why the game tries to look into the game's base path first.
+                    //For the users who buy the physical edition, the game comes with an installer, but that installer does not copy the extras folder onto the game's installation folder. For this case, the user
+                    //is expected to put the disc drive onto when opening any extras. In order for the game to know which disc drive is the one that contains the game, it tries to find in the root path of
+                    //each drive a file called disc.ini, and it reads the value from a key called "discKey". If this key matches with the one provided in this opcode, it means that the correct drive letter has been found.
+                    opcode.Name = "OpenFolder";    //Called "OpenFoloder" in the debug logs
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));  //Flag to store the result
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Value in the key "discKey" to expect in the disc.ini file
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Base folder name/path to open
                     break;
                 }
             case 0x503:

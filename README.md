@@ -67,7 +67,6 @@ To check out how's the progress in understanding each of file formats available 
 | Windows       | :white_check_mark: | - |
 | Mac           | :grey_question:    | Should work in theory, but it has not been tested. |
 | Linux         | :white_check_mark: | - |
-| WebAssembly   | :x:                | All API calls that expect an entire file system, like `Directories`, are not designed to work with browsers. |
 
 
 ### Deployment
