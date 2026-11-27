@@ -171,20 +171,29 @@ internal class SDT
             case 0x502:
                 {
                     //Opens a given folder. This is mostly used for the extras menus, where the developers always include extra content like sketches from the sprites, and so on. The engine takes into account
-                    //both types of users, those with the download edition, where the extras are provided within the game's root folder, which is why the game tries to look into the game's base path first.
+                    //both types of game editions, those with the download edition, where the extras are provided within the game's root folder, which is why the game tries to look into the game's base path first.
                     //For the users who buy the physical edition, the game comes with an installer, but that installer does not copy the extras folder onto the game's installation folder. For this case, the user
                     //is expected to put the disc drive onto when opening any extras. In order for the game to know which disc drive is the one that contains the game, it tries to find in the root path of
                     //each drive a file called disc.ini, and it reads the value from a key called "discKey". If this key matches with the one provided in this opcode, it means that the correct drive letter has been found.
                     opcode.Name = "OpenFolder";    //Called "OpenFoloder" in the debug logs
 
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));  //Flag to store the result
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag to store the result
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Value in the key "discKey" to expect in the disc.ini file
                     opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Base folder name/path to open
                     break;
                 }
             case 0x503:
                 {
+                    //Opens a given executable. This is mostly used for the extras menus, where in very rare cases they do include extra scenes but in another executable. The engine takes into account
+                    //both types of game editions, those with the download edition, where the extras are provided within the game's root folder, which is why the game tries to look into the game's base path first.
+                    //For the users who buy the physical edition, the game comes with an installer, but that installer does not copy the extras folder onto the game's installation folder. For this case, the user
+                    //is expected to put the disc drive onto when opening any extras. In order for the game to know which disc drive is the one that contains the game, it tries to find in the root path of
+                    //each drive a file called disc.ini, and it reads the value from a key called "discKey". If this key matches with the one provided in this opcode, it means that the correct drive letter has been found.
                     opcode.Name = "OpenEXE";
+
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag to store the result
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Value in the key "discKey" to expect in the disc.ini file
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Base path with the name of the executable to open
                     break;
                 }
             
@@ -201,6 +210,8 @@ internal class SDT
             case 0x601:
                 {
                     opcode.Name = "GlobalLoad";
+
+
                     break;
                 }
             case 0x602:
@@ -225,21 +236,28 @@ internal class SDT
                 }
             case 0x606:
                 {
+                    //All local save files have what the engine calls a "comment", which is simply a description of the current chapter in the game's story.
+                    //This instruction serves to get them and show them during the Load and Save screens.
                     opcode.Name = "GetSaveComment";
+
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Name of the local save file to load
+                    opcode.Parameters.Add(GetFlagSlot_SX(inputFile, ref currentOffset));                //Flag slot to store the save's comment
                     break;
                 }
-            //Parameters yet still to be understood
             case 0x607:
                 {
+                    //A local save includes the date when it was created, follwing the SYSTEMTIME structure (https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime).
+                    //This instruction is in charge of parsing a given local save and store the most relevant parameters of the obtained SYSTEMTIME for later us. It is used only to tell the user
+                    //when the save was created, not much else.
                     opcode.Name = "GetSaveTime";
 
-                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
-                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));
+                    opcode.Parameters.Add(GetStringParameter(inputFile, ref currentOffset, encoding));  //Name of the local save file to load
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag slot to store wYear
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag slot to store wMonth
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag slot to store wDay
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag slot to store wHour
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag slot to store wMinute
+                    opcode.Parameters.Add(GetFlagSlot_DX(inputFile, ref currentOffset));                //Flag slot to store wSecond
                     break;
                 }
             //Cannot confirm its parameters
